@@ -1,3 +1,4 @@
+
 <div class="w-64 bg-white shadow-lg border-r border-gray-200 flex flex-col h-full rounded-md">
     <!-- Header/Logo Section -->
     <div class="p-6 border-b border-gray-200">
@@ -32,6 +33,48 @@
             </svg>
             <span>Customers</span>
         </a>
+
+        <!-- Items (Expandable) -->
+        <div class="space-y-1">
+            <!-- Items Main Button -->
+            <button 
+                wire:click="toggleItems" 
+                class="w-full flex items-center justify-between px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors duration-200"
+            >
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                    <span>Items</span>
+                </div>
+                <!-- Chevron Icon -->
+                <svg class="w-4 h-4 transition-transform duration-200 {{ $isItemsOpen ? 'rotate-180' : '' }}" 
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+
+            <!-- Items Submenu -->
+            @if($isItemsOpen)
+                <div class="ml-4 space-y-1 transition-all duration-200 ease-in-out">
+                    <!-- Inventory -->
+                    <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors duration-200 border-l-2 border-gray-200">
+                        <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                        </svg>
+                        <span>Inventory</span>
+                    </a>
+
+                    <!-- Warehouse -->
+                    <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors duration-200 border-l-2 border-gray-200">
+                        <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                        <span>Warehouse</span>
+                    </a>
+                </div>
+            @endif
+        </div>
 
         <!-- Invoices -->
         <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors duration-200">
