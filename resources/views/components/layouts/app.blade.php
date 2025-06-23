@@ -11,7 +11,9 @@
         <div class="p-2 bg-gray-200 h-screen">
            <div class="bg-gray-200 h-[98vh] flex gap-2">
              <livewire:components.sidebar />
-                {{ $slot }}
+                <div class="bg-white h-full rounded-lg shadow overflow-y-auto flex-1">
+                    {{ $slot }}
+                </div>
            </div>
         </div>
     </body>

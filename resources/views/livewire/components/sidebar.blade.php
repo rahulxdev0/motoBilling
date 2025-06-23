@@ -18,7 +18,7 @@
     <!-- Navigation Menu -->
     <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
         <!-- Dashboard -->
-        <a href="#" class="flex items-center px-4 py-3 text-gray-700 bg-teal-50 border-r-4 border-teal-500 rounded-l-lg hover:bg-teal-100 transition-colors duration-200">
+        <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-3 text-gray-700 bg-teal-50 border-r-4 border-teal-500 rounded-l-lg hover:bg-teal-100 transition-colors duration-200">
             <svg class="w-5 h-5 mr-3 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v14l-5-3-5 3V5z"></path>
@@ -58,7 +58,7 @@
             @if($isItemsOpen)
                 <div class="ml-4 space-y-1 transition-all duration-200 ease-in-out">
                     <!-- Inventory -->
-                    <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors duration-200 border-l-2 border-gray-200">
+                    <a href="{{ route('items.manage') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors duration-200 border-l-2 border-gray-200">
                         <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
                         </svg>
