@@ -16,13 +16,15 @@ return new class extends Migration {
             $table->string('item_code')->unique();
             $table->string('sku')->unique(); 
             $table->text('description')->nullable();
+            $table->string('brand')->nullable();
             $table->foreignId('category_id')->constrained();
             $table->foreignId('partie_id')->constrained();
+            $table->string('model_compatibility')->nullable();
             $table->decimal('purchase_price', 10, 2); // Cost price
             $table->decimal('selling_price', 10, 2);
             $table->integer('stock_quantity')->default(0);
-            $table->integer('min_stock_threshold')->default(5);
             $table->string('unit')->default('pcs');
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
     }
