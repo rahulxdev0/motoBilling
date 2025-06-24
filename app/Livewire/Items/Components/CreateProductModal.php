@@ -1,0 +1,171 @@
+<?php
+
+namespace App\Livewire\Items\Components;
+
+use App\Models\Product;
+use App\Models\Category;
+use App\Models\Partie;
+use Livewire\Component;
+use Livewire\Attributes\On;
+
+class CreateProductModal extends Component
+{
+    public $showModal = false;
+    
+    // Form fields
+    public $name = '';
+    public $item_code = '';
+    public $sku = '';
+    public $description = '';
+    public $brand = '';
+    public $category_id = '';
+    public $partie_id = 1; // Set default to 1
+    public $model_compatibility = '';
+    public $purchase_price = '';
+    public $selling_price = '';
+    public $mrp = '';
+    public $stock_quantity = 0;
+    public $unit = 'pcs';
+    public $status = 'active';
+
+    public $categories = [];
+    public $parties = [];
+
+    protected function rules()
+    {
+        return [
+            'name' => 'required|min:3|max:255',
+            'item_code' => 'required|unique:products,item_code|max:100',
+            'sku' => 'required|unique:products,sku|max:100',
+            'description' => 'nullable|string',
+            'brand' => 'nullable|string|max:100',
+            'category_id' => 'required|exists:categories,id',
+            'partie_id' => 'required|integer|min:1',
+            'model_compatibility' => 'nullable|string|max:255',
+            'purchase_price' => 'required|numeric|min:0',
+            'selling_price' => 'required|numeric|min:0',
+            'mrp' => 'nullable|numeric|min:0|gte:selling_price',
+            'stock_quantity' => 'required|integer|min:0',
+            'unit' => 'required|string|max:20',
+            'status' => 'required|in:active,inactive',
+        ];
+    }
+
+    public function mount()
+    {
+        $this->loadData();
+    }
+
+    public function loadData()
+    {
+        $this->categories = Category::orderBy('name')->get();
+        // For now, we'll create a simple parties array
+        $this->parties = collect([
+            (object)['id' => 1, 'name' => 'Default Supplier']
+        ]);
+    }
+
+    #[On('open-product-modal')]
+    public function openModal()
+    {
+        $this->resetForm();
+        $this->resetValidation();
+        $this->loadData();
+        $this->showModal = true;
+    }
+
+    public function closeModal()
+    {
+        $this->showModal = false;
+        $this->resetForm();
+        $this->resetValidation();
+    }
+
+    public function resetForm()
+    {
+        $this->name = '';
+        $this->item_code = '';
+        $this->sku = '';
+        $this->description = '';
+        $this->brand = '';
+        $this->category_id = '';
+        $this->partie_id = 1;
+        $this->model_compatibility = '';
+        $this->purchase_price = '';
+        $this->selling_price = '';
+        $this->mrp = '';
+        $this->stock_quantity = 0;
+        $this->unit = 'pcs';
+        $this->status = 'active';
+    }
+
+    public function save()
+    {
+        $this->validate();
+
+        try {
+            Product::create([
+                'name' => $this->name,
+                'item_code' => $this->item_code,
+                'sku' => $this->sku,
+                'description' => $this->description,
+                'brand' => $this->brand,
+                'category_id' => $this->category_id,
+                'model_compatibility' => $this->model_compatibility,
+                'purchase_price' => $this->purchase_price,
+                'selling_price' => $this->selling_price,
+                'mrp' => $this->mrp,
+                'stock_quantity' => $this->stock_quantity,
+                'unit' => $this->unit,
+                'status' => $this->status,
+            ]);
+
+            session()->flash('message', 'Product created successfully!');
+            $this->closeModal();
+            $this->dispatch('product-created');
+            
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error creating product: ' . $e->getMessage());
+        }
+    }
+
+    public function generateSku()
+    {
+        if ($this->category_id && $this->name) {
+            $category = Category::find($this->category_id);
+            $categoryCode = strtoupper(substr($category->name ?? 'GEN', 0, 3));
+            $productCode = strtoupper(substr(str_replace(' ', '', $this->name), 0, 3));
+            $random = str_pad(mt_rand(1, 999), 3, '0', STR_PAD_LEFT);
+            $this->sku = $categoryCode . $productCode . $random;
+        }
+    }
+
+    public function updatedName()
+    {
+        if ($this->name) {
+            $this->item_code = strtoupper(str_replace(' ', '_', $this->name)) . '_' . time();
+        }
+    }
+
+    public function updatedCategoryId()
+    {
+        $this->generateSku();
+    }
+
+    public function getUnitsProperty()
+    {
+        return [
+            'pcs' => 'Pieces',
+            'kg' => 'Kilograms',
+            'ltr' => 'Liters',
+            'mtr' => 'Meters',
+            'box' => 'Box',
+            'set' => 'Set'
+        ];
+    }
+
+    public function render()
+    {
+        return view('livewire.items.components.create-product-modal');
+    }
+}

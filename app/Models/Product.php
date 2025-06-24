@@ -20,12 +20,14 @@ class Product extends Model
         'selling_price',
         'stock_quantity',
         'unit',
+        'mrp',
         'status',
     ];
 
     protected $casts = [
         'purchase_price' => 'decimal:2',
         'selling_price' => 'decimal:2',
+        'mrp' => 'decimal:2',
         'stock_quantity' => 'integer',
     ];
 

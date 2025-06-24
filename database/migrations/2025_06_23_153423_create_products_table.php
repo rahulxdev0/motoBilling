@@ -18,10 +18,10 @@ return new class extends Migration {
             $table->text('description')->nullable();
             $table->string('brand')->nullable();
             $table->foreignId('category_id')->constrained();
-            $table->foreignId('partie_id')->constrained();
             $table->string('model_compatibility')->nullable();
             $table->decimal('purchase_price', 10, 2); // Cost price
             $table->decimal('selling_price', 10, 2);
+            $table->decimal('mrp', 10, 2)->nullable();
             $table->integer('stock_quantity')->default(0);
             $table->string('unit')->default('pcs');
             $table->enum('status', ['active', 'inactive'])->default('active');

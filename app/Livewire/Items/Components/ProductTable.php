@@ -6,25 +6,15 @@ use Livewire\Component;
 
 class ProductTable extends Component
 {
-    public $products = [];
+    public $products;
     public $sortBy = 'name';
     public $sortDirection = 'asc';
 
-    protected $listeners = [
-        'updateProducts' => 'updateProducts',
-        'sortProducts' => 'sortProducts'
-    ];
-
-    public function mount($products = [], $sortBy = 'name', $sortDirection = 'asc')
+    public function mount($products, $sortBy = 'name', $sortDirection = 'asc')
     {
         $this->products = $products;
         $this->sortBy = $sortBy;
         $this->sortDirection = $sortDirection;
-    }
-
-    public function updateProducts($products)
-    {
-        $this->products = $products;
     }
 
     public function sortProducts($column)
@@ -55,8 +45,9 @@ class ProductTable extends Component
 
     public function createItem()
     {
-        $this->dispatch('create-item');
+        $this->dispatch('open-product-modal');
     }
+
     public function render()
     {
         return view('livewire.items.components.product-table');
