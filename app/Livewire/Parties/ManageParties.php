@@ -56,10 +56,24 @@ class ManageParties extends Component
         $this->resetPage();
     }
 
+    public function handleCreateParty(): void
+    {
+        // Dispatch event to open create party modal
+        $this->dispatch('open-create-party-modal');
+    }
+
+    public function editParty(int $partyId): void
+    {
+        // Dispatch event to open edit party modal
+        $this->dispatch('open-edit-party-modal', partyId: $partyId);
+    }
+
     public function toggleStatus(int $partyId): void
     {
         $party = Partie::findOrFail($partyId);
         $party->update(['is_active' => !$party->is_active]);
+        
+        session()->flash('success', 'Party status updated successfully!');
         
         $this->dispatch('party-updated', [
             'message' => 'Party status updated successfully!'
@@ -70,9 +84,17 @@ class ManageParties extends Component
     {
         Partie::findOrFail($partyId)->delete();
         
+        session()->flash('success', 'Party deleted successfully!');
+        
         $this->dispatch('party-deleted', [
             'message' => 'Party deleted successfully!'
         ]);
+    }
+
+    public function exportPdf(): void
+    {
+        // Handle PDF export functionality
+        $this->dispatch('export-parties-pdf');
     }
 
     public function getPartiesProperty()
@@ -91,6 +113,7 @@ class ManageParties extends Component
             'total' => Partie::count(),
             'active' => Partie::where('is_active', true)->count(),
             'inactive' => Partie::where('is_active', false)->count(),
+            'gst_registered' => Partie::whereNotNull('gstin')->count(),
         ];
     }
 
