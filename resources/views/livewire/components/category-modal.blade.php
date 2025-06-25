@@ -12,7 +12,7 @@
             <div class="flex items-center justify-between p-6 border-b border-gray-100">
                 <div class="flex items-center space-x-3">
                     <!-- Category Icon -->
-                    <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                    <div class="flex-shrink-0 w-10 h-10 bg-[#153B50] rounded-xl flex items-center justify-center">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                   d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
@@ -106,7 +106,7 @@
                         <button type="submit"
                             wire:loading.attr="disabled"
                             wire:target="addCategory"
-                            class="px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed">
+                            class="px-6 py-2.5 text-sm font-medium text-white bg-[#153B50]  rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 shadow-lg shadow-[#153B50]/25 hover:shadow-md hover:shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed">
                             <span class="flex items-center space-x-2">
                                 <!-- Loading Spinner -->
                                 <svg wire:loading wire:target="addCategory" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">

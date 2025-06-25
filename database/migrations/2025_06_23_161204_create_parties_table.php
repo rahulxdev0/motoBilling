@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('parties', function (Blueprint $table) {
             $table->id();
-            $table->enum('type', ['customer', 'supplier'])->default('customer');
             $table->string('name');
             $table->string('email')->nullable()->unique();
             $table->string('phone');
