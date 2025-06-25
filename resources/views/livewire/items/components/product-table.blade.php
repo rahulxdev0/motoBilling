@@ -186,14 +186,14 @@
                                 <p class="text-gray-500 mb-4">Get started by creating your first item.</p>
                                 <button 
                                     wire:click="createItem"
-                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
+                                    class="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
                                 >
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                     </svg>
                                     <span>Create First Item</span>
                                 </button>
-                            </div>
+                            </div>  
                         </td>
                     </tr>
                 @endforelse
