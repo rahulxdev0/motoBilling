@@ -36,6 +36,7 @@ class CreateInvoice extends Component
     // Collections
     public $parties;
     public $products;
+    public $cash_sale_customer;
 
     // Search properties
     public $search_product = '';
@@ -47,6 +48,21 @@ class CreateInvoice extends Component
         $this->products = Product::where('status', 'active')->get();
         $this->filtered_products = $this->products->toArray();
 
+        // Find or create cash sale customer
+        $this->cash_sale_customer = Partie::firstOrCreate(
+            ['name' => 'Cash Sale Customer'],
+            [
+                'name' => 'Cash Sale Customer',
+                'email' => null,
+                'phone' => '0000000000',
+                'address' => 'Walk-in Customer',
+                'contact_person' => 'Cash Sale',
+                'gstin' => null,
+                'pan' => null,
+                'is_active' => true,
+            ]
+        );
+
         // Generate invoice number
         $this->invoice_number = $this->generateInvoiceNumber();
 
@@ -56,6 +72,34 @@ class CreateInvoice extends Component
 
         // Add initial empty row
         $this->addInvoiceItem();
+    }
+
+    // Method to check if current selection is cash sale
+    public function isCashSale()
+    {
+        return $this->partie_id == $this->cash_sale_customer->id;
+    }
+
+    // Handle customer selection changes
+    public function updatedPartieId()
+    {
+        if ($this->isCashSale()) {
+            // For cash sales, set due date to same as invoice date
+            $this->due_date = $this->invoice_date;
+            $this->payment_terms = 'Cash Payment';
+        } else {
+            // For credit sales, set due date to 30 days from invoice date
+            $this->due_date = now()->parse($this->invoice_date)->addDays(30)->format('Y-m-d');
+            $this->payment_terms = '';
+        }
+    }
+
+    // Update invoice date method to handle cash sales
+    public function updatedInvoiceDate()
+    {
+        if ($this->isCashSale()) {
+            $this->due_date = $this->invoice_date;
+        }
     }
 
     private function generateInvoiceNumber()
@@ -201,6 +245,7 @@ class CreateInvoice extends Component
         ]);
 
         $this->status = $action === 'save_and_send' ? 'sent' : 'draft';
+        $isCashSale = $this->isCashSale();
 
         // Generate a new invoice number just before saving to avoid duplicates
         $this->invoice_number = $this->generateInvoiceNumber();
@@ -211,7 +256,7 @@ class CreateInvoice extends Component
                 'invoice_number' => $this->invoice_number,
                 'partie_id' => $this->partie_id,
                 'invoice_date' => $this->invoice_date,
-                'due_date' => $this->due_date,
+                'due_date' => $isCashSale ? $this->invoice_date : $this->due_date,
                 'subtotal' => $this->subtotal,
                 'discount_percentage' => $this->discount_percentage,
                 'discount_amount' => $this->discount_amount,
@@ -219,8 +264,10 @@ class CreateInvoice extends Component
                 'tax_amount' => $this->tax_amount,
                 'round_off' => $this->round_off,
                 'total' => $this->total,
-                'balance_amount' => $this->total,
-                'payment_terms' => $this->payment_terms,
+                'paid_amount' => $isCashSale ? $this->total : 0,
+                'balance_amount' => $isCashSale ? 0 : $this->total,
+                'payment_status' => $isCashSale ? 'paid' : 'unpaid',
+                'payment_terms' => $isCashSale ? 'Cash Payment' : $this->payment_terms,
                 'terms_conditions' => $this->terms_conditions,
                 'notes' => $this->notes,
                 'status' => $this->status,
@@ -248,16 +295,18 @@ class CreateInvoice extends Component
                             'quantity' => -$item['quantity'],
                             'movement_type' => 'invoice',
                             'invoice_id' => $invoice->id,
-                            'notes' => 'Stock reduced for invoice: ' . $this->invoice_number,
+                            'notes' => 'Stock reduced for invoice: ' . $this->invoice_number . ($isCashSale ? ' (Cash Sale)' : ''),
                         ]);
                     }
                 }
             }
 
-            session()->flash('message', 'Invoice created successfully!');
+            $message = $isCashSale ? 'Cash sale completed successfully!' : 'Invoice created successfully!';
+            session()->flash('message', $message);
 
             if ($action === 'save_and_send') {
-                session()->flash('message', 'Invoice created and sent successfully!');
+                $message = $isCashSale ? 'Cash sale completed and receipt generated!' : 'Invoice created and sent successfully!';
+                session()->flash('message', $message);
             }
 
             return redirect()->route('invoice.manage');
