@@ -19,7 +19,7 @@ class CreatePatie extends Component
     #[Validate('required|string|max:20')]
     public string $phone = '';
 
-    #[Validate('required|string')]
+    #[Validate('string')]
     public string $address = '';
 
     #[Validate('nullable|string|max:255')]

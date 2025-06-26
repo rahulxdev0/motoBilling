@@ -109,16 +109,19 @@ class CreateInvoice extends Component
         if ($field === 'product_id') {
             $product = Product::find($value);
             if ($product) {
-                $this->invoice_items[$index]['unit_price'] = $product->selling_price;
+                $this->invoice_items[$index]['unit_price'] = (float) $product->selling_price;
                 // Calculate total immediately when product is selected
                 $this->invoice_items[$index]['total'] =
-                    $this->invoice_items[$index]['quantity'] * $product->selling_price;
+                    (float) $this->invoice_items[$index]['quantity'] * (float) $product->selling_price;
             }
         }
 
         if (in_array($field, ['quantity', 'unit_price'])) {
-            $this->invoice_items[$index]['total'] =
-                $this->invoice_items[$index]['quantity'] * $this->invoice_items[$index]['unit_price'];
+            // Cast to float to ensure numeric calculation
+            $quantity = (float) $this->invoice_items[$index]['quantity'];
+            $unitPrice = (float) $this->invoice_items[$index]['unit_price'];
+
+            $this->invoice_items[$index]['total'] = $quantity * $unitPrice;
         }
 
         $this->calculateTotals();
@@ -126,14 +129,14 @@ class CreateInvoice extends Component
 
     public function updatedDiscountPercentage()
     {
-        $this->discount_amount = ($this->subtotal * $this->discount_percentage) / 100;
+        $this->discount_amount = ((float) $this->subtotal * (float) $this->discount_percentage) / 100;
         $this->calculateTotals();
     }
 
     public function updatedDiscountAmount()
     {
         if ($this->subtotal > 0) {
-            $this->discount_percentage = ($this->discount_amount * 100) / $this->subtotal;
+            $this->discount_percentage = ((float) $this->discount_amount * 100) / (float) $this->subtotal;
         }
         $this->calculateTotals();
     }
@@ -145,20 +148,22 @@ class CreateInvoice extends Component
 
     private function calculateTotals()
     {
-        // Calculate subtotal
-        $this->subtotal = collect($this->invoice_items)->sum('total');
+        // Calculate subtotal - ensure we're working with numbers
+        $this->subtotal = collect($this->invoice_items)->sum(function ($item) {
+            return (float) $item['total'];
+        });
 
         // Calculate discount amount if percentage is set
         if ($this->discount_percentage > 0) {
-            $this->discount_amount = ($this->subtotal * $this->discount_percentage) / 100;
+            $this->discount_amount = ((float) $this->subtotal * (float) $this->discount_percentage) / 100;
         }
 
         // Calculate tax amount
-        $taxable_amount = $this->subtotal - $this->discount_amount;
-        $this->tax_amount = ($taxable_amount * $this->tax_percentage) / 100;
+        $taxable_amount = (float) $this->subtotal - (float) $this->discount_amount;
+        $this->tax_amount = ($taxable_amount * (float) $this->tax_percentage) / 100;
 
         // Calculate total before round off
-        $calculated_total = $taxable_amount + $this->tax_amount;
+        $calculated_total = $taxable_amount + (float) $this->tax_amount;
 
         // Calculate round off
         $this->round_off = round($calculated_total) - $calculated_total;

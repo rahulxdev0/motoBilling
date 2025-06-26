@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->string('invoice_number')->unique();
             $table->foreignId('partie_id')->constrained();
             $table->date('invoice_date');
+            $table->enum('invoice_type', ['credit', 'cash'])->default('credit');
             $table->date('due_date')->nullable();
             $table->decimal('subtotal', 12, 2);
             $table->decimal('discount_percentage', 5, 2)->default(0);
