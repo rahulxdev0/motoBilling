@@ -25,6 +25,7 @@ class CreateProductModal extends Component
     public $selling_price = '';
     public $mrp = '';
     public $stock_quantity = 0;
+    public $reorder_level = 10; // New field for low stock quantity
     public $unit = 'pcs';
     public $status = 'active';
 
@@ -46,6 +47,7 @@ class CreateProductModal extends Component
             'selling_price' => 'required|numeric|min:0',
             'mrp' => 'nullable|numeric|min:0|gte:selling_price',
             'stock_quantity' => 'required|integer|min:0',
+            'reorder_level' => 'required|integer|min:0|max:1000',
             'unit' => 'required|string|max:20',
             'status' => 'required|in:active,inactive',
         ];
@@ -95,6 +97,7 @@ class CreateProductModal extends Component
         $this->selling_price = '';
         $this->mrp = '';
         $this->stock_quantity = 0;
+        $this->reorder_level = 10;
         $this->unit = 'pcs';
         $this->status = 'active';
     }
@@ -116,6 +119,7 @@ class CreateProductModal extends Component
                 'selling_price' => $this->selling_price,
                 'mrp' => $this->mrp,
                 'stock_quantity' => $this->stock_quantity,
+                'reorder_level' => $this->reorder_level,
                 'unit' => $this->unit,
                 'status' => $this->status,
             ]);

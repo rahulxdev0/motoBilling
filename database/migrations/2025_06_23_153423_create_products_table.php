@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
             $table->string('item_code')->unique();
+            $table->enum('type', ['service', 'product'])->default('product');
             $table->string('sku')->unique(); 
             $table->text('description')->nullable();
             $table->foreignId('category_id')->constrained();

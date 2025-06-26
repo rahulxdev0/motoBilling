@@ -1,4 +1,3 @@
-
 <div class="flex-1 p-6 bg-gray-50 overflow-y-auto">
     <!-- Header Section -->
     <div class="mb-8">

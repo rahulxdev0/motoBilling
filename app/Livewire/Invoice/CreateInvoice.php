@@ -20,7 +20,7 @@ class CreateInvoice extends Component
     public $terms_conditions;
     public $notes;
     public $status = 'draft';
-    
+
     // Calculation properties
     public $subtotal = 0;
     public $discount_percentage = 0;
@@ -29,58 +29,58 @@ class CreateInvoice extends Component
     public $tax_amount = 0;
     public $round_off = 0;
     public $total = 0;
-    
+
     // Invoice items
     public $invoice_items = [];
-    
+
     // Collections
     public $parties;
     public $products;
-    
+
     // Search properties
     public $search_product = '';
     public $filtered_products = [];
-    
+
     public function mount()
     {
         $this->parties = Partie::active()->get();
         $this->products = Product::where('status', 'active')->get();
         $this->filtered_products = $this->products->toArray();
-        
+
         // Generate invoice number
         $this->invoice_number = $this->generateInvoiceNumber();
-        
+
         // Set default dates
         $this->invoice_date = now()->format('Y-m-d');
         $this->due_date = now()->addDays(30)->format('Y-m-d');
-        
+
         // Add initial empty row
         $this->addInvoiceItem();
     }
-    
+
     private function generateInvoiceNumber()
     {
         // Get the latest invoice number
         $lastInvoice = Invoice::orderBy('id', 'desc')->first();
-        
+
         if (!$lastInvoice) {
             return 'INV-0001';
         }
-        
+
         // Extract the numeric part from the invoice number
         $lastNumber = $lastInvoice->invoice_number;
-        
+
         // Use regex to extract the numeric part after 'INV-'
         if (preg_match('/INV-(\d+)/', $lastNumber, $matches)) {
-            $nextNumber = (int)$matches[1] + 1;
+            $nextNumber = (int) $matches[1] + 1;
         } else {
             // Fallback: count all invoices and add 1
             $nextNumber = Invoice::count() + 1;
         }
-        
+
         return 'INV-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
     }
-    
+
     public function addInvoiceItem()
     {
         $this->invoice_items[] = [
@@ -90,7 +90,7 @@ class CreateInvoice extends Component
             'total' => 0,
         ];
     }
-    
+
     public function removeInvoiceItem($index)
     {
         if (count($this->invoice_items) > 1) {
@@ -99,34 +99,37 @@ class CreateInvoice extends Component
             $this->calculateTotals();
         }
     }
-    
+
     public function updatedInvoiceItems($value, $key)
     {
         $parts = explode('.', $key);
         $index = $parts[0];
         $field = $parts[1];
-        
+
         if ($field === 'product_id') {
             $product = Product::find($value);
             if ($product) {
                 $this->invoice_items[$index]['unit_price'] = $product->selling_price;
+                // Calculate total immediately when product is selected
+                $this->invoice_items[$index]['total'] =
+                    $this->invoice_items[$index]['quantity'] * $product->selling_price;
             }
         }
-        
+
         if (in_array($field, ['quantity', 'unit_price'])) {
-            $this->invoice_items[$index]['total'] = 
+            $this->invoice_items[$index]['total'] =
                 $this->invoice_items[$index]['quantity'] * $this->invoice_items[$index]['unit_price'];
         }
-        
+
         $this->calculateTotals();
     }
-    
+
     public function updatedDiscountPercentage()
     {
         $this->discount_amount = ($this->subtotal * $this->discount_percentage) / 100;
         $this->calculateTotals();
     }
-    
+
     public function updatedDiscountAmount()
     {
         if ($this->subtotal > 0) {
@@ -134,44 +137,44 @@ class CreateInvoice extends Component
         }
         $this->calculateTotals();
     }
-    
+
     public function updatedTaxPercentage()
     {
         $this->calculateTotals();
     }
-    
+
     private function calculateTotals()
     {
         // Calculate subtotal
         $this->subtotal = collect($this->invoice_items)->sum('total');
-        
+
         // Calculate discount amount if percentage is set
         if ($this->discount_percentage > 0) {
             $this->discount_amount = ($this->subtotal * $this->discount_percentage) / 100;
         }
-        
+
         // Calculate tax amount
         $taxable_amount = $this->subtotal - $this->discount_amount;
         $this->tax_amount = ($taxable_amount * $this->tax_percentage) / 100;
-        
+
         // Calculate total before round off
         $calculated_total = $taxable_amount + $this->tax_amount;
-        
+
         // Calculate round off
         $this->round_off = round($calculated_total) - $calculated_total;
-        
+
         // Final total
         $this->total = round($calculated_total);
     }
-    
+
     public function searchProducts()
     {
         if (strlen($this->search_product) >= 2) {
             $this->filtered_products = Product::where('status', 'active')
-                ->where(function($query) {
+                ->where(function ($query) {
                     $query->where('name', 'like', '%' . $this->search_product . '%')
-                          ->orWhere('item_code', 'like', '%' . $this->search_product . '%')
-                          ->orWhere('sku', 'like', '%' . $this->search_product . '%');
+                        ->orWhere('item_code', 'like', '%' . $this->search_product . '%')
+                        ->orWhere('sku', 'like', '%' . $this->search_product . '%');
                 })
                 ->limit(10)
                 ->get()
@@ -180,7 +183,7 @@ class CreateInvoice extends Component
             $this->filtered_products = $this->products->take(10)->toArray();
         }
     }
-    
+
     public function save($action = 'draft')
     {
         $this->validate([
@@ -191,12 +194,12 @@ class CreateInvoice extends Component
             'invoice_items.*.quantity' => 'required|numeric|min:1',
             'invoice_items.*.unit_price' => 'required|numeric|min:0',
         ]);
-        
+
         $this->status = $action === 'save_and_send' ? 'sent' : 'draft';
-        
+
         // Generate a new invoice number just before saving to avoid duplicates
         $this->invoice_number = $this->generateInvoiceNumber();
-        
+
         try {
             // Create invoice
             $invoice = Invoice::create([
@@ -217,7 +220,7 @@ class CreateInvoice extends Component
                 'notes' => $this->notes,
                 'status' => $this->status,
             ]);
-            
+
             // Create invoice items and update stock
             foreach ($this->invoice_items as $item) {
                 if ($item['product_id'] && $item['quantity'] > 0) {
@@ -228,12 +231,12 @@ class CreateInvoice extends Component
                         'unit_price' => $item['unit_price'],
                         'total' => $item['total'],
                     ]);
-                    
+
                     // Update product stock
                     $product = Product::find($item['product_id']);
                     if ($product) {
                         $product->decrement('stock_quantity', $item['quantity']);
-                        
+
                         // Create stock movement record
                         StockMovement::create([
                             'product_id' => $item['product_id'],
@@ -245,27 +248,27 @@ class CreateInvoice extends Component
                     }
                 }
             }
-            
+
             session()->flash('message', 'Invoice created successfully!');
-            
+
             if ($action === 'save_and_send') {
                 session()->flash('message', 'Invoice created and sent successfully!');
             }
-            
+
             return redirect()->route('invoice.manage');
-            
+
         } catch (\Exception $e) {
             // If there's still a duplicate entry error, generate a new number and try again
             if (str_contains($e->getMessage(), 'Duplicate entry') && str_contains($e->getMessage(), 'invoice_number')) {
                 $this->invoice_number = $this->generateUniqueInvoiceNumber();
                 return $this->save($action);
             }
-            
+
             session()->flash('error', 'Error creating invoice: ' . $e->getMessage());
             throw $e;
         }
     }
-    
+
     /**
      * Generate a truly unique invoice number by checking database
      */
@@ -273,28 +276,28 @@ class CreateInvoice extends Component
     {
         do {
             $lastInvoice = Invoice::orderBy('id', 'desc')->first();
-            
+
             if (!$lastInvoice) {
                 $nextNumber = 1;
             } else {
                 // Extract the numeric part from the invoice number
                 if (preg_match('/INV-(\d+)/', $lastInvoice->invoice_number, $matches)) {
-                    $nextNumber = (int)$matches[1] + 1;
+                    $nextNumber = (int) $matches[1] + 1;
                 } else {
                     $nextNumber = Invoice::count() + 1;
                 }
             }
-            
+
             $invoiceNumber = 'INV-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
-            
+
             // Check if this number already exists
             $exists = Invoice::where('invoice_number', $invoiceNumber)->exists();
-            
+
         } while ($exists);
-        
+
         return $invoiceNumber;
     }
-    
+
     public function render()
     {
         return view('livewire.invoice.create-invoice');

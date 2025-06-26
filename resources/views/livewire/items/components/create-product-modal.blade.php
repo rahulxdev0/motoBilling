@@ -187,7 +187,7 @@
                                 Pricing & Stock
                             </h3>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4">
                                 <!-- Purchase Price -->
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -250,6 +250,20 @@
                                     @enderror
                                 </div>
 
+                                <!-- Low Stock Alert -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        Low Stock Alert <span class="text-red-500">*</span>
+                                        <span class="text-xs text-gray-500">(Reorder Level)</span>
+                                    </label>
+                                    <input wire:model="reorder_level" type="number"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('reorder_level') border-red-300 @enderror"
+                                        placeholder="10">
+                                    @error('reorder_level')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
                                 <!-- Unit -->
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -264,6 +278,22 @@
                                     @error('unit')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
+                                </div>
+                            </div>
+
+                            <!-- Stock Alert Info -->
+                            <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                                <div class="flex items-start">
+                                    <svg class="w-5 h-5 text-blue-400 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="text-sm font-medium text-blue-800">Low Stock Alert</p>
+                                        <p class="text-xs text-blue-600 mt-1">
+                                            You will be notified when the stock quantity falls below the reorder level. 
+                                            This helps you maintain optimal inventory levels and avoid stockouts.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
