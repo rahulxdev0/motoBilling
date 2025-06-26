@@ -1,0 +1,304 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Category;
+use App\Models\Product;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+
+class ProductSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        $this->call(CategorySeeder::class);
+
+        $products = [
+            [
+                'name' => 'Piston Kit Complete',
+                'item_code' => 'PK001',
+                'sku' => 'PISTON-KIT-001',
+                'type' => 'product',
+                'description' => 'Complete piston kit with rings for 100cc motorcycles',
+                'category' => 'Engine Parts',
+                'brand' => 'Honda',
+                'model_compatibility' => 'CD 100, Splendor',
+                'purchase_price' => 450.00,
+                'selling_price' => 650.00,
+                'mrp' => 750.00,
+                'stock_quantity' => 25,
+                'unit' => 'pcs',
+                'reorder_level' => 5,
+                'status' => 'active'
+            ],
+            [
+                'name' => 'Brake Pad Set Front',
+                'item_code' => 'BP001',
+                'sku' => 'BRAKE-PAD-FRONT-001',
+                'type' => 'product',
+                'description' => 'High quality front brake pads for disc brake motorcycles',
+                'category' => 'Brake System',
+                'brand' => 'TVS',
+                'model_compatibility' => 'Apache, Pulsar',
+                'purchase_price' => 280.00,
+                'selling_price' => 420.00,
+                'mrp' => 500.00,
+                'stock_quantity' => 40,
+                'unit' => 'set',
+                'reorder_level' => 10,
+                'status' => 'active'
+            ],
+            [
+                'name' => 'LED Headlight Assembly',
+                'item_code' => 'HL001',
+                'sku' => 'LED-HEADLIGHT-001',
+                'type' => 'product',
+                'description' => 'High brightness LED headlight with DRL',
+                'category' => 'Electrical',
+                'brand' => 'Universal',
+                'model_compatibility' => 'All Motorcycles',
+                'purchase_price' => 850.00,
+                'selling_price' => 1200.00,
+                'mrp' => 1450.00,
+                'stock_quantity' => 15,
+                'unit' => 'pcs',
+                'reorder_level' => 5,
+                'status' => 'active'
+            ],
+            [
+                'name' => 'Engine Oil 10W-30',
+                'item_code' => 'OIL001',
+                'sku' => 'ENGINE-OIL-10W30-001',
+                'type' => 'product',
+                'description' => 'Premium synthetic engine oil 10W-30 for 4-stroke motorcycles',
+                'category' => 'Oils & Lubricants',
+                'brand' => 'Castrol',
+                'model_compatibility' => 'All 4-Stroke Motorcycles',
+                'purchase_price' => 320.00,
+                'selling_price' => 450.00,
+                'mrp' => 520.00,
+                'stock_quantity' => 60,
+                'unit' => 'ltr',
+                'reorder_level' => 20,
+                'status' => 'active'
+            ],
+            [
+                'name' => 'Air Filter Element',
+                'item_code' => 'AF001',
+                'sku' => 'AIR-FILTER-001',
+                'type' => 'product',
+                'description' => 'High filtration air filter element',
+                'category' => 'Filters',
+                'brand' => 'Bajaj',
+                'model_compatibility' => 'Pulsar 150, 180',
+                'purchase_price' => 120.00,
+                'selling_price' => 180.00,
+                'mrp' => 220.00,
+                'stock_quantity' => 50,
+                'unit' => 'pcs',
+                'reorder_level' => 15,
+                'status' => 'active'
+            ],
+            [
+                'name' => 'Rear Shock Absorber',
+                'item_code' => 'SA001',
+                'sku' => 'SHOCK-ABSORBER-REAR-001',
+                'type' => 'product',
+                'description' => 'Heavy duty rear shock absorber with adjustable preload',
+                'category' => 'Suspension',
+                'brand' => 'YSS',
+                'model_compatibility' => 'Universal Fitment',
+                'purchase_price' => 1200.00,
+                'selling_price' => 1800.00,
+                'mrp' => 2100.00,
+                'stock_quantity' => 12,
+                'unit' => 'pcs',
+                'reorder_level' => 3,
+                'status' => 'active'
+            ],
+            [
+                'name' => 'Tubeless Tyre 100/90-17',
+                'item_code' => 'TY001',
+                'sku' => 'TYRE-100-90-17-001',
+                'type' => 'product',
+                'description' => 'Premium tubeless tyre for rear wheel',
+                'category' => 'Tyres & Tubes',
+                'brand' => 'MRF',
+                'model_compatibility' => 'Most 150cc+ Motorcycles',
+                'purchase_price' => 2200.00,
+                'selling_price' => 2800.00,
+                'mrp' => 3200.00,
+                'stock_quantity' => 20,
+                'unit' => 'pcs',
+                'reorder_level' => 5,
+                'status' => 'active'
+            ],
+            [
+                'name' => 'Side Mirror Set',
+                'item_code' => 'SM001',
+                'sku' => 'SIDE-MIRROR-SET-001',
+                'type' => 'product',
+                'description' => 'Aerodynamic side mirror set with blue tinted glass',
+                'category' => 'Accessories',
+                'brand' => 'Universal',
+                'model_compatibility' => 'All Motorcycles',
+                'purchase_price' => 180.00,
+                'selling_price' => 280.00,
+                'mrp' => 350.00,
+                'stock_quantity' => 35,
+                'unit' => 'pair',
+                'reorder_level' => 10,
+                'status' => 'active'
+            ],
+            [
+                'name' => 'Clutch Cable',
+                'item_code' => 'CC001',
+                'sku' => 'CLUTCH-CABLE-001',
+                'type' => 'product',
+                'description' => 'Heavy duty clutch cable with smooth operation',
+                'category' => 'Engine Parts',
+                'brand' => 'Hero',
+                'model_compatibility' => 'Splendor, Passion',
+                'purchase_price' => 85.00,
+                'selling_price' => 130.00,
+                'mrp' => 160.00,
+                'stock_quantity' => 45,
+                'unit' => 'pcs',
+                'reorder_level' => 15,
+                'status' => 'active'
+            ],
+            [
+                'name' => 'Chain Sprocket Kit',
+                'item_code' => 'CSK001',
+                'sku' => 'CHAIN-SPROCKET-KIT-001',
+                'type' => 'product',
+                'description' => 'Complete chain and sprocket kit for power transmission',
+                'category' => 'Engine Parts',
+                'brand' => 'Honda',
+                'model_compatibility' => 'CB Shine, Unicorn',
+                'purchase_price' => 650.00,
+                'selling_price' => 950.00,
+                'mrp' => 1150.00,
+                'stock_quantity' => 18,
+                'unit' => 'set',
+                'reorder_level' => 5,
+                'status' => 'active'
+            ],
+            [
+                'name' => 'Spark Plug NGK',
+                'item_code' => 'SP001',
+                'sku' => 'SPARK-PLUG-NGK-001',
+                'type' => 'product',
+                'description' => 'NGK iridium spark plug for better combustion',
+                'category' => 'Engine Parts',
+                'brand' => 'NGK',
+                'model_compatibility' => 'Universal',
+                'purchase_price' => 145.00,
+                'selling_price' => 220.00,
+                'mrp' => 280.00,
+                'stock_quantity' => 80,
+                'unit' => 'pcs',
+                'reorder_level' => 25,
+                'status' => 'active'
+            ],
+            [
+                'name' => 'Battery 12V 7Ah',
+                'item_code' => 'BT001',
+                'sku' => 'BATTERY-12V-7AH-001',
+                'type' => 'product',
+                'description' => 'Maintenance free motorcycle battery',
+                'category' => 'Electrical',
+                'brand' => 'Amaron',
+                'model_compatibility' => 'Most 100-150cc Motorcycles',
+                'purchase_price' => 980.00,
+                'selling_price' => 1350.00,
+                'mrp' => 1580.00,
+                'stock_quantity' => 22,
+                'unit' => 'pcs',
+                'reorder_level' => 5,
+                'status' => 'active'
+            ],
+            [
+                'name' => 'Brake Disc Rotor',
+                'item_code' => 'BD001',
+                'sku' => 'BRAKE-DISC-ROTOR-001',
+                'type' => 'product',
+                'description' => 'High performance brake disc rotor with wave design',
+                'category' => 'Brake System',
+                'brand' => 'Brembo',
+                'model_compatibility' => 'Sport Motorcycles',
+                'purchase_price' => 1250.00,
+                'selling_price' => 1750.00,
+                'mrp' => 2000.00,
+                'stock_quantity' => 8,
+                'unit' => 'pcs',
+                'reorder_level' => 3,
+                'status' => 'active'
+            ],
+            [
+                'name' => 'Handlebar Grip Set',
+                'item_code' => 'HG001',
+                'sku' => 'HANDLEBAR-GRIP-001',
+                'type' => 'product',
+                'description' => 'Anti-slip rubber handlebar grips with end caps',
+                'category' => 'Accessories',
+                'brand' => 'Universal',
+                'model_compatibility' => 'All Motorcycles',
+                'purchase_price' => 65.00,
+                'selling_price' => 110.00,
+                'mrp' => 140.00,
+                'stock_quantity' => 55,
+                'unit' => 'pair',
+                'reorder_level' => 20,
+                'status' => 'active'
+            ],
+            [
+                'name' => 'Tool Kit Basic',
+                'item_code' => 'TK001',
+                'sku' => 'TOOL-KIT-BASIC-001',
+                'type' => 'product',
+                'description' => 'Basic motorcycle tool kit with essential tools',
+                'category' => 'Tools & Equipment',
+                'brand' => 'Universal',
+                'model_compatibility' => 'All Motorcycles',
+                'purchase_price' => 350.00,
+                'selling_price' => 550.00,
+                'mrp' => 650.00,
+                'stock_quantity' => 15,
+                'unit' => 'set',
+                'reorder_level' => 5,
+                'status' => 'active'
+            ]
+        ];
+
+        foreach ($products as $productData) {
+            // Find the category
+            $category = Category::where('name', $productData['category'])->first();
+            
+            if ($category) {
+                Product::firstOrCreate(
+                    ['item_code' => $productData['item_code']],
+                    [
+                        'name' => $productData['name'],
+                        'sku' => $productData['sku'],
+                        'type' => $productData['type'],
+                        'description' => $productData['description'],
+                        'category_id' => $category->id,
+                        'brand' => $productData['brand'],
+                        'model_compatibility' => $productData['model_compatibility'],
+                        'purchase_price' => $productData['purchase_price'],
+                        'selling_price' => $productData['selling_price'],
+                        'mrp' => $productData['mrp'],
+                        'stock_quantity' => $productData['stock_quantity'],
+                        'unit' => $productData['unit'],
+                        'reorder_level' => $productData['reorder_level'],
+                        'status' => $productData['status']
+                    ]
+                );
+            }
+        }
+    }
+}
