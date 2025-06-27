@@ -53,15 +53,25 @@
                                         {{ $this->isCashSale() ? 'Receipt Number' : 'Invoice Number' }}
                                     </label>
                                     <input type="text" wire:model="invoice_number"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
                                         readonly>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ $this->isCashSale() ? 'Sale Date' : 'Invoice Date' }} *
+                                    </label>
+                                    <input type="date" wire:model.live="invoice_date"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    @error('invoice_date') <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                                    @enderror
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Customer *</label>
                                     <select wire:model.live="partie_id"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                         <option value="">Select Customer</option>
-                                        <option value="{{ $cash_sale_customer->id }}" class="font-semibold text-green-600">
+                                        <option value="{{ $cash_sale_customer->id }}"
+                                            class="font-semibold text-green-600">
                                             💰 Cash Sale Customer
                                         </option>
                                         <optgroup label="Regular Customers">
@@ -73,44 +83,38 @@
                                     @error('partie_id') <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                                     @enderror
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        {{ $this->isCashSale() ? 'Sale Date' : 'Invoice Date' }} *
-                                    </label>
-                                    <input type="date" wire:model.live="invoice_date"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                    @error('invoice_date') <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
-                                    @enderror
-                                </div>
+
                                 @if(!$this->isCashSale())
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
-                                    <input type="date" wire:model="due_date"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
+                                        <input type="date" wire:model="due_date"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    </div>
                                 @endif
                             </div>
                             @if($this->isCashSale())
-                            <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
-                                <div class="flex">
-                                    <div class="flex-shrink-0">
-                                        <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                        </svg>
-                                    </div>
-                                    <div class="ml-3">
-                                        <h3 class="text-sm font-medium text-green-800">Cash Sale Mode</h3>
-                                        <div class="mt-2 text-sm text-green-700">
-                                            <ul class="list-disc list-inside space-y-1">
-                                                <li>Payment will be marked as received immediately</li>
-                                                <li>No due date required - payment is instant</li>
-                                                <li>Stock will be updated automatically</li>
-                                                <li>Receipt will be generated for customer</li>
-                                            </ul>
+                                <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
+                                    <div class="flex">
+                                        <div class="flex-shrink-0">
+                                            <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd"
+                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h3 class="text-sm font-medium text-green-800">Cash Sale Mode</h3>
+                                            <div class="mt-2 text-sm text-green-700">
+                                                <ul class="list-disc list-inside space-y-1">
+                                                    <li>Payment will be marked as received immediately</li>
+                                                    <li>No due date required - payment is instant</li>
+                                                    <li>Stock will be updated automatically</li>
+                                                    <li>Receipt will be generated for customer</li>
+                                                </ul>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
                             @endif
                         </div>
                     </div>
@@ -158,7 +162,7 @@
                                         <tr>
                                             <td class="px-6 py-4">
                                                 <select wire:model.live="invoice_items.{{ $index }}.product_id"
-                                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                                     <option value="">Select Product</option>
                                                     @foreach($products as $product)
                                                         <option value="{{ $product->id }}">
@@ -173,7 +177,7 @@
                                             <td class="px-6 py-4">
                                                 <input type="number" wire:model.live="invoice_items.{{ $index }}.quantity"
                                                     min="1" step="1"
-                                                    class="w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                                    class="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                                 @error('invoice_items.' . $index . '.quantity')
                                                     <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                                                 @enderror
@@ -181,7 +185,7 @@
                                             <td class="px-6 py-4">
                                                 <input type="number" wire:model.live="invoice_items.{{ $index }}.unit_price"
                                                     min="0" step="0.01"
-                                                    class="w-24 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                                    class="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                                 @error('invoice_items.' . $index . '.unit_price')
                                                     <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                                                 @enderror
@@ -218,11 +222,11 @@
                         <div class="p-6">
                             <div class="grid grid-cols-1 gap-6">
                                 @if(!$this->isCashSale())
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Payment Terms</label>
-                                    <input type="text" wire:model="payment_terms" placeholder="e.g., Net 30 days"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Payment Terms</label>
+                                        <input type="text" wire:model="payment_terms" placeholder="e.g., Net 30 days"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    </div>
                                 @endif
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Terms &
@@ -253,7 +257,8 @@
                             <!-- Sale Type Badge -->
                             <div class="flex justify-between items-center">
                                 <span class="text-sm text-gray-600">Type</span>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $this->isCashSale() ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800' }}">
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $this->isCashSale() ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800' }}">
                                     {{ $this->isCashSale() ? '💰 Cash Sale' : '📄 Credit Sale' }}
                                 </span>
                             </div>
@@ -317,17 +322,21 @@
                             <div class="pt-4 border-t border-gray-200">
                                 <div class="bg-{{ $this->isCashSale() ? 'green' : 'teal' }}-50 rounded-lg p-4">
                                     <div class="flex items-center">
-                                        <svg class="w-5 h-5 text-{{ $this->isCashSale() ? 'green' : 'teal' }}-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <svg class="w-5 h-5 text-{{ $this->isCashSale() ? 'green' : 'teal' }}-400 mr-2"
+                                            fill="currentColor" viewBox="0 0 20 20">
                                             @if($this->isCashSale())
-                                            <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"></path>
+                                                <path
+                                                    d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z">
+                                                </path>
                                             @else
-                                            <path fill-rule="evenodd"
-                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                                clip-rule="evenodd"></path>
+                                                <path fill-rule="evenodd"
+                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                                    clip-rule="evenodd"></path>
                                             @endif
                                         </svg>
                                         <div>
-                                            <p class="text-sm font-medium text-{{ $this->isCashSale() ? 'green' : 'teal' }}-800">
+                                            <p
+                                                class="text-sm font-medium text-{{ $this->isCashSale() ? 'green' : 'teal' }}-800">
                                                 {{ $this->isCashSale() ? 'Cash Payment' : 'Invoice Total' }}
                                             </p>
                                             <p class="text-xs text-{{ $this->isCashSale() ? 'green' : 'teal' }}-600">
