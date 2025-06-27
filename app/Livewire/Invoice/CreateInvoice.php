@@ -171,21 +171,34 @@ class CreateInvoice extends Component
         $this->calculateTotals();
     }
 
+    // Live update for discount percentage
     public function updatedDiscountPercentage()
     {
-        $this->discount_amount = ((float) $this->subtotal * (float) $this->discount_percentage) / 100;
-        $this->calculateTotals();
+        // Prevent circular updates
+        if ($this->subtotal > 0) {
+            $this->discount_amount = ((float) $this->subtotal * (float) $this->discount_percentage) / 100;
+            $this->calculateTotals();
+        }
     }
 
+    // Live update for discount amount
     public function updatedDiscountAmount()
     {
-        if ($this->subtotal > 0) {
+        // Prevent circular updates and division by zero
+        if ($this->subtotal > 0 && (float) $this->discount_amount >= 0) {
             $this->discount_percentage = ((float) $this->discount_amount * 100) / (float) $this->subtotal;
+            $this->calculateTotals();
         }
+    }
+
+    // Live update for tax percentage
+    public function updatedTaxPercentage()
+    {
         $this->calculateTotals();
     }
 
-    public function updatedTaxPercentage()
+    // Method to manually trigger calculation (useful for edge cases)
+    public function recalculate()
     {
         $this->calculateTotals();
     }
@@ -194,12 +207,29 @@ class CreateInvoice extends Component
     {
         // Calculate subtotal - ensure we're working with numbers
         $this->subtotal = collect($this->invoice_items)->sum(function ($item) {
-            return (float) $item['total'];
+            return (float) ($item['total'] ?? 0);
         });
 
-        // Calculate discount amount if percentage is set
-        if ($this->discount_percentage > 0) {
-            $this->discount_amount = ((float) $this->subtotal * (float) $this->discount_percentage) / 100;
+        // Ensure discount values are not negative
+        $this->discount_percentage = max(0, (float) $this->discount_percentage);
+        $this->discount_amount = max(0, (float) $this->discount_amount);
+        $this->tax_percentage = max(0, (float) $this->tax_percentage);
+
+        // Calculate discount amount if percentage is set and subtotal > 0
+        if ($this->discount_percentage > 0 && $this->subtotal > 0) {
+            $calculatedDiscountAmount = ((float) $this->subtotal * (float) $this->discount_percentage) / 100;
+            // Only update if there's a significant difference to prevent circular updates
+            if (abs($calculatedDiscountAmount - (float) $this->discount_amount) > 0.01) {
+                $this->discount_amount = $calculatedDiscountAmount;
+            }
+        }
+
+        // Ensure discount amount doesn't exceed subtotal
+        if ((float) $this->discount_amount > (float) $this->subtotal) {
+            $this->discount_amount = $this->subtotal;
+            if ($this->subtotal > 0) {
+                $this->discount_percentage = 100;
+            }
         }
 
         // Calculate tax amount
@@ -214,6 +244,15 @@ class CreateInvoice extends Component
 
         // Final total
         $this->total = round($calculated_total);
+
+        // Ensure all values are properly formatted
+        $this->subtotal = round((float) $this->subtotal, 2);
+        $this->discount_amount = round((float) $this->discount_amount, 2);
+        $this->discount_percentage = round((float) $this->discount_percentage, 2);
+        $this->tax_amount = round((float) $this->tax_amount, 2);
+        $this->tax_percentage = round((float) $this->tax_percentage, 2);
+        $this->round_off = round((float) $this->round_off, 2);
+        $this->total = round((float) $this->total, 2);
     }
 
     public function searchProducts()

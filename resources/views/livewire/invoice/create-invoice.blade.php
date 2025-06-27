@@ -1,3 +1,4 @@
+
 <div class="min-h-screen bg-gray-50 py-6">
     <div class="px-4 sm:px-6 lg:px-6">
         <!-- Header -->
@@ -225,7 +226,7 @@
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">Payment Terms</label>
                                         <input type="text" wire:model="payment_terms" placeholder="e.g., Net 30 days"
-                                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                     </div>
                                 @endif
                                 <div>
@@ -233,12 +234,12 @@
                                         Conditions</label>
                                     <textarea wire:model="terms_conditions" rows="3"
                                         placeholder="Enter terms and conditions..."
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
                                     <textarea wire:model="notes" rows="3" placeholder="Any additional notes..."
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -279,14 +280,16 @@
                                 </div>
                                 <div class="grid grid-cols-2 gap-2">
                                     <div>
-                                        <input type="number" wire:model="discount_percentage" min="0" max="100"
-                                            step="0.01" placeholder="%"
-                                            class="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                        <input type="number" wire:model.live="discount_percentage" min="0" max="100"
+                                            step="0.01" placeholder="%" 
+                                            class="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                            title="Discount Percentage">
                                     </div>
                                     <div>
-                                        <input type="number" wire:model="discount_amount" min="0" step="0.01"
-                                            placeholder="Amount"
-                                            class="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                        <input type="number" wire:model.live="discount_amount" min="0" 
+                                            step="0.01" placeholder="Amount"
+                                            class="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                            title="Discount Amount">
                                     </div>
                                 </div>
                             </div>
@@ -294,13 +297,15 @@
                             <!-- Tax -->
                             <div class="space-y-2">
                                 <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600">Tax ({{ $tax_percentage }}%)</span>
+                                    <span class="text-sm text-gray-600">Tax ({{ number_format($tax_percentage, 2) }}%)</span>
                                     <span
                                         class="text-sm font-medium text-gray-900">₹{{ number_format($tax_amount, 2) }}</span>
                                 </div>
                                 <div>
-                                    <input type="number" wire:model="tax_percentage" min="0" max="100" step="0.01"
-                                        class="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                    <input type="number" wire:model.live="tax_percentage" min="0" max="100" step="0.01"
+                                        placeholder="Tax %"
+                                        class="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                        title="Tax Percentage">
                                 </div>
                             </div>
 
@@ -317,6 +322,14 @@
                             <div class="flex justify-between items-center">
                                 <span class="text-base font-medium text-gray-900">Total</span>
                                 <span class="text-lg font-bold text-gray-900">₹{{ number_format($total, 2) }}</span>
+                            </div>
+
+                            <!-- Manual Recalculate Button (for edge cases) -->
+                            <div class="pt-2">
+                                <button type="button" wire:click="recalculate"
+                                    class="w-full text-xs text-gray-500 hover:text-gray-700 focus:outline-none">
+                                    🔄 Recalculate
+                                </button>
                             </div>
 
                             <div class="pt-4 border-t border-gray-200">
