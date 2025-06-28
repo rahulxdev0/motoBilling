@@ -20,6 +20,7 @@ class CreateInvoice extends Component
     public $terms_conditions;
     public $notes;
     public $status = 'draft';
+    public $barcodeInput = '';
 
     // Calculation properties
     public $subtotal = 0;
@@ -41,6 +42,8 @@ class CreateInvoice extends Component
     // Search properties
     public $search_product = '';
     public $filtered_products = [];
+
+    protected static $staticName = 'invoice.create-invoice';
 
     public function mount()
     {
@@ -72,6 +75,61 @@ class CreateInvoice extends Component
 
         // Add initial empty row
         $this->addInvoiceItem();
+        $this->dispatch('scanner-mounted', name: 'invoice.create-invoice');
+    }
+
+    public function handleBarcodeScan()
+    {
+        $barcode = trim($this->barcodeInput);
+        
+        if (empty($barcode)) {
+            return;
+        }
+
+        // Clear any previous errors
+        $this->resetErrorBag('barcodeInput');
+
+        // Find product by barcode or item code
+        $product = Product::where('item_code', $barcode)
+            ->orWhere('barcode', $barcode)
+            ->first();
+
+        if ($product) {
+            $this->addProductToInvoice($product);
+            $this->barcodeInput = '';
+        } else {
+            $this->addError('barcodeInput', "Product not found for barcode: $barcode");
+        }
+    }
+
+    protected function addProductToInvoice(Product $product)
+    {
+        // Check if product already exists in invoice items
+        $existingIndex = null;
+        foreach ($this->invoice_items as $index => $item) {
+            if ($item['product_id'] == $product->id) {
+                $existingIndex = $index;
+                break;
+            }
+        }
+
+        if ($existingIndex !== null) {
+            // Increment quantity of existing item
+            $this->invoice_items[$existingIndex]['quantity']++;
+            $this->invoice_items[$existingIndex]['total'] = 
+                $this->invoice_items[$existingIndex]['quantity'] * 
+                $this->invoice_items[$existingIndex]['unit_price'];
+        } else {
+            // Add new item
+            $this->invoice_items[] = [
+                'product_id' => $product->id,
+                'quantity' => 1,
+                'unit_price' => $product->selling_price,
+                'total' => $product->selling_price,
+            ];
+        }
+
+        $this->calculateTotals();
     }
 
     // Method to check if current selection is cash sale

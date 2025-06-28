@@ -16,6 +16,7 @@ class CreateProductModal extends Component
     public $name = '';
     public $item_code = '';
     public $sku = '';
+    public $barcode = '';
     public $description = '';
     public $brand = '';
     public $category_id = '';
@@ -25,7 +26,7 @@ class CreateProductModal extends Component
     public $selling_price = '';
     public $mrp = '';
     public $stock_quantity = 0;
-    public $reorder_level = 10; // New field for low stock quantity
+    public $reorder_level = 10; //field for low stock quantity
     public $unit = 'pcs';
     public $status = 'active';
 
@@ -39,6 +40,7 @@ class CreateProductModal extends Component
             'item_code' => 'required|unique:products,item_code|max:100',
             'sku' => 'required|unique:products,sku|max:100',
             'description' => 'nullable|string',
+            'barcode' => 'nullable|unique:products,barcode|max:255',
             'brand' => 'nullable|string|max:100',
             'category_id' => 'required|exists:categories,id',
             'partie_id' => 'required|integer|min:1',
@@ -88,6 +90,7 @@ class CreateProductModal extends Component
         $this->name = '';
         $this->item_code = '';
         $this->sku = '';
+        $this->barcode = '';
         $this->description = '';
         $this->brand = '';
         $this->category_id = '';
@@ -111,6 +114,7 @@ class CreateProductModal extends Component
                 'name' => $this->name,
                 'item_code' => $this->item_code,
                 'sku' => $this->sku,
+                'barcode' => $this->barcode,
                 'description' => $this->description,
                 'brand' => $this->brand,
                 'category_id' => $this->category_id,
@@ -149,6 +153,47 @@ class CreateProductModal extends Component
         if ($this->name) {
             $this->item_code = strtoupper(str_replace(' ', '_', $this->name)) . '_' . time();
         }
+    }
+
+    public function validateBarcode()
+    {
+        if ($this->barcode) {
+            // Validate barcode format if needed (e.g., EAN-13, UPC-A, etc.)
+            $this->validateOnly('barcode');
+            
+            // Optional: Check if barcode already exists and show warning
+            $existingProduct = Product::where('barcode', $this->barcode)->first();
+            if ($existingProduct) {
+                session()->flash('barcode_warning', 'Warning: This barcode is already used by product: ' . $existingProduct->name);
+            }
+        }
+    }
+
+    public function clearBarcode()
+    {
+        $this->barcode = '';
+        session()->forget('barcode_warning');
+    }
+
+    public function updatedBarcode()
+    {
+        if ($this->barcode) {
+            // Remove any non-numeric characters for basic cleanup
+            $this->barcode = preg_replace('/[^0-9]/', '', $this->barcode);
+            
+            // Optional: Validate barcode length (common formats)
+            if (strlen($this->barcode) > 0 && !in_array(strlen($this->barcode), [8, 12, 13, 14])) {
+                $this->addError('barcode', 'Barcode should be 8, 12, 13, or 14 digits long.');
+            } else {
+                $this->resetErrorBag('barcode');
+            }
+        }
+    }
+
+    public function generateBarcode()
+    {
+        // Generate a simple barcode (you can customize this logic)
+        $this->barcode = '2' . str_pad(mt_rand(1, 999999999999), 12, '0', STR_PAD_LEFT);
     }
 
     public function updatedCategoryId()

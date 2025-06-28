@@ -104,6 +104,40 @@
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
                                 </div>
+
+                                <!-- Barcode -->
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        Barcode
+                                        <span class="text-xs text-gray-500">(Scan or enter manually)</span>
+                                    </label>
+                                    <div class="flex">
+                                        <input wire:model="barcode" type="text"
+                                            class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('barcode') border-red-300 @enderror"
+                                            placeholder="Scan barcode or enter manually"
+                                            wire:keydown.enter.prevent="validateBarcode">
+                                        <button type="button" wire:click="clearBarcode"
+                                            class="px-3 py-2 bg-gray-500 text-white rounded-r-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                                            title="Clear barcode">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    @error('barcode')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                    @if($barcode)
+                                        <div class="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                                            <div class="flex items-center">
+                                                <svg class="w-4 h-4 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                <span class="text-sm text-green-800">Barcode: {{ $barcode }}</span>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
 
                             <!-- Description -->
