@@ -153,7 +153,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="p-6">
+                        <div class="py-6">
                             <!-- Barcode Scanner (Conditional) -->
                             @if($showBarcodeScanner)
                                 <div class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
@@ -191,7 +191,7 @@
                             
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
+                                    <thead class="bg-gray-50 w-full">
                                         <tr>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Product
@@ -213,13 +213,13 @@
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         @foreach ($invoice_items as $index => $item)
                                             <tr>
-                                                <td class="px-6 py-4">
+                                                <td class="px-2 py-4">
                                                     <select wire:model.live="invoice_items.{{ $index }}.product_id"
                                                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                                         <option value="">Select Product</option>
                                                         @foreach ($products as $product)
                                                             <option value="{{ $product->id }}">
-                                                                {{ $product->name }} ({{ $product->item_code }})
+                                                                {{ $product->name }}
                                                             </option>
                                                         @endforeach
                                                     </select>

@@ -24,8 +24,8 @@ class CreateInvoice extends Component
 
     // Calculation properties
     public $subtotal = 0;
-    public $discount_percentage = 0;
-    public $discount_amount = 0;
+    public $discount_percentage ;
+    public $discount_amount;
     public $tax_percentage = 18;
     public $tax_amount = 0;
     public $round_off = 0;
