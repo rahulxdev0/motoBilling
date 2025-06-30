@@ -76,6 +76,7 @@ class ManageInvoice extends Component
     public function render()
     {
         $invoices = Invoice::with(['partie', 'items'])
+            ->where('invoice_category', 'sales') // Only show sales invoices
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('invoice_number', 'like', '%' . $this->search . '%')
@@ -94,10 +95,10 @@ class ManageInvoice extends Component
             ->paginate($this->perPage);
 
         $stats = [
-            'total' => Invoice::count(),
-            'total_sales' => Invoice::sum('total'),
-            'paid_amount' => Invoice::sum('paid_amount'),
-            'unpaid_amount' => Invoice::sum('balance_amount'),
+            'total' => Invoice::where('invoice_category', 'sales')->count(),
+            'total_sales' => Invoice::where('invoice_category', 'sales')->sum('total'),
+            'paid_amount' => Invoice::where('invoice_category', 'sales')->sum('paid_amount'),
+            'unpaid_amount' => Invoice::where('invoice_category', 'sales')->sum('balance_amount'),
         ];
 
         return view('livewire.invoice.manage-invoice', compact('invoices', 'stats'));

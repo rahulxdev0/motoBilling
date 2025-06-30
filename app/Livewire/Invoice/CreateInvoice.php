@@ -374,6 +374,7 @@ class CreateInvoice extends Component
                 'terms_conditions' => $this->terms_conditions,
                 'notes' => $this->notes,
                 'status' => $this->status,
+                'invoice_category' => 'sales',
             ]);
 
             // Create invoice items and update stock

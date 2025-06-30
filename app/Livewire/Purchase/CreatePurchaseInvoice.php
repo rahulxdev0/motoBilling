@@ -178,7 +178,39 @@ class CreatePurchaseInvoice extends Component
         $this->calculateTotals();
     }
 
-    // ... (Keep the same calculation methods as in sales invoice)
+    private function calculateTotals()
+    {
+        $this->subtotal = collect($this->invoice_items)
+            ->sum(function ($item) {
+                return (float) $item['total'];
+            });
+
+        // Calculate discount
+        if ($this->discount_percentage > 0) {
+            $this->discount_amount = round($this->subtotal * ($this->discount_percentage / 100), 2);
+        } elseif ($this->discount_amount > 0) {
+            $this->discount_percentage = $this->subtotal > 0
+                ? round(($this->discount_amount / $this->subtotal) * 100, 2)
+                : 0;
+        } else {
+            $this->discount_amount = 0;
+            $this->discount_percentage = 0;
+        }
+
+        $afterDiscount = $this->subtotal - $this->discount_amount;
+
+        // Calculate tax
+        $this->tax_amount = round($afterDiscount * ($this->tax_percentage / 100), 2);
+
+        // Calculate total before round off
+        $totalBeforeRound = $afterDiscount + $this->tax_amount;
+
+        // Calculate round off
+        $this->round_off = round($totalBeforeRound) - $totalBeforeRound;
+
+        // Final total
+        $this->total = round($totalBeforeRound + $this->round_off, 2);
+    }
 
     public function save($action = 'draft')
     {
@@ -217,7 +249,7 @@ class CreatePurchaseInvoice extends Component
                 'payment_terms' => $this->payment_terms,
                 'terms_conditions' => $this->terms_conditions,
                 'notes' => $this->notes,
-                'type' => 'purchase', // Mark as purchase invoice
+                'invoice_category' => 'purchase',
             ]);
 
             // Create invoice items and update stock
@@ -254,7 +286,7 @@ class CreatePurchaseInvoice extends Component
                 // Add any additional logic for sending
             }
 
-            return redirect()->route('invoice.manage');
+            return redirect()->route('invoice.purchase');
         } catch (\Exception $e) {
             if (str_contains($e->getMessage(), 'Duplicate entry')) {
                 $this->invoice_number = $this->generateUniqueInvoiceNumber();

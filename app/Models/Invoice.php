@@ -13,6 +13,7 @@ class Invoice extends Model
         'partie_id',
         'invoice_date',
         'invoice_type',
+        'invoice_category',
         'due_date',
         'subtotal',
         'discount_percentage',

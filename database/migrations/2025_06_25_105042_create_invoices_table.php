@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->foreignId('partie_id')->constrained();
             $table->date('invoice_date');
             $table->enum('invoice_type', ['credit', 'cash'])->default('credit');
+            $table->enum('invoice_category', ['sales', 'purchase'])->default('sales');
             $table->date('due_date')->nullable();
             $table->decimal('subtotal', 12, 2);
             $table->decimal('discount_percentage', 5, 2)->default(0);
@@ -26,6 +27,7 @@ return new class extends Migration {
             $table->decimal('total', 12, 2);
             $table->decimal('paid_amount', 12, 2)->default(0);
             $table->decimal('balance_amount', 12, 2)->default(0);
+            $table->boolean('is_cash_sale')->default(false);
             $table->enum('payment_status', ['unpaid', 'partial', 'paid', 'overdue'])->default('unpaid');
             $table->enum('status', ['draft', 'sent', 'paid', 'cancelled'])->default('draft');
             $table->string('payment_terms')->nullable();
