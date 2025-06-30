@@ -45,6 +45,8 @@ class CreateInvoice extends Component
 
     protected static $staticName = 'invoice.create-invoice';
 
+    public $showBarcodeScanner = false;
+
     public function mount()
     {
         $this->parties = Partie::active()->get();
@@ -75,21 +77,25 @@ class CreateInvoice extends Component
 
         // Add initial empty row
         $this->addInvoiceItem();
-        $this->dispatch('scanner-mounted', name: 'invoice.create-invoice');
+    }
+
+    public function toggleBarcodeScanner()
+    {
+        $this->showBarcodeScanner = !$this->showBarcodeScanner;
+        if ($this->showBarcodeScanner) {
+            $this->dispatch('focus-barcode-input');
+        }
     }
 
     public function handleBarcodeScan()
     {
         $barcode = trim($this->barcodeInput);
-        
+
         if (empty($barcode)) {
             return;
         }
 
-        // Clear any previous errors
         $this->resetErrorBag('barcodeInput');
-
-        // Find product by barcode or item code
         $product = Product::where('item_code', $barcode)
             ->orWhere('barcode', $barcode)
             ->first();
@@ -116,8 +122,8 @@ class CreateInvoice extends Component
         if ($existingIndex !== null) {
             // Increment quantity of existing item
             $this->invoice_items[$existingIndex]['quantity']++;
-            $this->invoice_items[$existingIndex]['total'] = 
-                $this->invoice_items[$existingIndex]['quantity'] * 
+            $this->invoice_items[$existingIndex]['total'] =
+                $this->invoice_items[$existingIndex]['quantity'] *
                 $this->invoice_items[$existingIndex]['unit_price'];
         } else {
             // Add new item
@@ -407,7 +413,6 @@ class CreateInvoice extends Component
             }
 
             return redirect()->route('invoice.manage');
-
         } catch (\Exception $e) {
             // If there's still a duplicate entry error, generate a new number and try again
             if (str_contains($e->getMessage(), 'Duplicate entry') && str_contains($e->getMessage(), 'invoice_number')) {
@@ -443,7 +448,6 @@ class CreateInvoice extends Component
 
             // Check if this number already exists
             $exists = Invoice::where('invoice_number', $invoiceNumber)->exists();
-
         } while ($exists);
 
         return $invoiceNumber;
