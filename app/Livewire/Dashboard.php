@@ -2,6 +2,11 @@
 
 namespace App\Livewire;
 
+use App\Models\Invoice;
+use App\Models\Partie;
+use App\Models\Product;
+use App\Models\StockMovement;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -17,7 +22,7 @@ class Dashboard extends Component
     public $recentInvoices;
     public $topProducts;
     public $revenueGrowth;
-    public $stockItems;
+    public $stockItems = [];
 
     public function mount()
     {
@@ -26,46 +31,62 @@ class Dashboard extends Component
 
     public function loadDashboardData()
     {
-        // Mock data - replace with actual database queries
-        $this->totalRevenue = 125450.75;
-        $this->monthlyRevenue = 23750.50;
-        $this->totalInvoices = 1247;
-        $this->pendingInvoices = 23;
-        $this->totalCustomers = 189;
-        $this->revenueGrowth = 12.5;
+        $this->totalRevenue = Invoice::sum('total');
+        $this->monthlyRevenue = Invoice::whereYear('invoice_date', now()->year)
+            ->whereMonth('invoice_date', now()->month)
+            ->sum('total');
+        $this->totalInvoices = Invoice::count();
+        $this->pendingInvoices = Invoice::whereIn('payment_status', ['unpaid', 'partial'])->count();
+        $this->totalCustomers = Partie::count();
+
+        // Revenue Growth calculation
+        $currentMonthRevenue = $this->monthlyRevenue;
+        $lastMonthRevenue = Invoice::whereYear('invoice_date', now()->subMonth()->year)
+            ->whereMonth('invoice_date', now()->subMonth()->month)
+            ->sum('total');
+
+        $this->revenueGrowth = $lastMonthRevenue > 0 ?
+            round(($currentMonthRevenue - $lastMonthRevenue) / $lastMonthRevenue * 100, 2) :
+            100;
 
         // Mock low stock items
-        $this->lowStockItems = [
-            ['name' => 'Motor Oil 5W-30', 'current_stock' => 5, 'min_stock' => 20, 'unit' => 'bottles'],
-            ['name' => 'Brake Pads', 'current_stock' => 3, 'min_stock' => 15, 'unit' => 'sets'],
-            ['name' => 'Air Filter', 'current_stock' => 8, 'min_stock' => 25, 'unit' => 'pieces'],
-            ['name' => 'Spark Plugs', 'current_stock' => 12, 'min_stock' => 30, 'unit' => 'pieces'],
-        ];
+        $this->lowStockItems = Product::whereColumn('stock_quantity', '<', 'reorder_level')
+            ->select('name', 'stock_quantity', 'reorder_level', 'unit')
+            ->orderBy('stock_quantity', 'asc')
+            ->limit(4)
+            ->get()
+            ->toArray();
 
         // Mock recent invoices
-        $this->recentInvoices = [
-            ['id' => 'INV-2025-001', 'customer' => 'John Doe', 'amount' => 245.50, 'status' => 'paid', 'date' => '2025-06-23'],
-            ['id' => 'INV-2025-002', 'customer' => 'Jane Smith', 'amount' => 189.75, 'status' => 'pending', 'date' => '2025-06-22'],
-            ['id' => 'INV-2025-003', 'customer' => 'Mike Johnson', 'amount' => 567.25, 'status' => 'paid', 'date' => '2025-06-22'],
-            ['id' => 'INV-2025-004', 'customer' => 'Sarah Wilson', 'amount' => 123.00, 'status' => 'overdue', 'date' => '2025-06-21'],
-            ['id' => 'INV-2025-005', 'customer' => 'Tom Brown', 'amount' => 334.80, 'status' => 'paid', 'date' => '2025-06-21'],
-        ];
+        $this->recentInvoices = Invoice::with('partie')
+            ->orderBy('invoice_date', 'desc')
+            ->take(5)
+            ->get()
+            ->map(function ($invoice) {
+                return [
+                    'id' => $invoice->invoice_number,
+                    'customer' => $invoice->partie->name,
+                    'amount' => $invoice->total,
+                    'status' => $invoice->payment_status,
+                ];
+            })
+            ->toArray();
 
-        // Mock top products
-        $this->topProducts = [
-            ['name' => 'Oil Change Service', 'quantity' => 45, 'revenue' => 2250.00],
-            ['name' => 'Brake Service', 'quantity' => 23, 'revenue' => 1840.00],
-            ['name' => 'Tire Replacement', 'quantity' => 18, 'revenue' => 2160.00],
-            ['name' => 'Engine Tune-up', 'quantity' => 12, 'revenue' => 1800.00],
-        ];
-
-        // Mock stock overview
-        $this->stockItems = [
-            ['category' => 'Motor Oils', 'total_items' => 15, 'low_stock' => 3, 'value' => 12450.00],
-            ['category' => 'Brake Parts', 'total_items' => 8, 'low_stock' => 2, 'value' => 8920.00],
-            ['category' => 'Filters', 'total_items' => 12, 'low_stock' => 1, 'value' => 3240.00],
-            ['category' => 'Engine Parts', 'total_items' => 25, 'low_stock' => 4, 'value' => 18760.00],
-        ];
+        $this->topProducts = StockMovement::where('movement_type', 'invoice')
+            ->select('product_id', DB::raw('SUM(quantity) as total_sold'))
+            ->with('product')
+            ->groupBy('product_id')
+            ->orderByDesc('total_sold')
+            ->take(4)
+            ->get()
+            ->map(function ($movement) {
+                return [
+                    'name' => $movement->product->name,
+                    'quantity' => $movement->total_sold,
+                    'revenue' => $movement->total_sold * $movement->product->price,
+                ];
+            })
+            ->toArray();
     }
 
     public function refreshData()
