@@ -234,8 +234,8 @@
                 <span class="text-white text-sm font-medium">U</span>
             </div>
             <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-gray-700 truncate">User Name</p>
-                <p class="text-xs text-gray-500 truncate">user@example.com</p>
+                <p class="text-sm font-medium text-gray-700 truncate">Rahul Kumar</p>
+                <p class="text-xs text-gray-500 truncate">rahul@example.com</p>
             </div>
             <button class="text-gray-400 hover:text-gray-600">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -109,7 +109,7 @@
                 <div class="p-6 border-b border-gray-200">
                     <div class="flex justify-between items-center">
                         <h2 class="text-lg font-semibold text-gray-900">Recent Invoices</h2>
-                        <a href="#" class="text-teal-600 hover:text-teal-700 text-sm font-medium">View all</a>
+                        <a wire:navigate href="{{route('invoice.manage')}}" class="text-teal-600 hover:text-teal-700 text-sm font-medium">View all</a>
                     </div>
                 </div>
                 <div class="p-6">
