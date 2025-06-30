@@ -95,6 +95,11 @@ class CategoryModal extends Component
                 'description' => $category->description,
             ]);
 
+            $this->dispatch('category-created', [
+                'id' => $category->id,
+                'name' => $category->name,
+            ]);
+
             // Show success message
             session()->flash('success', 'Category "' . $category->name . '" created successfully!');
 

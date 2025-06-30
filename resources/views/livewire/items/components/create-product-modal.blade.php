@@ -1,5 +1,5 @@
 <div>
-    @if($showModal)
+    @if ($showModal)
         <!-- Modal Backdrop -->
         <div class="fixed inset-0 z-50 bg-black/50 bg-opacity-75 flex items-center justify-center p-4">
 
@@ -23,7 +23,8 @@
                     <button wire:click="closeModal" type="button"
                         class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
                         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12">
                             </path>
                         </svg>
                     </button>
@@ -93,7 +94,8 @@
                                             placeholder="Stock Keeping Unit">
                                         <button type="button" wire:click="generateSku"
                                             class="px-3 py-2 bg-[#153B50] text-white rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
                                                 </path>
@@ -119,21 +121,27 @@
                                         <button type="button" wire:click="clearBarcode"
                                             class="px-3 py-2 bg-gray-500 text-white rounded-r-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
                                             title="Clear barcode">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M6 18L18 6M6 6l12 12"></path>
                                             </svg>
                                         </button>
                                     </div>
                                     @error('barcode')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
-                                    @if($barcode)
+                                    @if ($barcode)
                                         <div class="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
                                             <div class="flex items-center">
-                                                <svg class="w-4 h-4 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                <svg class="w-4 h-4 text-green-400 mr-2" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                 </svg>
-                                                <span class="text-sm text-green-800">Barcode: {{ $barcode }}</span>
+                                                <span class="text-sm text-green-800">Barcode:
+                                                    {{ $barcode }}</span>
                                             </div>
                                         </div>
                                     @endif
@@ -167,13 +175,16 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <!-- Category -->
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                                        Category <span class="text-red-500">*</span>
-                                    </label>
+                                    <div class="flex items-center justify-between">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Category <span class="text-red-500">*</span>
+                                        </label>
+                                        <button wire:click="openAddCategoryModal" type="button" class="mb-2 text-sm text-blue-500 cursor-pointer">Add Category</button>
+                                    </div>
                                     <select wire:model.change="category_id"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('category_id') border-red-300 @enderror">
                                         <option value="">Select Category</option>
-                                        @foreach($categories as $category)
+                                        @foreach ($categories as $category)
                                             <option value="{{ $category->id }}">{{ $category->name }}</option>
                                         @endforeach
                                     </select>
@@ -184,10 +195,10 @@
 
                                 <!-- Supplier -->
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Supplier</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Supplier</label>
                                     <select wire:model="partie_id"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('partie_id') border-red-300 @enderror">
-                                        @foreach($parties as $partie)
+                                        @foreach ($parties as $partie)
                                             <option value="{{ $partie->id }}">{{ $partie->name }}</option>
                                         @endforeach
                                     </select>
@@ -198,7 +209,8 @@
 
                                 <!-- Model Compatibility -->
                                 <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Model Compatibility</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Model
+                                        Compatibility</label>
                                     <input wire:model="model_compatibility" type="text"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         placeholder="e.g., Honda CBR 150R, Yamaha R15 V3">
@@ -305,7 +317,7 @@
                                     </label>
                                     <select wire:model="unit"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                        @foreach($this->units as $key => $value)
+                                        @foreach ($this->units as $key => $value)
                                             <option value="{{ $key }}">{{ $value }}</option>
                                         @endforeach
                                     </select>
@@ -318,13 +330,15 @@
                             <!-- Stock Alert Info -->
                             <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
                                 <div class="flex items-start">
-                                    <svg class="w-5 h-5 text-blue-400 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    <svg class="w-5 h-5 text-blue-400 mt-0.5 mr-2 flex-shrink-0" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                     <div>
                                         <p class="text-sm font-medium text-blue-800">Low Stock Alert</p>
                                         <p class="text-xs text-blue-600 mt-1">
-                                            You will be notified when the stock quantity falls below the reorder level. 
+                                            You will be notified when the stock quantity falls below the reorder level.
                                             This helps you maintain optimal inventory levels and avoid stockouts.
                                         </p>
                                     </div>
@@ -377,7 +391,8 @@
                         <div wire:loading wire:target="save" class="flex items-center">
                             <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
                                 fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                    stroke="currentColor" stroke-width="4">
                                 </circle>
                                 <path class="opacity-75" fill="currentColor"
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
@@ -390,4 +405,7 @@
             </div>
         </div>
     @endif
+
+    {{-- category modal --}}
+    <livewire:components.category-modal />
 </div>

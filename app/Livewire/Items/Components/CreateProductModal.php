@@ -60,6 +60,7 @@ class CreateProductModal extends Component
         $this->loadData();
     }
 
+    #[On('category-created')] 
     public function loadData()
     {
         $this->categories = Category::orderBy('name')->get();
@@ -83,6 +84,11 @@ class CreateProductModal extends Component
         $this->showModal = false;
         $this->resetForm();
         $this->resetValidation();
+    }
+
+    public function openAddCategoryModal()
+    {
+        $this->dispatch('open-category-modal');
     }
 
     public function resetForm()
