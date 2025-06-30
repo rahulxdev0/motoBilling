@@ -155,7 +155,7 @@
             @if ($isPurchaseOpen)
                 <div class="ml-4 space-y-1 transition-all ease-in-out">
                     <!-- sales Invoices -->
-                    <a wire:navigate href="{{ route('invoice.manage') }}"
+                    <a wire:navigate href="{{ route('invoice.purchase') }}"
                         class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors border-l-2 border-teal-200">
                         <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

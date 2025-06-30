@@ -55,7 +55,7 @@ class ManageInvoice extends Component
     public function deleteInvoice($invoiceId)
     {
         $invoice = Invoice::find($invoiceId);
-        
+
         if ($invoice) {
             // Restore stock for deleted invoice
             foreach ($invoice->items as $item) {
@@ -64,7 +64,7 @@ class ManageInvoice extends Component
                     $product->increment('stock_quantity', $item->quantity);
                 }
             }
-            
+
             $invoice->delete();
             session()->flash('message', 'Invoice deleted successfully!');
         }
@@ -73,7 +73,7 @@ class ManageInvoice extends Component
     public function duplicateInvoice($invoiceId)
     {
         $originalInvoice = Invoice::with('items')->find($invoiceId);
-        
+
         if ($originalInvoice) {
             // Generate new invoice number
             $lastInvoice = Invoice::orderBy('id', 'desc')->first();
@@ -108,9 +108,9 @@ class ManageInvoice extends Component
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('invoice_number', 'like', '%' . $this->search . '%')
-                      ->orWhereHas('partie', function ($partieQuery) {
-                          $partieQuery->where('name', 'like', '%' . $this->search . '%');
-                      });
+                        ->orWhereHas('partie', function ($partieQuery) {
+                            $partieQuery->where('name', 'like', '%' . $this->search . '%');
+                        });
                 });
             })
             ->when($this->statusFilter, function ($query) {
@@ -124,12 +124,9 @@ class ManageInvoice extends Component
 
         $stats = [
             'total' => Invoice::count(),
-            'draft' => Invoice::where('status', 'draft')->count(),
-            'sent' => Invoice::where('status', 'sent')->count(),
-            'paid' => Invoice::where('payment_status', 'paid')->count(),
-            'overdue' => Invoice::where('payment_status', 'overdue')->count(),
-            'total_amount' => Invoice::sum('total'),
-            'outstanding' => Invoice::sum('balance_amount'),
+            'total_sales' => Invoice::sum('total'),
+            'paid_amount' => Invoice::sum('paid_amount'),
+            'unpaid_amount' => Invoice::sum('balance_amount'),
         ];
 
         return view('livewire.invoice.manage-invoice', compact('invoices', 'stats'));
