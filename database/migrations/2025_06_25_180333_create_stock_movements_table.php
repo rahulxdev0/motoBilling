@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->foreignId('product_id')->constrained();
             $table->integer('quantity');
             $table->string('movement_type'); // e.g., 'invoice', 'adjustment'
-            $table->foreignId('invoice_id')->nullable()->constrained();
+            $table->foreignId('invoice_id')->nullable()->constrained()->onDelete('cascade');
             $table->text('notes')->nullable();
             $table->timestamps();
         });

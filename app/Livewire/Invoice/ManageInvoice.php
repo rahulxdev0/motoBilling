@@ -57,6 +57,9 @@ class ManageInvoice extends Component
         $invoice = Invoice::find($invoiceId);
 
         if ($invoice) {
+            // Delete related stock_movements
+            $invoice->stockMovements()->delete();
+
             // Restore stock for deleted invoice
             foreach ($invoice->items as $item) {
                 $product = $item->product;
@@ -67,38 +70,6 @@ class ManageInvoice extends Component
 
             $invoice->delete();
             session()->flash('message', 'Invoice deleted successfully!');
-        }
-    }
-
-    public function duplicateInvoice($invoiceId)
-    {
-        $originalInvoice = Invoice::with('items')->find($invoiceId);
-
-        if ($originalInvoice) {
-            // Generate new invoice number
-            $lastInvoice = Invoice::orderBy('id', 'desc')->first();
-            $nextNumber = $lastInvoice ? (int)str_replace('INV-', '', $lastInvoice->invoice_number) + 1 : 1;
-            $newInvoiceNumber = 'INV-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
-
-            // Create duplicate invoice
-            $newInvoice = $originalInvoice->replicate();
-            $newInvoice->invoice_number = $newInvoiceNumber;
-            $newInvoice->status = 'draft';
-            $newInvoice->payment_status = 'unpaid';
-            $newInvoice->paid_amount = 0;
-            $newInvoice->balance_amount = $newInvoice->total;
-            $newInvoice->invoice_date = now();
-            $newInvoice->due_date = now()->addDays(30);
-            $newInvoice->save();
-
-            // Duplicate invoice items
-            foreach ($originalInvoice->items as $item) {
-                $newItem = $item->replicate();
-                $newItem->invoice_id = $newInvoice->id;
-                $newItem->save();
-            }
-
-            session()->flash('message', 'Invoice duplicated successfully! New invoice: ' . $newInvoiceNumber);
         }
     }
 
