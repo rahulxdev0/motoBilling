@@ -414,9 +414,9 @@ class CreateInvoice extends Component
             $message = $isCashSale ? 'Cash sale completed successfully!' : 'Invoice created successfully!';
             session()->flash('message', $message);
 
+            // If action is save_and_send, redirect to PDF view
             if ($action === 'save_and_send') {
-                $message = $isCashSale ? 'Cash sale completed and receipt generated!' : 'Invoice created and sent successfully!';
-                session()->flash('message', $message);
+                return redirect()->route('invoice.pdf.view', ['id' => $invoice->id]);
             }
 
             return redirect()->route('invoice.manage');
