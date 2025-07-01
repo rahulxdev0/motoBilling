@@ -236,29 +236,37 @@ class CreateInvoice extends Component
     }
 
     // Live update for discount percentage
-    public function updatedDiscountPercentage()
+    public function updatedDiscountPercentage($value)
     {
-        // Prevent circular updates
-        if ($this->subtotal > 0) {
-            $this->discount_amount = ((float) $this->subtotal * (float) $this->discount_percentage) / 100;
-            $this->calculateTotals();
+        // Prevent circular updates and only update amount if percentage is valid
+        if ($this->subtotal > 0 && is_numeric($value)) {
+            // Use the raw input value to calculate
+            $this->discount_amount = (float)($this->subtotal * (float)$value) / 100;
+            $this->calculateTotals(false); // Don't recalculate percentage
         }
     }
 
     // Live update for discount amount
-    public function updatedDiscountAmount()
+    public function updatedDiscountAmount($value)
     {
         // Prevent circular updates and division by zero
-        if ($this->subtotal > 0 && (float) $this->discount_amount >= 0) {
-            $this->discount_percentage = ((float) $this->discount_amount * 100) / (float) $this->subtotal;
-            $this->calculateTotals();
+        if ($this->subtotal > 0 && is_numeric($value) && (float)$value >= 0) {
+            // Use the raw input value to calculate
+            $this->discount_percentage = ((float)$value * 100) / (float)$this->subtotal;
+            $this->calculateTotals(true); // Skip recalculating discount amount
         }
     }
 
     // Live update for tax percentage
-    public function updatedTaxPercentage()
+    public function updatedTaxPercentage($value)
     {
-        $this->calculateTotals();
+        // Only process if the value is a valid number
+        if (is_numeric($value)) {
+            // We'll pass the raw value directly to calculate totals
+            // Store the raw value to prevent losing decimal places during typing
+            $this->tax_percentage = (float)$value;
+            $this->calculateTotals();
+        }
     }
 
     // Method to manually trigger calculation (useful for edge cases)
@@ -267,7 +275,8 @@ class CreateInvoice extends Component
         $this->calculateTotals();
     }
 
-    private function calculateTotals()
+    // Modified calculation method with parameter to control what gets recalculated
+    private function calculateTotals($recalculateDiscountAmount = true)
     {
         // Calculate subtotal - ensure we're working with numbers
         $this->subtotal = collect($this->invoice_items)->sum(function ($item) {
@@ -280,12 +289,9 @@ class CreateInvoice extends Component
         $this->tax_percentage = max(0, (float) $this->tax_percentage);
 
         // Calculate discount amount if percentage is set and subtotal > 0
-        if ($this->discount_percentage > 0 && $this->subtotal > 0) {
-            $calculatedDiscountAmount = ((float) $this->subtotal * (float) $this->discount_percentage) / 100;
-            // Only update if there's a significant difference to prevent circular updates
-            if (abs($calculatedDiscountAmount - (float) $this->discount_amount) > 0.01) {
-                $this->discount_amount = $calculatedDiscountAmount;
-            }
+        // Only recalculate if flag is set (to avoid circular updates)
+        if ($recalculateDiscountAmount && $this->discount_percentage > 0 && $this->subtotal > 0) {
+            $this->discount_amount = ((float) $this->subtotal * (float) $this->discount_percentage) / 100;
         }
 
         // Ensure discount amount doesn't exceed subtotal
@@ -296,7 +302,7 @@ class CreateInvoice extends Component
             }
         }
 
-        // Calculate tax amount
+        // Calculate tax amount - ensure we preserve tax percentage precision during calculation
         $taxable_amount = (float) $this->subtotal - (float) $this->discount_amount;
         $this->tax_amount = ($taxable_amount * (float) $this->tax_percentage) / 100;
 
@@ -309,12 +315,12 @@ class CreateInvoice extends Component
         // Final total
         $this->total = round($calculated_total);
 
-        // Ensure all values are properly formatted
+        // Format values for display - preserve tax_percentage as is to avoid truncating while typing
         $this->subtotal = round((float) $this->subtotal, 2);
         $this->discount_amount = round((float) $this->discount_amount, 2);
         $this->discount_percentage = round((float) $this->discount_percentage, 2);
         $this->tax_amount = round((float) $this->tax_amount, 2);
-        $this->tax_percentage = round((float) $this->tax_percentage, 2);
+        // Don't round tax_percentage here to preserve digits while typing
         $this->round_off = round((float) $this->round_off, 2);
         $this->total = round((float) $this->total, 2);
     }
