@@ -2,10 +2,12 @@
 
 namespace App\Livewire\Components;
 
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class Sidebar extends Component
 {
+    public $user;
     public $isItemsOpen = false;
     public $isSalesOpen = false;
     public $isPurchaseOpen = false;
@@ -23,6 +25,22 @@ class Sidebar extends Component
     public function togglePurchase()
     {
         $this->isPurchaseOpen = !$this->isPurchaseOpen;
+    }
+
+    public function mount()
+    {
+        // Load the authenticated user data when the component is initialized
+        $this->user = Auth::user();
+    }
+
+    public function logout()
+    {
+        Auth::logout();
+
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+
+        return redirect()->route('login');
     }
 
     public function render()

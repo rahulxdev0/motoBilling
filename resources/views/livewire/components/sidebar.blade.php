@@ -234,12 +234,19 @@
                 <span class="text-white text-sm font-medium">U</span>
             </div>
             <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-gray-700 truncate">Rahul Kumar</p>
-                <p class="text-xs text-gray-500 truncate">rahul@example.com</p>
+                @if ($user)
+                    <p class="text-sm font-medium text-gray-700 truncate">{{ $user->name }}</p>
+                    <p class="text-xs text-gray-500 truncate">{{ $user->email }}</p>
+                @else
+                    <p class="text-sm font-medium text-gray-700 truncate">Guest User</p>
+                    <p class="text-xs text-gray-500 truncate">Not logged in</p>
+                @endif
             </div>
-            <button class="text-gray-400 hover:text-gray-600">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            <button wire:click="logout"
+                class="group curso flex items-center justify-center p-2.5 rounded-full bg-transparent hover:bg-red-500 transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75">
+                <svg class="w-5 h-5 text-red-400 group-hover:text-white group-hover:scale-105 transition-transform duration-300"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="Logout">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                         d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
                     </path>
                 </svg>
