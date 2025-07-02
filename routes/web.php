@@ -4,15 +4,14 @@ use App\Livewire\Dashboard;
 use App\Livewire\Invoice\CreateInvoice;
 use App\Livewire\Invoice\ManageInvoice;
 use App\Livewire\Items\ManageItems;
+use App\Livewire\Login;
 use App\Livewire\Parties\CreatePatie;
 use App\Livewire\Parties\ManageParties;
 use App\Livewire\Purchase\CreatePurchaseInvoice;
 use App\Livewire\Purchase\PurchaseInvoice;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return "homepage";
-});
+Route::get('/', Login::class)->name('login');
 
 Route::get('/dashboard', Dashboard::class)->name('dashboard');
 Route::get('/items/manage', ManageItems::class)->name('items.manage');
