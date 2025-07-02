@@ -73,6 +73,22 @@ class ManageInvoice extends Component
         }
     }
 
+    /**
+     * View PDF for an invoice
+     */
+    public function viewPdf($invoiceId)
+    {
+        return redirect()->route('invoice.pdf.view', ['id' => $invoiceId]);
+    }
+
+    /**
+     * Download PDF for an invoice
+     */
+    public function downloadPdf($invoiceId)
+    {
+        return redirect()->route('invoice.pdf.download', ['id' => $invoiceId]);
+    }
+
     public function render()
     {
         $invoices = Invoice::with(['partie', 'items'])

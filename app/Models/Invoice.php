@@ -59,4 +59,16 @@ class Invoice extends Model
     {
         return $this->hasMany(StockMovement::class);
     }
+
+    /**
+     * Check if this invoice is a cash sale
+     */
+    public function isCashSale()
+    {
+        // Assuming cash sale customer has a specific identifier or payment_status is 'paid'
+        // and invoice_date = due_date
+        return $this->payment_status === 'paid' && 
+            $this->invoice_date === $this->due_date &&
+            $this->payment_terms === 'Cash Payment';
+    }
 }

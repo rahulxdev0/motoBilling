@@ -13,20 +13,28 @@
                         </p>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <button type="button" wire:click="save('draft')"
+                        <button type="button" wire:click="save('draft')" wire:loading.attr="disabled"
                             class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg wire:loading.remove wire:target="save" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12">
                                 </path>
                             </svg>
+                            <svg wire:loading wire:target="save" class="animate-spin w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
                             {{ $this->isCashSale() ? 'Save Sale' : 'Save as Draft' }}
                         </button>
-                        <button type="button" wire:click="save('save_and_send')"
+                        <button type="button" wire:click="save('save_and_send')" wire:loading.attr="disabled"
                             class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg wire:loading.remove wire:target="save" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                            </svg>
+                            <svg wire:loading wire:target="save" class="animate-spin w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
                             {{ $this->isCashSale() ? 'Complete Sale & Print' : 'Save & Send' }}
                         </button>
@@ -229,7 +237,7 @@
                                                 </td>
                                                 <td class="px-6 py-4">
                                                     <input type="number"
-                                                        wire:model.live="invoice_items.{{ $index }}.quantity"
+                                                        wire:model.live.debounce.300ms="invoice_items.{{ $index }}.quantity"
                                                         min="1" step="1"
                                                         class="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                                     @error('invoice_items.' . $index . '.quantity')
@@ -238,7 +246,7 @@
                                                 </td>
                                                 <td class="px-6 py-4">
                                                     <input type="number"
-                                                        wire:model.live="invoice_items.{{ $index }}.unit_price"
+                                                        wire:model.live.debounce.300ms="invoice_items.{{ $index }}.unit_price"
                                                         min="0" step="0.01"
                                                         class="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                                     @error('invoice_items.' . $index . '.unit_price')
@@ -333,16 +341,16 @@
                                 </div>
                                 <div class="grid grid-cols-2 gap-2">
                                     <div>
-                                        <input type="number" wire:model.live="discount_percentage"
+                                        <input type="number" wire:model.live.debounce.300ms="discount_percentage"
                                             min="0" max="100"
                                             step="0.01" placeholder="%"
-                                            class="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                            class="w-full px-4 py-2 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                                             title="Discount Percentage">
                                     </div>
                                     <div>
-                                        <input type="number" wire:model.live="discount_amount" min="0"
+                                        <input type="number" wire:model.live.debounce.300ms="discount_amount" min="0"
                                             step="0.01" placeholder="Amount"
-                                            class="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                            class="w-full  px-4 py-2 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                                             title="Discount Amount">
                                     </div>
                                 </div>
@@ -356,10 +364,10 @@
                                     <span class="text-sm font-medium text-gray-900">₹{{ number_format($tax_amount, 2) }}</span>
                                 </div>
                                 <div>
-                                    <input type="number" wire:model.live="tax_percentage" min="0"
+                                    <input type="number" wire:model.live.debounce.300ms="tax_percentage" min="0"
                                         max="100" step="0.01"
                                         placeholder="Tax %"
-                                        class="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                        class="w-full  px-4 py-2 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                                         title="Tax Percentage">
                                 </div>
                             </div>
@@ -375,14 +383,29 @@
                             <!-- Total -->
                             <div class="flex justify-between items-center">
                                 <span class="text-base font-medium text-gray-900">Total</span>
-                                <span class="text-lg font-bold text-gray-900">₹{{ number_format($total, 2) }}</span>
+                                <div class="flex items-center">
+                                    <span class="text-lg font-bold text-gray-900">₹{{ number_format($total, 2) }}</span>
+                                    <div wire:loading class="ml-2">
+                                        <svg class="animate-spin h-4 w-4 text-teal-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Manual Recalculate Button (for edge cases) -->
                             <div class="pt-2">
-                                <button type="button" wire:click="recalculate"
-                                    class="w-full text-xs text-gray-500 hover:text-gray-700 focus:outline-none">
-                                    🔄 Recalculate
+                                <button type="button" wire:click="recalculate" wire:loading.attr="disabled"
+                                    class="w-full text-xs text-gray-500 hover:text-gray-700 focus:outline-none flex items-center justify-center">
+                                    <span wire:loading.remove wire:target="recalculate">🔄 Recalculate</span>
+                                    <span wire:loading wire:target="recalculate" class="flex items-center">
+                                        <svg class="animate-spin h-3 w-3 text-teal-500 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Calculating...
+                                    </span>
                                 </button>
                             </div>
 
