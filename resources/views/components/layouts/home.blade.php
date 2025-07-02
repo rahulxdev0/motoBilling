@@ -10,7 +10,7 @@
 </head>
 
 <body>
-    <div class="p-2 bg-gray-200 h-screen">
+    <div class="bg-gray-200 max-h-[90vh]">
         {{ $slot }}
     </div>
 </body>
