@@ -31,6 +31,7 @@ return new class extends Migration {
             $table->enum('payment_status', ['unpaid', 'partial', 'paid', 'overdue'])->default('unpaid');
             $table->enum('status', ['draft', 'sent', 'paid', 'cancelled'])->default('draft');
             $table->string('payment_terms')->nullable();
+            $table->string('payment_method')->nullable();
             $table->text('terms_conditions')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();

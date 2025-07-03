@@ -22,10 +22,15 @@ class CreateInvoice extends Component
     public $status = 'draft';
     public $barcodeInput = '';
 
+    // Payment properties
+    public $paid_amount = '';
+    public $payment_method = '';
+    public $due_amount = 0;
+
     // Calculation properties
     public $subtotal = 0;
-    public $discount_percentage ;
-    public $discount_amount;
+    public $discount_percentage = '';
+    public $discount_amount = '';
     public $tax_percentage = 18;
     public $tax_amount = 0;
     public $round_off = 0;
@@ -46,6 +51,15 @@ class CreateInvoice extends Component
     protected static $staticName = 'invoice.create-invoice';
 
     public $showBarcodeScanner = false;
+
+    // Payment method options
+    public $paymentMethods = [
+        'cash' => 'Cash',
+        'upi' => 'UPI',
+        'card' => 'Card',
+        'cheque' => 'Cheque',
+        'bank_transfer' => 'Bank Transfer'
+    ];
 
     public function mount()
     {
@@ -151,11 +165,20 @@ class CreateInvoice extends Component
             // For cash sales, set due date to same as invoice date
             $this->due_date = $this->invoice_date;
             $this->payment_terms = 'Cash Payment';
+            $this->payment_method = 'cash';
+            // For cash sales, set paid amount to total when total is calculated
+            if ($this->total > 0) {
+                $this->paid_amount = $this->total;
+            }
         } else {
             // For credit sales, set due date to 30 days from invoice date
             $this->due_date = now()->parse($this->invoice_date)->addDays(30)->format('Y-m-d');
             $this->payment_terms = '';
+            $this->payment_method = '';
+            // Clear paid amount for credit sales
+            $this->paid_amount = '';
         }
+        $this->calculateTotals();
     }
 
     // Update invoice date method to handle cash sales
@@ -164,6 +187,27 @@ class CreateInvoice extends Component
         if ($this->isCashSale()) {
             $this->due_date = $this->invoice_date;
         }
+    }
+
+    // Update paid amount with delayed calculation
+    public function updatedPaidAmount()
+    {
+        if ($this->paid_amount !== '') {
+            $this->paid_amount = max(0, (float) $this->paid_amount);
+            if ($this->paid_amount > $this->total) {
+                $this->paid_amount = $this->total;
+            }
+        }
+        
+        // Use dispatch to delay calculation
+        $this->dispatch('delay-calculate-due');
+    }
+
+    // Calculate due amount
+    private function calculateDueAmount()
+    {
+        $paidAmount = is_numeric($this->paid_amount) ? (float) $this->paid_amount : 0;
+        $this->due_amount = max(0, (float) $this->total - $paidAmount);
     }
 
     private function generateInvoiceNumber()
@@ -219,7 +263,7 @@ class CreateInvoice extends Component
             if ($product) {
                 $this->invoice_items[$index]['unit_price'] = (float) $product->selling_price;
                 // Calculate total immediately when product is selected
-                $this->invoice_items[$index]['total'] =
+                $this->invoice_items[$index]['total'] = 
                     (float) $this->invoice_items[$index]['quantity'] * (float) $product->selling_price;
             }
         }
@@ -235,26 +279,52 @@ class CreateInvoice extends Component
         $this->calculateTotals();
     }
 
-    // Live update for discount percentage
+    // Live update for discount percentage with delayed calculation
     public function updatedDiscountPercentage($value)
     {
-        // Prevent circular updates and only update amount if percentage is valid
-        if ($this->subtotal > 0 && is_numeric($value)) {
-            // Use the raw input value to calculate
-            $this->discount_amount = (float)($this->subtotal * (float)$value) / 100;
-            $this->calculateTotals(false); // Don't recalculate percentage
+        // Store the value but don't calculate immediately
+        $this->discount_percentage = $value;
+        
+        // Use dispatch to delay calculation
+        $this->dispatch('delay-calculate-discount-from-percentage');
+    }
+
+    // Live update for discount amount with delayed calculation
+    public function updatedDiscountAmount($value)
+    {
+        // Store the value but don't calculate immediately
+        $this->discount_amount = $value;
+        
+        // Use dispatch to delay calculation
+        $this->dispatch('delay-calculate-discount-from-amount');
+    }
+
+    // Delayed calculation methods
+    public function calculateDiscountFromPercentage()
+    {
+        if ($this->subtotal > 0 && $this->discount_percentage !== '' && is_numeric($this->discount_percentage)) {
+            $this->discount_amount = (float)($this->subtotal * (float)$this->discount_percentage) / 100;
+            $this->calculateTotals(false);
+        } elseif ($this->discount_percentage === '') {
+            $this->discount_amount = '';
+            $this->calculateTotals(false);
         }
     }
 
-    // Live update for discount amount
-    public function updatedDiscountAmount($value)
+    public function calculateDiscountFromAmount()
     {
-        // Prevent circular updates and division by zero
-        if ($this->subtotal > 0 && is_numeric($value) && (float)$value >= 0) {
-            // Use the raw input value to calculate
-            $this->discount_percentage = ((float)$value * 100) / (float)$this->subtotal;
-            $this->calculateTotals(true); // Skip recalculating discount amount
+        if ($this->subtotal > 0 && $this->discount_amount !== '' && is_numeric($this->discount_amount) && (float)$this->discount_amount >= 0) {
+            $this->discount_percentage = ((float)$this->discount_amount * 100) / (float)$this->subtotal;
+            $this->calculateTotals(true);
+        } elseif ($this->discount_amount === '') {
+            $this->discount_percentage = '';
+            $this->calculateTotals(true);
         }
+    }
+
+    public function calculateDueFromPaid()
+    {
+        $this->calculateDueAmount();
     }
 
     // Live update for tax percentage
@@ -283,19 +353,21 @@ class CreateInvoice extends Component
             return (float) ($item['total'] ?? 0);
         });
 
-        // Ensure discount values are not negative
-        $this->discount_percentage = max(0, (float) $this->discount_percentage);
-        $this->discount_amount = max(0, (float) $this->discount_amount);
+        // Handle discount calculations only if values are not empty
+        $discountPercentage = is_numeric($this->discount_percentage) ? max(0, (float) $this->discount_percentage) : 0;
+        $discountAmount = is_numeric($this->discount_amount) ? max(0, (float) $this->discount_amount) : 0;
         $this->tax_percentage = max(0, (float) $this->tax_percentage);
 
         // Calculate discount amount if percentage is set and subtotal > 0
         // Only recalculate if flag is set (to avoid circular updates)
-        if ($recalculateDiscountAmount && $this->discount_percentage > 0 && $this->subtotal > 0) {
-            $this->discount_amount = ((float) $this->subtotal * (float) $this->discount_percentage) / 100;
+        if ($recalculateDiscountAmount && $discountPercentage > 0 && $this->subtotal > 0) {
+            $discountAmount = ((float) $this->subtotal * $discountPercentage) / 100;
+            $this->discount_amount = $discountAmount;
         }
 
         // Ensure discount amount doesn't exceed subtotal
-        if ((float) $this->discount_amount > (float) $this->subtotal) {
+        if ($discountAmount > (float) $this->subtotal) {
+            $discountAmount = $this->subtotal;
             $this->discount_amount = $this->subtotal;
             if ($this->subtotal > 0) {
                 $this->discount_percentage = 100;
@@ -303,7 +375,7 @@ class CreateInvoice extends Component
         }
 
         // Calculate tax amount - ensure we preserve tax percentage precision during calculation
-        $taxable_amount = (float) $this->subtotal - (float) $this->discount_amount;
+        $taxable_amount = (float) $this->subtotal - $discountAmount;
         $this->tax_amount = ($taxable_amount * (float) $this->tax_percentage) / 100;
 
         // Calculate total before round off
@@ -315,14 +387,26 @@ class CreateInvoice extends Component
         // Final total
         $this->total = round($calculated_total);
 
-        // Format values for display - preserve tax_percentage as is to avoid truncating while typing
+        // Format values for display - preserve values as they are for empty strings
         $this->subtotal = round((float) $this->subtotal, 2);
-        $this->discount_amount = round((float) $this->discount_amount, 2);
-        $this->discount_percentage = round((float) $this->discount_percentage, 2);
+        if (is_numeric($this->discount_amount)) {
+            $this->discount_amount = round((float) $this->discount_amount, 2);
+        }
+        if (is_numeric($this->discount_percentage)) {
+            $this->discount_percentage = round((float) $this->discount_percentage, 2);
+        }
         $this->tax_amount = round((float) $this->tax_amount, 2);
-        // Don't round tax_percentage here to preserve digits while typing
         $this->round_off = round((float) $this->round_off, 2);
         $this->total = round((float) $this->total, 2);
+
+        // Calculate due amount after total is calculated
+        $this->calculateDueAmount();
+
+        // For cash sales, auto-set paid amount to total only if paid amount is empty
+        if ($this->isCashSale() && $this->paid_amount === '' && $this->total > 0) {
+            $this->paid_amount = $this->total;
+            $this->calculateDueAmount();
+        }
     }
 
     public function searchProducts()
@@ -331,8 +415,7 @@ class CreateInvoice extends Component
             $this->filtered_products = Product::where('status', 'active')
                 ->where(function ($query) {
                     $query->where('name', 'like', '%' . $this->search_product . '%')
-                        ->orWhere('item_code', 'like', '%' . $this->search_product . '%')
-                        ->orWhere('sku', 'like', '%' . $this->search_product . '%');
+                          ->orWhere('item_code', 'like', '%' . $this->search_product . '%');
                 })
                 ->limit(10)
                 ->get()
@@ -344,6 +427,8 @@ class CreateInvoice extends Component
 
     public function save($action = 'draft')
     {
+        $paidAmount = is_numeric($this->paid_amount) ? (float) $this->paid_amount : 0;
+        
         $this->validate([
             'partie_id' => 'required|exists:parties,id',
             'invoice_date' => 'required|date',
@@ -351,6 +436,8 @@ class CreateInvoice extends Component
             'invoice_items.*.product_id' => 'required|exists:products,id',
             'invoice_items.*.quantity' => 'required|numeric|min:1',
             'invoice_items.*.unit_price' => 'required|numeric|min:0',
+            'paid_amount' => 'nullable|numeric|min:0|max:' . $this->total,
+            'payment_method' => $paidAmount > 0 ? 'required|string' : 'nullable|string',
         ]);
 
         $this->status = $action === 'save_and_send' ? 'sent' : 'draft';
@@ -358,6 +445,14 @@ class CreateInvoice extends Component
 
         // Generate a new invoice number just before saving to avoid duplicates
         $this->invoice_number = $this->generateInvoiceNumber();
+
+        // Determine payment status
+        $paymentStatus = 'unpaid';
+        if ($paidAmount >= $this->total) {
+            $paymentStatus = 'paid';
+        } elseif ($paidAmount > 0) {
+            $paymentStatus = 'partial';
+        }
 
         try {
             // Create invoice
@@ -367,16 +462,17 @@ class CreateInvoice extends Component
                 'invoice_date' => $this->invoice_date,
                 'due_date' => $isCashSale ? $this->invoice_date : $this->due_date,
                 'subtotal' => $this->subtotal,
-                'discount_percentage' => $this->discount_percentage,
-                'discount_amount' => $this->discount_amount,
+                'discount_percentage' => is_numeric($this->discount_percentage) ? $this->discount_percentage : 0,
+                'discount_amount' => is_numeric($this->discount_amount) ? $this->discount_amount : 0,
                 'tax_percentage' => $this->tax_percentage,
                 'tax_amount' => $this->tax_amount,
                 'round_off' => $this->round_off,
                 'total' => $this->total,
-                'paid_amount' => $isCashSale ? $this->total : 0,
-                'balance_amount' => $isCashSale ? 0 : $this->total,
-                'payment_status' => $isCashSale ? 'paid' : 'unpaid',
+                'paid_amount' => $paidAmount,
+                'balance_amount' => $this->due_amount,
+                'payment_status' => $paymentStatus,
                 'payment_terms' => $isCashSale ? 'Cash Payment' : $this->payment_terms,
+                'payment_method' => $this->payment_method,
                 'terms_conditions' => $this->terms_conditions,
                 'notes' => $this->notes,
                 'status' => $this->status,
@@ -394,7 +490,7 @@ class CreateInvoice extends Component
                         'total' => $item['total'],
                     ]);
 
-                    // Update product stock
+                    // Update stock for sales invoices
                     $product = Product::find($item['product_id']);
                     if ($product) {
                         $product->decrement('stock_quantity', $item['quantity']);
@@ -402,10 +498,12 @@ class CreateInvoice extends Component
                         // Create stock movement record
                         StockMovement::create([
                             'product_id' => $item['product_id'],
-                            'quantity' => -$item['quantity'],
-                            'movement_type' => 'invoice',
                             'invoice_id' => $invoice->id,
-                            'notes' => 'Stock reduced for invoice: ' . $this->invoice_number . ($isCashSale ? ' (Cash Sale)' : ''),
+                            'movement_type' => 'out',
+                            'quantity' => $item['quantity'],
+                            'reference_type' => 'sales_invoice',
+                            'reference_id' => $invoice->id,
+                            'notes' => 'Stock reduced for sales invoice ' . $invoice->invoice_number,
                         ]);
                     }
                 }

@@ -27,6 +27,7 @@ class Invoice extends Model
         'payment_status',
         'status',
         'payment_terms',
+        'payment_method',
         'terms_conditions',
         'notes',
     ];

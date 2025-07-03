@@ -330,14 +330,14 @@
                             <!-- Subtotal -->
                             <div class="flex justify-between items-center">
                                 <span class="text-sm text-gray-600">Subtotal</span>
-                                <span class="text-sm font-medium text-gray-900">₹{{ number_format($subtotal, 2) }}</span>
+                                <span class="text-sm font-medium text-gray-900">₹{{ number_format((float)($subtotal ?: 0), 2) }}</span>
                             </div>
 
                             <!-- Discount -->
                             <div class="space-y-2">
                                 <div class="flex justify-between items-center">
                                     <span class="text-sm text-gray-600">Discount</span>
-                                    <span class="text-sm font-medium text-gray-900">-₹{{ number_format($discount_amount, 2) }}</span>
+                                    <span class="text-sm font-medium text-gray-900">-₹{{ number_format((float)($discount_amount ?: 0), 2) }}</span>
                                 </div>
                                 <div class="grid grid-cols-2 gap-2">
                                     <div>
@@ -360,8 +360,8 @@
                             <div class="space-y-2">
                                 <div class="flex justify-between items-center">
                                     <span class="text-sm text-gray-600">Tax
-                                        ({{ number_format($tax_percentage, 2) }}%)</span>
-                                    <span class="text-sm font-medium text-gray-900">₹{{ number_format($tax_amount, 2) }}</span>
+                                        ({{ number_format((float)($tax_percentage ?: 0), 2) }}%)</span>
+                                    <span class="text-sm font-medium text-gray-900">₹{{ number_format((float)($tax_amount ?: 0), 2) }}</span>
                                 </div>
                                 <div>
                                     <input type="number" wire:model.live.debounce.300ms="tax_percentage" min="0"
@@ -375,7 +375,7 @@
                             <!-- Round Off -->
                             <div class="flex justify-between items-center">
                                 <span class="text-sm text-gray-600">Round Off</span>
-                                <span class="text-sm font-medium text-gray-900">₹{{ number_format($round_off, 2) }}</span>
+                                <span class="text-sm font-medium text-gray-900">₹{{ number_format((float)($round_off ?: 0), 2) }}</span>
                             </div>
 
                             <hr class="border-gray-200">
@@ -384,7 +384,7 @@
                             <div class="flex justify-between items-center">
                                 <span class="text-base font-medium text-gray-900">Total</span>
                                 <div class="flex items-center">
-                                    <span class="text-lg font-bold text-gray-900">₹{{ number_format($total, 2) }}</span>
+                                    <span class="text-lg font-bold text-gray-900">₹{{ number_format((float)($total ?: 0), 2) }}</span>
                                     <div wire:loading class="ml-2">
                                         <svg class="animate-spin h-4 w-4 text-teal-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -392,6 +392,68 @@
                                         </svg>
                                     </div>
                                 </div>
+                            </div>
+
+                            <hr class="border-gray-200">
+
+                            <!-- Payment Section -->
+                            <div class="space-y-4">
+                                <h3 class="text-sm font-medium text-gray-900">Payment Details</h3>
+                                
+                                <!-- Payment Method -->
+                                <div class="space-y-2">
+                                    <label class="block text-sm text-gray-600">Payment Method</label>
+                                    <select wire:model.live="payment_method"
+                                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                        {{ $this->isCashSale() ? 'required' : '' }}>
+                                        <option value="">Select Payment Method</option>
+                                        @foreach($paymentMethods as $value => $label)
+                                            <option value="{{ $value }}">{{ $label }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('payment_method')
+                                        <span class="text-red-500 text-xs">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <!-- Paid Amount -->
+                                <div class="space-y-2">
+                                    <label class="block text-sm text-gray-600">Paid Amount</label>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
+                                        <input type="number" wire:model.live.debounce.300ms="paid_amount"
+                                            min="0" max="{{ $total }}" step="0.01"
+                                            placeholder="0.00"
+                                            class="w-full pl-8 pr-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                                    </div>
+                                    @error('paid_amount')
+                                        <span class="text-red-500 text-xs">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <!-- Due Amount Display -->
+                                <div class="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
+                                    <span class="text-sm text-gray-600">Due Amount</span>
+                                    <span class="text-sm font-medium {{ $due_amount > 0 ? 'text-red-600' : 'text-green-600' }}">
+                                        ₹{{ number_format((float)($due_amount ?: 0), 2) }}
+                                    </span>
+                                </div>
+
+                                <!-- Payment Status Badge -->
+                                @if($paid_amount > 0)
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600">Payment Status</span>
+                                        @if($due_amount <= 0)
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                ✓ Fully Paid
+                                            </span>
+                                        @elseif($paid_amount > 0)
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                ⚡ Partial Payment
+                                            </span>
+                                        @endif
+                                    </div>
+                                @endif
                             </div>
 
                             <!-- Manual Recalculate Button (for edge cases) -->
@@ -433,7 +495,7 @@
                                             </p>
                                             <p class="text-xs text-{{ $this->isCashSale() ? 'green' : 'teal' }}-600">
                                                 {{ $this->isCashSale() ? 'Payment received immediately' : 'Amount payable by customer' }}
-                                            </p>
+                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -444,15 +506,43 @@
             </div>
         </form>
     </div>
-</div>
 
-<script>
-    document.addEventListener('livewire:init', () => {
-        Livewire.on('focus-barcode-input', () => {
-            const input = document.getElementById('barcode-input');
-            if (input) {
-                input.focus();
-            }
+    <!-- JavaScript for delayed calculations -->
+    <script>
+        document.addEventListener('livewire:initialized', () => {
+            let discountPercentageTimeout;
+            let discountAmountTimeout;
+            let dueAmountTimeout;
+
+            Livewire.on('delay-calculate-discount-from-percentage', () => {
+                clearTimeout(discountPercentageTimeout);
+                discountPercentageTimeout = setTimeout(() => {
+                    @this.calculateDiscountFromPercentage();
+                }, 500);
+            });
+
+            Livewire.on('delay-calculate-discount-from-amount', () => {
+                clearTimeout(discountAmountTimeout);
+                discountAmountTimeout = setTimeout(() => {
+                    @this.calculateDiscountFromAmount();
+                }, 500);
+            });
+
+            Livewire.on('delay-calculate-due', () => {
+                clearTimeout(dueAmountTimeout);
+                dueAmountTimeout = setTimeout(() => {
+                    @this.calculateDueFromPaid();
+                }, 300);
+            });
+
+            Livewire.on('focus-barcode-input', () => {
+                setTimeout(() => {
+                    const input = document.getElementById('barcode-input');
+                    if (input) {
+                        input.focus();
+                    }
+                }, 100);
+            });
         });
-    });
-</script>
+    </script>
+</div>
