@@ -8,9 +8,11 @@
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     </head>
     <body>
-        <div class="p-2 bg-gray-200 h-screen">
-           <div class="bg-gray-200 h-[98vh] flex gap-2">
-             <livewire:components.sidebar />
+        <div class="md:p-2 bg-gray-200 h-screen">
+           <div class="bg-gray-200 h-screen md:h-[98vh] flex gap-2">
+             <div class="hidden sm:block md:block lg:block">
+                <livewire:components.sidebar />
+             </div>
                 <div class="bg-white h-full rounded-lg shadow overflow-y-auto flex-1">
                     {{ $slot }}
                 </div>
