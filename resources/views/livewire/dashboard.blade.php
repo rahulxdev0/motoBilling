@@ -2,9 +2,20 @@
     <!-- Header -->
     <div class="mb-8">
         <div class="flex justify-between items-center">
+            <div class="flex items-center">
+                <button
+                class="sm:hidden p-2 rounded-md text-gray-500 hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                wire:click="$dispatch('toggle-mobile-sidebar')">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
+                    </path>
+                </svg>
+            </button>
             <div>
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-700">Dashboard</h1>
-                <p class="hidden md:block text-gray-600 mt-1">Welcome back! Here's what's happening with your business today.</p>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-600">Dashboard</h1>
+                <p class="hidden md:block text-gray-600 mt-1">Welcome back! Here's what's happening with your business
+                    today.</p>
+            </div>
             </div>
             <button wire:click="refreshData"
                 class="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
@@ -109,7 +120,8 @@
                 <div class="p-6 border-b border-gray-200">
                     <div class="flex justify-between items-center">
                         <h2 class="text-lg font-semibold text-gray-900">Recent Invoices</h2>
-                        <a wire:navigate href="{{route('invoice.manage')}}" class="text-teal-600 hover:text-teal-700 text-sm font-medium">View all</a>
+                        <a wire:navigate href="{{ route('invoice.manage') }}"
+                            class="text-teal-600 hover:text-teal-700 text-sm font-medium">View all</a>
                     </div>
                 </div>
                 <div class="p-6">
@@ -233,7 +245,7 @@
                             </svg>
                             <span>Create Invoice</span>
                         </a>
-                        <a wire:navigate href="{{route('parties.create')}}"
+                        <a wire:navigate href="{{ route('parties.create') }}"
                             class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-4 rounded-lg flex items-center justify-center space-x-2 transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -241,7 +253,7 @@
                             </svg>
                             <span>Add Customer</span>
                         </a>
-                        <a wire:navigate href="{{ route('items.manage')}}"
+                        <a wire:navigate href="{{ route('items.manage') }}"
                             class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-4 rounded-lg flex items-center justify-center space-x-2 transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

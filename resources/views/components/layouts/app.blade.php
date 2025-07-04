@@ -10,7 +10,7 @@
     <body>
         <div class="md:p-2 bg-gray-200 h-screen">
            <div class="bg-gray-200 h-screen md:h-[98vh] flex gap-2">
-             <div class="hidden sm:block md:block lg:block">
+             <div class="">
                 <livewire:components.sidebar />
              </div>
                 <div class="bg-white h-full rounded-lg shadow overflow-y-auto flex-1">
