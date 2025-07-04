@@ -1,4 +1,4 @@
-<div class="flex-1 p-6 bg-white overflow-y-auto rounded-md">
+<div class="flex-1 p-6 bg-gray-100 md:bg-white overflow-y-auto md:rounded-md">
     <!-- Header -->
     <div class="mb-8">
         <div class="flex justify-between items-center">

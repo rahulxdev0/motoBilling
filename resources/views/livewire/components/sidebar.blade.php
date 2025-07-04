@@ -6,7 +6,7 @@
             x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
         </div>
     @endif
-    <div class="w-64 bg-white shadow-lg border-r border-gray-200 flex flex-col h-screen rounded-md 
+    <div class="w-64 bg-white shadow-lg border-r border-gray-200 flex flex-col h-screen md:h-[98vh] rounded-md 
             {{ $isMobileOpen ? 'fixed inset-y-0 left-0 z-50 sm:relative sm:z-auto' : 'hidden sm:flex' }}"
         x-transition:enter="transform transition ease-in-out duration-300" x-transition:enter-start="-translate-x-full"
         x-transition:enter-end="translate-x-0" x-transition:leave="transform transition ease-in-out duration-300"
