@@ -10,9 +10,32 @@
 </head>
 
 <body>
+    <!-- Page Navigation Loader Component -->
+    <livewire:components.loader-component />
+    
     <div class="bg-gray-200 max-h-[90vh]">
         {{ $slot }}
     </div>
 </body>
+
+<script>
+document.addEventListener('livewire:init', () => {
+    // Register loader hooks for navigation
+    Livewire.on('register-loader-hooks', () => {
+        // Show loader when navigation starts
+        document.addEventListener('livewire:navigating', () => {
+            Livewire.dispatch('showLoader');
+        });
+        
+        // Hide loader when navigation is complete
+        document.addEventListener('livewire:navigated', () => {
+            // Small delay to ensure smooth transition
+            setTimeout(() => {
+                Livewire.dispatch('hideLoader');
+            }, 300);
+        });
+    });
+});
+</script>
 
 </html>

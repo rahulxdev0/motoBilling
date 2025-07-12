@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Partie;
 use Livewire\Component;
 use Livewire\Attributes\On;
+use Milon\Barcode\DNS1D; // Add this at the top with other imports
 
 class CreateProductModal extends Component
 {
@@ -32,6 +33,11 @@ class CreateProductModal extends Component
 
     public $categories = [];
     public $parties = [];
+
+    // Add this property to store the barcode HTML
+    public $barcodeLabel;
+
+    public $barcodePrintQty = 1; // Add this property for print quantity
 
     protected function rules()
     {
@@ -200,6 +206,21 @@ class CreateProductModal extends Component
     {
         // Generate a simple barcode (you can customize this logic)
         $this->barcode = '2' . str_pad(mt_rand(1, 999999999999), 12, '0', STR_PAD_LEFT);
+    }
+
+    public function generateBarcodeLabel()
+    {
+        if (empty($this->barcode) || empty($this->name)) {
+            // Replace dispatchBrowserEvent with dispatch
+            $this->dispatch('notify', type: 'error', message: 'Barcode and product name are required to generate a label.');
+            return;
+        }
+        
+        // Generate a barcode using a barcode.js CDN
+        $this->barcodeLabel = '<img src="https://barcodeapi.org/api/128/' . urlencode($this->barcode) . '" alt="Barcode" style="max-width:100%;">';
+        
+        // Replace dispatchBrowserEvent with dispatch
+        $this->dispatch('notify', type: 'success', message: 'Barcode label generated successfully.');
     }
 
     public function updatedCategoryId()
