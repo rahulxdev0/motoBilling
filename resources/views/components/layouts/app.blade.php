@@ -8,9 +8,20 @@
     <title>{{ $title ?? 'Page Title' }}</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     
-    <!-- Alpine.js -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
+    <style>
+        /* Optimized loader animation */
+        .loader {
+            border-top-color: #3498db;
+            animation: spinner 0.8s linear infinite;
+            will-change: transform;
+        }
+        
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+
     <style>
         /* Loader animation */
         .loader {
@@ -65,67 +76,25 @@
 
 <script>
     document.addEventListener('livewire:init', () => {
-
-        
-
-        document.addEventListener('click', function(e) {
-            if (e.target && (e.target.id === 'printBarcodeBtn' || e.target.closest(
-                '#printBarcodeBtn'))) {
-                printBarcodeLabel();
-            }
-        });
         // Register loader hooks for navigation
-        Livewire.on('register-loader-hooks', () => {
-            // Show loader when navigation starts
+      
+            // Show loader only if navigation takes longer than 150ms
             document.addEventListener('livewire:navigating', () => {
-                Livewire.dispatch('showLoader');
+                loadingTimer = setTimeout(() => {
+                    Livewire.dispatch('showLoader');
+                }, 150);
             });
 
             // Hide loader when navigation is complete
             document.addEventListener('livewire:navigated', () => {
-                // Small delay to ensure smooth transition
-                setTimeout(() => {
-                    Livewire.dispatch('hideLoader');
-                }, 300);
-            });
-        });
-
-        Livewire.on('scanner-mounted', (event) => {
-            const barcodeInput = document.getElementById('barcode-input');
-
-            // Focus on barcode input when component is ready
-            setTimeout(() => barcodeInput.focus(), 100);
-
-            // Handle barcode scanner input (fast typing)
-            barcodeInput.addEventListener('input', function(e) {
-                // USB scanners typically send an Enter key after scanning
-                if (e.inputType === 'insertLineBreak') {
-                    // Dispatch event to Livewire component
-                    Livewire.dispatch('barcode-scanned');
+                // Clear the timer if navigation was fast
+                if (loadingTimer) {
+                    clearTimeout(loadingTimer);
                 }
+                // Hide loader immediately
+                Livewire.dispatch('hideLoader');
             });
-
-            // Re-focus after adding items
-            Livewire.hook('commit', ({
-                component,
-                commit,
-                respond,
-                succeed,
-                fail
-            }) => {
-                respond(() => {
-                    succeed(({
-                        snapshot,
-                        effect
-                    }) => {
-                        // Check if this is the invoice create component
-                        if (barcodeInput && component.name ===
-                            'invoice.create-invoice') {
-                            barcodeInput.focus();
-                        }
-                    });
-                });
-            });
-        });
     });
-</script>
+
+    
+    </script>
