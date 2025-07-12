@@ -78,22 +78,6 @@
     document.addEventListener('livewire:init', () => {
         // Register loader hooks for navigation
       
-            // Show loader only if navigation takes longer than 150ms
-            document.addEventListener('livewire:navigating', () => {
-                loadingTimer = setTimeout(() => {
-                    Livewire.dispatch('showLoader');
-                }, 150);
-            });
-
-            // Hide loader when navigation is complete
-            document.addEventListener('livewire:navigated', () => {
-                // Clear the timer if navigation was fast
-                if (loadingTimer) {
-                    clearTimeout(loadingTimer);
-                }
-                // Hide loader immediately
-                Livewire.dispatch('hideLoader');
-            });
     });
 
     

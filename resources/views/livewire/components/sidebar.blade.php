@@ -56,7 +56,7 @@
             <div class="space-y-1">
                 <!-- Items Main Button -->
                 <button wire:click="toggleItems"
-                    class="w-full flex items-center justify-between px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors">
+                    class="w-full flex cursor-pointer items-center justify-between px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors">
                     <div class="flex items-center">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -73,7 +73,7 @@
 
                 <!-- Items Submenu -->
                 @if ($isItemsOpen)
-                    <div class="ml-4 space-y-1 transition-all ease-in-out">
+                    <div class="ml-4 space-y-1 cursor-pointer transition-all ease-in-out">
                         <!-- Inventory -->
                         <a wire:navigate href="{{ route('items.manage') }}"
                             class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors border-l-2 border-teal-200">
@@ -111,7 +111,7 @@
             <div class="space-y-1">
                 <!-- Items Main Button -->
                 <button wire:click="toggleSales"
-                    class="w-full flex items-center justify-between px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors">
+                    class="w-full cursor-pointer  flex items-center justify-between px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors">
                     <div class="flex items-center">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -157,7 +157,7 @@
             <div class="space-y-1">
                 <!-- Items Main Button -->
                 <button wire:click="togglePurchase"
-                    class="w-full flex items-center justify-between px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors">
+                    class="w-full cursor-pointer  flex items-center justify-between px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors">
                     <div class="flex items-center">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
