@@ -18,13 +18,13 @@
                 </button>
 
                 <!-- Create Item Button -->
-                <button wire:click="handleCreateItem"
+                    <a href="{{ route(name: "items.create") }}" wire:navigate
                     class="bg-teal-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
                     <span>Create Item</span>
-                </button>
+                </a>
             </div>
         </div>
 
@@ -409,5 +409,4 @@
     <livewire:components.category-modal />
 
     <!-- Create Product Modal Component -->
-    <livewire:items.components.create-product-modal />
 </div>
