@@ -33,6 +33,7 @@ class CreateProduct extends Component
     public $barcodeLabel;
     public $barcodePrintQty = 1;
 
+    
     protected function rules()
     {
         return [
@@ -113,7 +114,14 @@ class CreateProduct extends Component
 
     public function generateBarcode()
     {
-        $this->barcode = '2' . str_pad(mt_rand(1, 999999999999), 12, '0', STR_PAD_LEFT);
+        // Generate EAN-13 barcode
+        $this->barcode = $this->generateEAN13Barcode();
+        
+        // Clear existing label when generating new barcode
+        $this->barcodeLabel = null;
+        
+        $this->dispatch('barcode-generated');
+        session()->flash('message', 'Barcode generated successfully!');
     }
 
     public function generateBarcodeLabel()
@@ -123,8 +131,14 @@ class CreateProduct extends Component
             return;
         }
         
-        $this->barcodeLabel = '<img src="https://barcodeapi.org/api/128/' . urlencode($this->barcode) . '" alt="Barcode" style="max-width:100%;">';
-        session()->flash('success', 'Barcode label generated successfully.');
+        try {
+            // Generate barcode using multiple methods for better compatibility
+            $this->barcodeLabel = $this->createBarcodeHTML($this->barcode);
+            
+            session()->flash('message', 'Barcode label generated successfully!');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error generating barcode label: ' . $e->getMessage());
+        }
     }
 
     public function clearBarcode()
@@ -146,6 +160,14 @@ class CreateProduct extends Component
         $this->generateSku();
     }
 
+    public function updatedBarcode($value)
+    {
+        if ($value && !empty($value)) {
+            // Clear existing label when barcode is manually changed
+            $this->barcodeLabel = null;
+        }
+    }
+
     public function getUnitsProperty()
     {
         return [
@@ -156,6 +178,111 @@ class CreateProduct extends Component
             'box' => 'Box',
             'set' => 'Set'
         ];
+    }
+
+    private function generateEAN13Barcode()
+    {
+        // Generate 12 random digits
+        $barcode = '';
+        for ($i = 0; $i < 12; $i++) {
+            $barcode .= rand(0, 9);
+        }
+        
+        // Calculate check digit
+        $checkDigit = $this->calculateEAN13CheckDigit($barcode);
+        
+        return $barcode . $checkDigit;
+    }
+
+    private function calculateEAN13CheckDigit($barcode)
+    {
+        $sum = 0;
+        for ($i = 0; $i < 12; $i++) {
+            $digit = intval($barcode[$i]);
+            $sum += ($i % 2 === 0) ? $digit : $digit * 3;
+        }
+        
+        $checkDigit = (10 - ($sum % 10)) % 10;
+        return $checkDigit;
+    }
+
+    private function createBarcodeHTML($barcode)
+    {
+        // Try multiple barcode generation methods
+        
+        // Method 1: External API (with fallback)
+        $apiBarcode = $this->generateBarcodeFromAPI($barcode);
+        if ($apiBarcode) {
+            return $apiBarcode;
+        }
+        
+        // Method 2: CSS-based barcode (fallback)
+        return $this->generateCSSBarcode($barcode);
+    }
+
+    private function generateBarcodeFromAPI($barcode)
+    {
+        try {
+            // Check if the API is accessible
+            $url = 'https://barcodeapi.org/api/128/' . urlencode($barcode);
+            
+            // Use cURL to check if the service is available
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_NOBODY, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            
+            $result = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            
+            if ($httpCode == 200) {
+                return '<img src="' . $url . '" alt="Barcode" style="max-width:100%; height: 60px;" onerror="this.style.display=\'none\'">';
+            }
+            
+            return null;
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    private function generateCSSBarcode($barcode)
+    {
+        // Create a simple CSS-based barcode representation
+        $html = '<div class="css-barcode" style="display: flex; align-items: flex-end; justify-content: center; height: 60px; background: white; padding: 5px;">';
+        
+        // Start pattern
+        $html .= '<div style="width: 2px; height: 50px; background: black; margin: 0 0.5px;"></div>';
+        $html .= '<div style="width: 1px; height: 50px; background: white; margin: 0 0.5px;"></div>';
+        $html .= '<div style="width: 2px; height: 50px; background: black; margin: 0 0.5px;"></div>';
+        
+        // Generate bars based on barcode digits
+        for ($i = 0; $i < strlen($barcode); $i++) {
+            $digit = intval($barcode[$i]);
+            
+            // Create different patterns for each digit
+            for ($j = 0; $j < 4; $j++) {
+                $width = ($digit % 2 === 0) ? '1px' : '2px';
+                $height = (40 + ($digit * 2)) . 'px';
+                $color = ($j % 2 === 0) ? 'black' : 'white';
+                
+                $html .= '<div style="width: ' . $width . '; height: ' . $height . '; background: ' . $color . '; margin: 0 0.5px;"></div>';
+            }
+        }
+        
+        // End pattern
+        $html .= '<div style="width: 2px; height: 50px; background: black; margin: 0 0.5px;"></div>';
+        $html .= '<div style="width: 1px; height: 50px; background: white; margin: 0 0.5px;"></div>';
+        $html .= '<div style="width: 2px; height: 50px; background: black; margin: 0 0.5px;"></div>';
+        
+        $html .= '</div>';
+        
+        // Add barcode number below
+        $html .= '<div style="text-align: center; font-family: monospace; font-size: 12px; margin-top: 5px; letter-spacing: 2px;">' . $barcode . '</div>';
+        
+        return $html;
     }
 
     public function render()

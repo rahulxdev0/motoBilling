@@ -1,4 +1,6 @@
 <div class="min-h-screen bg-gray-50 py-8">
+
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="mb-8">
@@ -243,7 +245,7 @@
 
                 <!-- Right Column - Barcode & Additional Info -->
                 <div class="space-y-6">
-                    
+
                     <!-- Barcode Section -->
                     <div class="bg-white shadow rounded-lg p-6">
                         <h3 class="text-lg font-medium text-gray-900 mb-6 flex items-center">
@@ -312,8 +314,11 @@
                                             @endfor
                                         </div>
                                         
-                                        <button type="button" onclick="printBarcodeLabels()"
-                                            class="mt-3 w-full flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+<button
+    type="button"
+    @click="$dispatch('barcode-generated')"
+    class="mt-3 w-full flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+>
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                                             </svg>
@@ -395,4 +400,46 @@
         </form>
     </div>
 
+<!-- Modal: Barcode Label Preview & Print -->
+<div
+    x-data="{ open: false }"
+    x-show="open"
+    @barcode-generated.window="open = true"
+    @keydown.escape.window="open = false"
+    x-cloak
+    class="fixed inset-0 flex items-center justify-center z-50 bg-black/50"
+>
+    <div class="bg-white rounded-lg print:p-0 p-6 max-w-md w-full print:shadow-none shadow-lg" @click.away="open = false">
+        <h2 class="text-lg font-bold text-gray-800 mb-4 print:hidden">Barcode Label Preview</h2>
+
+        @if(isset($barcodeLabel))
+            <div class="overflow-y-auto max-h-80" id="printable">
+                @for($i = 0; $i < ($barcodePrintQty ?? 1); $i++)
+                    <div class="flex flex-col items-center mb-3 p-2 bg-white rounded border">
+                        {!! $barcodeLabel !!}
+                        <div class="text-center mt-2">
+                            <p class="font-semibold text-sm">{{ $name }}</p>
+                            <p class="text-xs text-gray-500">{{ $barcode }}</p>
+                        </div>
+                    </div>
+                @endfor
+            </div>
+        @else
+            <p class="text-sm text-gray-500 print:hidden">No barcode generated yet.</p>
+        @endif
+
+        <div class="mt-6 flex justify-end space-x-2 print:hidden">
+            <button @click="window.print()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                Print
+            </button>
+            <button @click="open = false" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">
+                Close
+            </button>
+        </div>
+    </div>
 </div>
+
+    
+</div>
+
+

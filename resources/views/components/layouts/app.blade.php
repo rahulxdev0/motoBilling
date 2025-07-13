@@ -7,7 +7,7 @@
 
     <title>{{ $title ?? 'Page Title' }}</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    
+
     <style>
         /* Optimized loader animation */
         .loader {
@@ -15,12 +15,20 @@
             animation: spinner 0.8s linear infinite;
             will-change: transform;
         }
-        
+
         @keyframes spinner {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
+<style>
+  [x-cloak] { display: none !important; }
+</style>
 
     <style>
         /* Loader animation */
@@ -29,29 +37,42 @@
             -webkit-animation: spinner 1.5s linear infinite;
             animation: spinner 1.5s linear infinite;
         }
-        
+
         @-webkit-keyframes spinner {
-            0% { -webkit-transform: rotate(0deg); }
-            100% { -webkit-transform: rotate(360deg); }
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
+
+            100% {
+                -webkit-transform: rotate(360deg);
+            }
         }
-        
+
         @keyframes spinner {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
         }
+
         ::-webkit-scrollbar-track {
             background: #f1f5f9;
             border-radius: 3px;
         }
+
         ::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 3px;
         }
+
         ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
@@ -70,15 +91,31 @@
             </div>
         </div>
     </div>
+
+
+
+
+    @script 
+    
+    <script>
+
+// Handle Livewire events
+document.addEventListener('livewire:init', () => {
+function printBarcode() {
+      const content = document.getElementById('printable').innerHTML;
+      const printWindow = window.open('', '', 'width=600,height=600');
+      printWindow.document.write('<html><head><title>Print Barcode</title></head><body>');
+      printWindow.document.write(content);
+      printWindow.document.write('</body></html>');
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+  }
+});
+    </script>
+
+
 </body>
 
 </html>
-
-<script>
-    document.addEventListener('livewire:init', () => {
-        // Register loader hooks for navigation
-      
-    });
-
-    
-    </script>
