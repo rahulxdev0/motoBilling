@@ -101,17 +101,7 @@
 
 // Handle Livewire events
 document.addEventListener('livewire:init', () => {
-function printBarcode() {
-      const content = document.getElementById('printable').innerHTML;
-      const printWindow = window.open('', '', 'width=600,height=600');
-      printWindow.document.write('<html><head><title>Print Barcode</title></head><body>');
-      printWindow.document.write(content);
-      printWindow.document.write('</body></html>');
-      printWindow.document.close();
-      printWindow.focus();
-      printWindow.print();
-      printWindow.close();
-  }
+
 });
     </script>
 

@@ -120,7 +120,7 @@ class CreateProduct extends Component
         // Clear existing label when generating new barcode
         $this->barcodeLabel = null;
         
-        $this->dispatch('barcode-generated');
+        // $this->dispatch(event: 'barcode-generated');
         session()->flash('message', 'Barcode generated successfully!');
     }
 
