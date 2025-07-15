@@ -1,4 +1,34 @@
 <div class="min-h-screen bg-gray-50 py-6">
+    <style>
+        /* Product search dropdown styling */
+        .product-search-dropdown {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            z-index: 9999 !important;
+            position: absolute !important;
+        }
+        
+        .product-search-container {
+            position: relative;
+        }
+        
+        .product-item:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .product-item.selected {
+            background-color: #dbeafe;
+        }
+        
+        /* Ensure table cells have relative positioning for dropdown positioning */
+        .invoice-table td {
+            position: relative;
+        }
+        
+        /* Override any overflow hidden on parent containers */
+        .table-container {
+            overflow: visible !important;
+        }
+    </style>
     <div class="px-4 sm:px-6 lg:px-6">
         <!-- Header -->
         <div class="bg-white shadow-sm rounded-lg mb-6">
@@ -197,8 +227,8 @@
                                 </div>
                             @endif
                             
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200">
+                            <div class="overflow-x-auto table-container">
+                                <table class="min-w-full divide-y divide-gray-200 invoice-table">
                                     <thead class="bg-gray-50 w-full">
                                         <tr>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -221,16 +251,60 @@
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         @foreach ($invoice_items as $index => $item)
                                             <tr>
-                                                <td class="px-2 py-4">
-                                                    <select wire:model.live="invoice_items.{{ $index }}.product_id"
-                                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                                        <option value="">Select Product</option>
-                                                        @foreach ($products as $product)
-                                                            <option value="{{ $product->id }}">
-                                                                {{ $product->name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
+                                                <td class="px-2 py-4 invoice-table-cell">
+                                                    <div class="product-search-container">
+                                                        <input 
+                                                            type="text" 
+                                                            id="product-search-{{ $index }}"
+                                                            placeholder="Search or select product..."
+                                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                            autocomplete="off"
+                                                            onkeyup="filterProducts({{ $index }}, this.value)"
+                                                            onkeydown="handleKeyDown({{ $index }}, event)"
+                                                            onfocus="showDropdown({{ $index }})"
+                                                            onblur="handleBlur({{ $index }})"
+                                                        >
+                                                        
+                                                        <!-- Dropdown -->
+                                                        <div 
+                                                            id="product-dropdown-{{ $index }}"
+                                                            class="product-search-dropdown w-full mt-1 bg-white border border-gray-300 rounded-md max-h-60 overflow-auto hidden"
+                                                            style="position: absolute; top: 100%; left: 0; z-index: 9999; min-width: 300px;"
+                                                            onmousedown="event.preventDefault()"
+                                                        >
+                                                            
+                                                            <!-- Search results will be populated by JavaScript -->
+                                                            <div id="product-list-{{ $index }}">
+                                                                @foreach ($products as $product)
+                                                                    <div 
+                                                                        class="product-item px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
+                                                                        onmousedown="selectProduct({{ $index }}, {{ $product->id }}, '{{ addslashes($product->name) }}')"
+                                                                        data-name="{{ strtolower($product->name) }}"
+                                                                        data-code="{{ strtolower($product->item_code) }}"
+                                                                    >
+                                                                        <div class="flex justify-between items-center">
+                                                                            <div>
+                                                                                <div class="font-medium text-gray-900">{{ $product->name }}</div>
+                                                                                <div class="text-sm text-gray-500">
+                                                                                    Code: {{ $product->item_code }} | 
+                                                                                    Stock: {{ $product->stock_quantity }} | 
+                                                                                    Price: ₹{{ number_format($product->selling_price, 2) }}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
+                                                            
+                                                            <!-- No results message -->
+                                                            <div id="no-results-{{ $index }}" class="px-4 py-2 text-gray-500 text-center hidden">
+                                                                No products found
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <!-- Hidden input for actual value -->
+                                                        <input type="hidden" wire:model.live="invoice_items.{{ $index }}.product_id" id="product-id-{{ $index }}">
+                                                    </div>
                                                     @error('invoice_items.' . $index . '.product_id')
                                                         <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                                                     @enderror
@@ -439,13 +513,27 @@
                                     </span>
                                 </div>
 
+                                <!-- Change Amount Display (for cash sales with overpayment) -->
+                                @if($this->isCashSale() && isset($change_amount) && $change_amount > 0)
+                                    <div class="flex justify-between items-center py-2 px-3 bg-green-50 rounded border border-green-200">
+                                        <span class="text-sm text-green-700 font-medium">Change to Return</span>
+                                        <span class="text-sm font-bold text-green-700">
+                                            ₹{{ number_format((float)($change_amount ?: 0), 2) }}
+                                        </span>
+                                    </div>
+                                @endif
+
                                 <!-- Payment Status Badge -->
                                 @if($paid_amount > 0)
                                     <div class="flex justify-between items-center">
                                         <span class="text-sm text-gray-600">Payment Status</span>
-                                        @if($due_amount <= 0)
+                                        @if($due_amount <= 0 && (!isset($change_amount) || $change_amount <= 0))
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                 ✓ Fully Paid
+                                            </span>
+                                        @elseif(isset($change_amount) && $change_amount > 0)
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                💰 Overpaid
                                             </span>
                                         @elseif($paid_amount > 0)
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
@@ -507,8 +595,172 @@
         </form>
     </div>
 
-    <!-- JavaScript for delayed calculations -->
+    <!-- JavaScript for delayed calculations and product search -->
     <script>
+        // Product search functions
+        function showDropdown(index) {
+            // Close all other dropdowns first
+            closeAllDropdowns();
+            
+            const dropdown = document.getElementById(`product-dropdown-${index}`);
+            if (dropdown) {
+                dropdown.classList.remove('hidden');
+                
+                // Adjust position if dropdown would go off screen
+                const rect = dropdown.getBoundingClientRect();
+                const windowHeight = window.innerHeight;
+                
+                if (rect.bottom > windowHeight) {
+                    // Position dropdown above the input if there's not enough space below
+                    dropdown.style.top = 'auto';
+                    dropdown.style.bottom = '100%';
+                    dropdown.style.marginBottom = '4px';
+                    dropdown.style.marginTop = '0';
+                } else {
+                    // Default position below the input
+                    dropdown.style.top = '100%';
+                    dropdown.style.bottom = 'auto';
+                    dropdown.style.marginTop = '4px';
+                    dropdown.style.marginBottom = '0';
+                }
+            }
+        }
+        
+        function hideDropdown(index) {
+            const dropdown = document.getElementById(`product-dropdown-${index}`);
+            if (dropdown) {
+                dropdown.classList.add('hidden');
+            }
+        }
+        
+        function closeAllDropdowns() {
+            const dropdowns = document.querySelectorAll('[id^="product-dropdown-"]');
+            dropdowns.forEach(dropdown => {
+                dropdown.classList.add('hidden');
+            });
+        }
+        
+        function handleBlur(index) {
+            // Store the timeout so it can be cleared if needed
+            window.blurTimeout = setTimeout(() => {
+                const dropdown = document.getElementById(`product-dropdown-${index}`);
+                const activeElement = document.activeElement;
+                
+                // Don't hide if focus is still within the dropdown or container
+                if (dropdown && !dropdown.contains(activeElement)) {
+                    hideDropdown(index);
+                }
+            }, 300);
+        }
+        
+        function handleKeyDown(index, event) {
+            const dropdown = document.getElementById(`product-dropdown-${index}`);
+            if (!dropdown || dropdown.classList.contains('hidden')) return;
+            
+            const visibleItems = dropdown.querySelectorAll('.product-item:not([style*="display: none"])');
+            
+            if (event.key === 'Escape') {
+                hideDropdown(index);
+                event.preventDefault();
+            } else if (event.key === 'ArrowDown') {
+                // Navigate down
+                event.preventDefault();
+                // You can add arrow key navigation here if needed
+            } else if (event.key === 'ArrowUp') {
+                // Navigate up
+                event.preventDefault();
+                // You can add arrow key navigation here if needed
+            } else if (event.key === 'Enter' && visibleItems.length > 0) {
+                // Select first visible item
+                event.preventDefault();
+                visibleItems[0].click();
+            }
+        }
+        
+        function filterProducts(index, searchTerm) {
+            const dropdown = document.getElementById(`product-dropdown-${index}`);
+            const productList = document.getElementById(`product-list-${index}`);
+            const noResults = document.getElementById(`no-results-${index}`);
+            
+            if (!dropdown || !productList) return;
+            
+            const items = productList.querySelectorAll('.product-item');
+            let visibleCount = 0;
+            
+            items.forEach(item => {
+                const name = item.getAttribute('data-name');
+                const code = item.getAttribute('data-code');
+                const searchLower = searchTerm.toLowerCase();
+                
+                if (searchTerm === '' || name.includes(searchLower) || code.includes(searchLower)) {
+                    item.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            // Show/hide no results message
+            if (noResults) {
+                if (visibleCount === 0 && searchTerm !== '') {
+                    noResults.classList.remove('hidden');
+                } else {
+                    noResults.classList.add('hidden');
+                }
+            }
+            
+            // Show dropdown if not already visible
+            dropdown.classList.remove('hidden');
+        }
+        
+        function selectProduct(index, productId, productName) {
+            // Set the hidden input value
+            const hiddenInput = document.getElementById(`product-id-${index}`);
+            const searchInput = document.getElementById(`product-search-${index}`);
+            
+            if (hiddenInput) {
+                hiddenInput.value = productId;
+                // Trigger Livewire change event
+                hiddenInput.dispatchEvent(new Event('input'));
+                // Also trigger change event for Livewire to detect
+                const changeEvent = new Event('change', { bubbles: true });
+                hiddenInput.dispatchEvent(changeEvent);
+            }
+            
+            if (searchInput) {
+                searchInput.value = productName;
+            }
+            
+            // Hide dropdown immediately
+            hideDropdown(index);
+            
+            // Prevent the blur event from interfering
+            clearTimeout(window.blurTimeout);
+        }
+        
+        // Initialize search inputs when new rows are added
+        function initializeProductSearch() {
+            // This function can be called when new rows are added
+            const searchInputs = document.querySelectorAll('[id^="product-search-"]');
+            searchInputs.forEach(input => {
+                const index = input.id.split('-').pop();
+                const hiddenInput = document.getElementById(`product-id-${index}`);
+                
+                // If there's already a selected product, show its name
+                if (hiddenInput && hiddenInput.value) {
+                    // Find the product name from the dropdown items
+                    const dropdown = document.getElementById(`product-dropdown-${index}`);
+                    if (dropdown) {
+                        const selectedItem = dropdown.querySelector(`[onclick*="${hiddenInput.value}"]`);
+                        if (selectedItem) {
+                            const productName = selectedItem.querySelector('.font-medium').textContent;
+                            input.value = productName;
+                        }
+                    }
+                }
+            });
+        }
+
         document.addEventListener('livewire:initialized', () => {
             let discountPercentageTimeout;
             let discountAmountTimeout;
@@ -543,6 +795,37 @@
                     }
                 }, 100);
             });
+            
+            // Initialize product search after Livewire loads
+            setTimeout(initializeProductSearch, 100);
+            
+            // Add event listeners for closing dropdowns
+            let isScrollingInDropdown = false;
+            
+            // Modified scroll event listener to not close when scrolling inside dropdown
+            document.addEventListener('scroll', function(e) {
+                // Check if scrolling is happening inside a dropdown
+                const target = e.target;
+                if (target && target.closest && target.closest('[id^="product-dropdown-"]')) {
+                    return; // Don't close if scrolling inside dropdown
+                }
+                closeAllDropdowns();
+            }, true);
+            
+            document.addEventListener('click', function(e) {
+                // Close dropdowns if clicking outside of product search containers
+                if (!e.target.closest('.product-search-container')) {
+                    closeAllDropdowns();
+                }
+            });
+            
+            // Close dropdowns on window resize
+            window.addEventListener('resize', closeAllDropdowns);
+        });
+        
+        // Re-initialize when Livewire updates the component
+        document.addEventListener('livewire:updated', () => {
+            setTimeout(initializeProductSearch, 100);
         });
     </script>
 </div>

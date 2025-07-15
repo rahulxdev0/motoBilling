@@ -26,6 +26,7 @@ class CreateInvoice extends Component
     public $paid_amount = '';
     public $payment_method = '';
     public $due_amount = 0;
+    public $change_amount = 0;
 
     // Calculation properties
     public $subtotal = 0;
@@ -194,7 +195,8 @@ class CreateInvoice extends Component
     {
         if ($this->paid_amount !== '') {
             $this->paid_amount = max(0, (float) $this->paid_amount);
-            if ($this->paid_amount > $this->total) {
+            // Only cap for credit sales, allow overpayment for cash sales
+            if (!$this->isCashSale() && $this->paid_amount > $this->total) {
                 $this->paid_amount = $this->total;
             }
         }
@@ -208,6 +210,13 @@ class CreateInvoice extends Component
     {
         $paidAmount = is_numeric($this->paid_amount) ? (float) $this->paid_amount : 0;
         $this->due_amount = max(0, (float) $this->total - $paidAmount);
+        
+        // Calculate change if overpaid (for cash sales)
+        if ($this->isCashSale() && $paidAmount > $this->total) {
+            $this->change_amount = $paidAmount - $this->total;
+        } else {
+            $this->change_amount = 0;
+        }
     }
 
     private function generateInvoiceNumber()
@@ -429,6 +438,9 @@ class CreateInvoice extends Component
     {
         $paidAmount = is_numeric($this->paid_amount) ? (float) $this->paid_amount : 0;
         
+        // Determine maximum allowed payment based on sale type
+        $maxPayment = $this->isCashSale() ? ($this->total + 1000) : $this->total; // Allow up to ₹1000 overpayment for cash sales
+        
         $this->validate([
             'partie_id' => 'required|exists:parties,id',
             'invoice_date' => 'required|date',
@@ -436,7 +448,7 @@ class CreateInvoice extends Component
             'invoice_items.*.product_id' => 'required|exists:products,id',
             'invoice_items.*.quantity' => 'required|numeric|min:1',
             'invoice_items.*.unit_price' => 'required|numeric|min:0',
-            'paid_amount' => 'nullable|numeric|min:0|max:' . $this->total,
+            'paid_amount' => 'nullable|numeric|min:0|max:' . $maxPayment,
             'payment_method' => $paidAmount > 0 ? 'required|string' : 'nullable|string',
         ]);
 
