@@ -1,12 +1,12 @@
 <div class="min-h-screen bg-gray-50 py-8">
 
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="px-4 sm:px-6 lg:px-6">
         <!-- Header -->
         <div class="mb-8">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">Create New Product</h1>
+                    <h1 class="text-2xl font-semibold text-teal-700">Create New Product</h1>
                     <p class="mt-2 text-sm text-gray-600">Add a new product to your inventory with detailed information and barcode generation.</p>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -41,7 +41,7 @@
                 <div class="lg:col-span-2 space-y-6">
                     
                     <!-- Basic Information -->
-                    <div class="bg-white shadow rounded-lg p-6">
+                    <div class="p-2">
                         <h3 class="text-lg font-medium text-gray-900 mb-6 flex items-center">
                             <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
                                 <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -58,7 +58,7 @@
                                     Product Name <span class="text-red-500">*</span>
                                 </label>
                                 <input wire:model.blur="name" type="text"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('name') border-red-300 @enderror"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('name') border-red-300 @enderror"
                                     placeholder="Enter product name">
                                 @error('name')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -69,7 +69,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Brand</label>
                                 <input wire:model="brand" type="text"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     placeholder="Enter brand name">
                                 @error('brand')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -82,7 +82,7 @@
                                     Category <span class="text-red-500">*</span>
                                 </label>
                                 <select wire:model.change="category_id"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('category_id') border-red-300 @enderror">
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('category_id') border-red-300 @enderror">
                                     <option value="">Select Category</option>
                                     @foreach ($categories as $category)
                                         <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -99,7 +99,7 @@
                                     Item Code <span class="text-red-500">*</span>
                                 </label>
                                 <input wire:model="item_code" type="text"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('item_code') border-red-300 @enderror"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('item_code') border-red-300 @enderror"
                                     placeholder="Auto-generated">
                                 @error('item_code')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -113,10 +113,10 @@
                                 </label>
                                 <div class="flex">
                                     <input wire:model="sku" type="text"
-                                        class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('sku') border-red-300 @enderror"
+                                        class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-blue-500 @error('sku') border-red-300 @enderror"
                                         placeholder="Stock Keeping Unit">
                                     <button type="button" wire:click="generateSku"
-                                        class="px-4 py-3 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        class="px-4 py-3 bg-teal-600 text-white rounded-r-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                                         </svg>
@@ -131,7 +131,7 @@
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
                                 <textarea wire:model="description" rows="3"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     placeholder="Enter product description"></textarea>
                                 @error('description')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -160,7 +160,7 @@
                                 <div class="relative">
                                     <span class="absolute left-4 top-3 text-gray-500">₹</span>
                                     <input wire:model="purchase_price" type="number" step="0.01"
-                                        class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('purchase_price') border-red-300 @enderror"
+                                        class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('purchase_price') border-red-300 @enderror"
                                         placeholder="0.00">
                                 </div>
                                 @error('purchase_price')
@@ -176,7 +176,7 @@
                                 <div class="relative">
                                     <span class="absolute left-4 top-3 text-gray-500">₹</span>
                                     <input wire:model="selling_price" type="number" step="0.01"
-                                        class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('selling_price') border-red-300 @enderror"
+                                        class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('selling_price') border-red-300 @enderror"
                                         placeholder="0.00">
                                 </div>
                                 @error('selling_price')
@@ -190,7 +190,7 @@
                                 <div class="relative">
                                     <span class="absolute left-4 top-3 text-gray-500">₹</span>
                                     <input wire:model="mrp" type="number" step="0.01"
-                                        class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('mrp') border-red-300 @enderror"
+                                        class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('mrp') border-red-300 @enderror"
                                         placeholder="0.00">
                                 </div>
                                 @error('mrp')
@@ -204,7 +204,7 @@
                                     Stock Quantity <span class="text-red-500">*</span>
                                 </label>
                                 <input wire:model="stock_quantity" type="number"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('stock_quantity') border-red-300 @enderror"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('stock_quantity') border-red-300 @enderror"
                                     placeholder="0">
                                 @error('stock_quantity')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -217,7 +217,7 @@
                                     Reorder Level <span class="text-red-500">*</span>
                                 </label>
                                 <input wire:model="reorder_level" type="number"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('reorder_level') border-red-300 @enderror"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('reorder_level') border-red-300 @enderror"
                                     placeholder="10">
                                 @error('reorder_level')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -230,7 +230,7 @@
                                     Unit <span class="text-red-500">*</span>
                                 </label>
                                 <select wire:model="unit"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                     @foreach ($this->units as $key => $value)
                                         <option value="{{ $key }}">{{ $value }}</option>
                                     @endforeach
@@ -247,7 +247,7 @@
                 <div class="space-y-6">
 
                     <!-- Barcode Section -->
-                    <div class="bg-white shadow rounded-lg p-6">
+                    <div class="bg-gray-50 border border-gray-400 rounded-lg py-6 px-4">
                         <h3 class="text-lg font-medium text-gray-900 mb-6 flex items-center">
                             <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
                                 <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -261,24 +261,26 @@
                             <!-- Barcode Input -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Barcode</label>
-                                <div class="flex gap-2">
+                                <div class="grid grid-cols-3 gap-2">
                                     <input wire:model="barcode" type="text"
-                                        class="flex-1 px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        class="flex-1 px-4 py-2 col-span-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         placeholder="Enter or scan barcode">
-                                    <button type="button" wire:click="generateBarcode"
-                                        class="px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    <div class="flex gap-1">
+                                        <button type="button" wire:click="generateBarcode"
+                                        class="px-3 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
                                         title="Auto Generate">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                                         </svg>
                                     </button>
                                     <button type="button" wire:click="clearBarcode"
-                                        class="px-4 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                                        class="px-3 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
                                         title="Clear">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                         </svg>
                                     </button>
+                                    </div>
                                 </div>
                                 @error('barcode')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -372,12 +374,10 @@
                     <div class="bg-white shadow rounded-lg p-6">
                         <div class="space-y-3">
                             <button type="submit"
-                                class="w-full flex items-center justify-center px-6 py-3 bg-blue-600 text-white text-lg font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 transition-colors duration-200"
+                                class="w-full flex items-center justify-center px-6 py-3 bg-teal-600 text-white text-lg font-medium rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:opacity-50 transition-colors duration-200"
                                 wire:loading.attr="disabled">
                                 <span wire:loading.remove wire:target="save">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                    </svg>
+                                    
                                     Create Product
                                 </span>
                                 <div wire:loading wire:target="save" class="flex items-center">
