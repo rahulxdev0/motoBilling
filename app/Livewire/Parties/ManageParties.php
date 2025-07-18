@@ -29,6 +29,20 @@ class ManageParties extends Component
 
     protected $paginationTheme = 'tailwind';
 
+    // Add this property to allow referencing $this->id in the Blade file
+    public $componentId;
+
+    public function mount()
+    {
+        $this->componentId = $this->getId();
+    }
+
+    public function getId()
+    {
+        // Livewire automatically assigns an id property to each component instance
+        return $this->id ?? $this->getName();
+    }
+
     public function updatingSearch(): void
     {
         $this->resetPage();

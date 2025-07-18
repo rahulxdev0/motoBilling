@@ -1,4 +1,3 @@
-
 <div class="flex-1 p-6 overflow-y-auto">
     <!-- Header Section -->
     <div class="mb-8">
@@ -306,17 +305,19 @@
                                         </svg>
                                     </button>
 
-                                    {{-- Edit Button --}}
-                                    <button wire:click="editParty({{ $party->id }})" type="button"
+                                    {{-- Edit Button (navigate to edit page) --}}
+                                    <a href="{{ route('parties.edit', $party->id) }}"
                                         class="text-gray-600 hover:text-gray-900 hover:bg-gray-50 p-1 rounded-md transition-colors duration-200"
                                         title="Edit Party">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                         </svg>
-                                    </button>
+                                    </a>
 
-                                    {{-- Toggle Status Button --}}
-                                    <button wire:click="toggleStatus({{ $party->id }})" type="button"
+                                    {{-- Toggle Status Button with confirm before deactivation --}}
+                                    <button 
+                                        onclick="if({{ $party->is_active ? 'confirm(\'Are you sure you want to deactivate this party?\')' : 'true' }}) { Livewire.find('{{ $this->getId() }}').call('toggleStatus', {{ $party->id }}) }"
+                                        type="button"
                                         class="{{ $party->is_active ? 'text-red-600 hover:text-red-900 hover:bg-red-50' : 'text-green-600 hover:text-green-900 hover:bg-green-50' }} p-1 rounded-md transition-colors duration-200"
                                         title="{{ $party->is_active ? 'Deactivate' : 'Activate' }} Party">
                                         @if($party->is_active)

@@ -381,12 +381,7 @@
             </table>
         </div>
 
-        <!-- Pagination -->
-        @if($products->hasPages())
-            <div class="bg-white px-6 py-3 border-t border-gray-200">
-                {{ $products->links() }}
-            </div>
-        @endif
+       
 
         <!-- Table Footer -->
         @if($products->count() > 0)
