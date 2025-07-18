@@ -5,6 +5,7 @@ use App\Livewire\Invoice\CreateInvoice;
 use App\Livewire\Invoice\ManageInvoice;
 use App\Livewire\Items\CreateProduct;
 use App\Livewire\Items\ManageItems;
+use App\Livewire\Items\EditProduct;
 use App\Livewire\Login;
 use App\Livewire\Parties\CreatePatie;
 use App\Livewire\Parties\ManageParties;
@@ -20,6 +21,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
     Route::get('/items/manage', ManageItems::class)->name('items.manage');
     Route::get('/items/create', CreateProduct::class)->name('items.create');
+    Route::get('/items/{item}/edit', EditProduct::class)->name('items.edit');
     Route::get('/parties', ManageParties::class)->name('parties.manage');
     Route::get('/parties/create', CreatePatie::class)->name('parties.create');
     Route::get('/parties/{party}/edit', EditParty::class)->name('parties.edit');

@@ -117,7 +117,7 @@
 
         <!-- Filters Section -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <!-- Search Field -->
                 <div class="md:col-span-2">
                     <div class="relative">
@@ -151,10 +151,20 @@
                         <span class="text-sm">Add</span>
                     </button>
                 </div>
+
+                <!-- Status Filter -->
+                <div>
+                    <select wire:model.live="statusFilter"
+                        class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
             </div>
 
             <!-- Filter Actions -->
-            @if($search || $selectedCategory)
+            @if($search || $selectedCategory || $statusFilter)
                 <div class="mt-4 pt-4 border-t border-gray-200">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-2 text-sm text-gray-600">
@@ -167,6 +177,11 @@
                             @if($selectedCategory)
                                 <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs">
                                     Category: {{ $selectedCategory }}
+                                </span>
+                            @endif
+                            @if($statusFilter)
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+                                    Status: {{ ucfirst($statusFilter) }}
                                 </span>
                             @endif
                         </div>
@@ -294,6 +309,23 @@
                                 @endif
                             </div>
                         </th>
+                        <th wire:click="$set('sortBy', 'status')" 
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center space-x-1">
+                                <span>Status</span>
+                                @if($sortBy === 'status')
+                                    @if($sortDirection === 'asc')
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+                                        </svg>
+                                    @else
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"/>
+                                        </svg>
+                                    @endif
+                                @endif
+                            </div>
+                        </th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -336,6 +368,17 @@
                                     ₹{{ number_format($product->mrp, 2) }}
                                 @else
                                     <span class="text-gray-400">-</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if($product->status === 'active')
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        Active
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        Inactive
+                                    </span>
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -381,17 +424,18 @@
             </table>
         </div>
 
-       
+        <!-- Pagination -->
+        @if($products->hasPages())
+            <div class="bg-white px-6 py-3 border-t border-gray-200">
+                {{ $products->links() }}
+            </div>
+        @endif
 
         <!-- Table Footer -->
         @if($products->count() > 0)
             <div class="bg-gray-50 px-6 py-3 border-t border-gray-200">
                 <div class="flex items-center justify-between">
-                    <div class="text-sm text-gray-700">
-                        Showing <span class="font-medium">{{ $products->firstItem() }}</span> to 
-                        <span class="font-medium">{{ $products->lastItem() }}</span> of 
-                        <span class="font-medium">{{ $products->total() }}</span> results
-                    </div>
+                   
                     <div class="text-sm text-gray-500">
                         {{ $products->where('stock_quantity', '<=', 5)->count() }} items need restocking
                     </div>

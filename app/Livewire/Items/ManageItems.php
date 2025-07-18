@@ -19,12 +19,14 @@ class ManageItems extends Component
     public $sortBy = 'name';
     public $sortDirection = 'asc';
     public $perPage = 10;
+    public $statusFilter = '';
 
     protected $queryString = [
         'search' => ['except' => ''],
         'selectedCategory' => ['except' => ''],
         'sortBy' => ['except' => 'name'],
         'sortDirection' => ['except' => 'asc'],
+        'statusFilter' => ['except' => ''],
     ];
 
     public function updatingSearch()
@@ -33,6 +35,11 @@ class ManageItems extends Component
     }
 
     public function updatingSelectedCategory()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingStatusFilter()
     {
         $this->resetPage();
     }
@@ -47,7 +54,7 @@ class ManageItems extends Component
 
     public function clearFilters()
     {
-        $this->reset(['search', 'selectedCategory']);
+        $this->reset(['search', 'selectedCategory', 'statusFilter']);
         $this->resetPage();
     }
 
@@ -59,7 +66,8 @@ class ManageItems extends Component
 
     public function handleEditItem($itemId)
     {
-        $this->dispatch('open-edit-modal', itemId: $itemId);
+        // Redirect to the edit page for the item
+        return redirect()->route('items.edit', ['item' => $itemId]);
     }
 
     public function handleDeleteItem($itemId)
@@ -124,6 +132,11 @@ class ManageItems extends Component
             $query->whereHas('category', function ($q) {
                 $q->where('name', $this->selectedCategory);
             });
+        }
+
+        // Apply status filter
+        if ($this->statusFilter) {
+            $query->where('status', $this->statusFilter);
         }
 
         // Apply sorting
