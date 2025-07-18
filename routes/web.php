@@ -3,6 +3,7 @@
 use App\Livewire\Dashboard;
 use App\Livewire\Invoice\CreateInvoice;
 use App\Livewire\Invoice\ManageInvoice;
+use App\Livewire\Invoice\ViewInvoice;
 use App\Livewire\Items\CreateProduct;
 use App\Livewire\Items\ManageItems;
 use App\Livewire\Items\EditProduct;
@@ -14,6 +15,7 @@ use App\Livewire\Purchase\CreatePurchaseInvoice;
 use App\Livewire\Purchase\PurchaseInvoice;
 use App\Livewire\Report\ManageReport;
 use Illuminate\Support\Facades\Route;
+use App\Livewire\Invoice\EditInvoice;
 
 Route::get('/', Login::class)->name('login');
 
@@ -35,4 +37,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/invoice/{id}/pdf', [App\Http\Controllers\InvoicePdfController::class, 'view'])->name('invoice.pdf.view');
     Route::get('/invoice/{id}/download', [App\Http\Controllers\InvoicePdfController::class, 'download'])->name('invoice.pdf.download');
     Route::get('/invoice/{id}/show', [App\Http\Controllers\InvoicePdfController::class, 'show'])->name('invoice.pdf.show');
+
+    // Add this route for viewing invoice details
+    Route::get('/invoice/{invoice}/view', ViewInvoice::class)->name('invoice.view');
+
+    // Add this route for editing invoice (fix: use fully qualified class name)
+    Route::get('/invoice/{invoice}/edit', EditInvoice::class)->name('invoice.edit');
 });
