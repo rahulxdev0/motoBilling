@@ -215,7 +215,7 @@
             <div class="border-t border-gray-200 my-4"></div>
 
             <!-- Settings -->
-            <a href="#"
+            <a wire:navigate href={{route('setting')}}
                 class="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors duration-200">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

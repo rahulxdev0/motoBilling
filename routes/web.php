@@ -16,6 +16,7 @@ use App\Livewire\Purchase\PurchaseInvoice;
 use App\Livewire\Report\ManageReport;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Invoice\EditInvoice;
+use App\Livewire\Setting\Settings;
 
 Route::get('/', Login::class)->name('login');
 
@@ -32,6 +33,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/invoice/purchase', PurchaseInvoice::class)->name('invoice.purchase');
     Route::get('/invoice/purchase/create', CreatePurchaseInvoice::class)->name('invoice.purchase.create');
     Route::get('/report', ManageReport::class)->name('report.view');
+    Route::get('/setting', Settings::class)->name('setting');
 
     // Invoice PDF routes
     Route::get('/invoice/{id}/pdf', [App\Http\Controllers\InvoicePdfController::class, 'view'])->name('invoice.pdf.view');
