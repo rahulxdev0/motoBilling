@@ -31,8 +31,8 @@
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
             <!-- Dashboard -->
             <a wire:navigate href="{{ route('dashboard') }}"
-                class="flex items-center px-4 py-3 text-gray-700 bg-teal-50 border-r-4 border-teal-500 rounded-l-lg hover:bg-teal-100 transition-colors duration-200">
-                <svg class="w-5 h-5 mr-3 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                class="{{ $this->getActiveLinkClasses('dashboard') }}">
+                <svg class="{{ $this->getIconClasses('dashboard') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -43,8 +43,8 @@
 
             <!-- Customers -->
             <a wire:navigate href="{{ route('parties.manage') }}"
-                class="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors duration-200">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                class="{{ $this->getActiveLinkClasses('parties.manage') }}">
+                <svg class="{{ $this->getIconClasses('parties.manage') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z">
                     </path>
@@ -76,8 +76,8 @@
                     <div class="ml-4 space-y-1 cursor-pointer transition-all ease-in-out">
                         <!-- Inventory -->
                         <a wire:navigate href="{{ route('items.manage') }}"
-                            class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors border-l-2 border-teal-200">
-                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="{{ $this->getActiveLinkClasses('items.manage', true) }}">
+                            <svg class="{{ $this->getSubmenuIconClasses('items.manage') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
                                 </path>
@@ -87,8 +87,8 @@
 
                         <!-- Add Product -->
                         <a wire:navigate href="{{ route('items.create') }}"
-                            class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors border-l-2 border-teal-200">
-                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="{{ $this->getActiveLinkClasses('items.create', true) }}">
+                            <svg class="{{ $this->getSubmenuIconClasses('items.create') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                             </svg>
                             <span>Add Product</span>
@@ -98,7 +98,7 @@
             </div>
 
             <div class="space-y-1">
-                <!-- Items Main Button -->
+                <!-- Sales Main Button -->
                 <button wire:click="toggleSales"
                     class="w-full cursor-pointer  flex items-center justify-between px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors">
                     <div class="flex items-center">
@@ -115,13 +115,13 @@
                     </svg>
                 </button>
 
-                <!-- Items Submenu -->
+                <!-- Sales Submenu -->
                 @if ($isSalesOpen)
                     <div class="ml-4 space-y-1 transition-all ease-in-out">
-                        <!-- sales Invoices -->
+                        <!-- Sales Invoices -->
                         <a wire:navigate href="{{ route('invoice.manage') }}"
-                            class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors border-l-2 border-teal-200">
-                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="{{ $this->getActiveLinkClasses('invoice.manage', true) }}">
+                            <svg class="{{ $this->getSubmenuIconClasses('invoice.manage') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                                 </path>
@@ -144,7 +144,7 @@
             </div>
 
             <div class="space-y-1">
-                <!-- Items Main Button -->
+                <!-- Purchase Main Button -->
                 <button wire:click="togglePurchase"
                     class="w-full cursor-pointer  flex items-center justify-between px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors">
                     <div class="flex items-center">
@@ -161,13 +161,13 @@
                     </svg>
                 </button>
 
-                <!-- Items Submenu -->
+                <!-- Purchase Submenu -->
                 @if ($isPurchaseOpen)
                     <div class="ml-4 space-y-1 transition-all ease-in-out">
-                        <!-- sales Invoices -->
+                        <!-- Purchase Invoices -->
                         <a wire:navigate href="{{ route('invoice.purchase') }}"
-                            class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors border-l-2 border-teal-200">
-                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="{{ $this->getActiveLinkClasses('invoice.purchase', true) }}">
+                            <svg class="{{ $this->getSubmenuIconClasses('invoice.purchase') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                                 </path>
@@ -189,21 +189,10 @@
                 @endif
             </div>
 
-            <!-- Payments -->
-            <a href="#"
-                class="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors duration-200">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
-                    </path>
-                </svg>
-                <span>Payments</span>
-            </a>
-
             <!-- Reports -->
             <a wire:navigate href="{{ route('report.view') }}"
-                class="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors duration-200">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                class="{{ $this->getActiveLinkClasses('report.view') }}">
+                <svg class="{{ $this->getIconClasses('report.view') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
                     </path>
@@ -215,9 +204,9 @@
             <div class="border-t border-gray-200 my-4"></div>
 
             <!-- Settings -->
-            <a wire:navigate href={{route('setting')}}
-                class="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-colors duration-200">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a wire:navigate href="{{ route('setting') }}"
+                class="{{ $this->getActiveLinkClasses('setting') }}">
+                <svg class="{{ $this->getIconClasses('setting') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
                     </path>
