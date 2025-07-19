@@ -50,7 +50,7 @@
         .company-name {
             font-size: 18px;
             font-weight: bold;
-            color: #2563eb;
+            color: #000;
             margin-bottom: 5px;
         }
         
