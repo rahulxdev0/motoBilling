@@ -19,12 +19,39 @@
             border: 1px solid #eee;
         }
         
-        /* Simple header */
+        /* Enhanced header with logo support */
         .header {
             border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
+            padding-bottom: 15px;
             margin-bottom: 20px;
+            display: table;
+            width: 100%;
+        }
+        
+        .header-logo {
+            display: table-cell;
+            vertical-align: middle;
+            width: 120px;
+        }
+        
+        .header-logo img {
+            max-width: 100px;
+            max-height: 60px;
+            object-fit: contain;
+        }
+        
+        .header-info {
+            display: table-cell;
+            vertical-align: middle;
             text-align: right;
+            padding-left: 20px;
+        }
+        
+        .company-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2563eb;
+            margin-bottom: 5px;
         }
         
         /* Clean invoice title */
@@ -132,12 +159,33 @@
     </style>
 </head>
 <body>
+    @php
+        $company = $invoice->getCompany();
+    @endphp
+    
     <div class="invoice-box">
         <div class="header">
-            <div>Your Company Name</div>
-            <div>123 Business Street, City, State, PIN</div>
-            <div>Phone: 123-456-7890 | Email: info@yourcompany.com</div>
-            <div>GSTIN: 27AAAAA0000A1Z5</div>
+            @if($company && $company->logo)
+                <div class="header-logo">
+                    <img src="{{ asset('storage/' . $company->logo) }}" alt="{{ $company->name }} Logo">
+                </div>
+            @endif
+            <div class="header-info">
+                <div class="company-name">{{ $company->name ?? 'Your Company Name' }}</div>
+                <div>{{ $company->formatted_address ?? '123 Business Street, City, State, PIN' }}</div>
+                @if($company && $company->phone)
+                    <div>Phone: {{ $company->phone }}</div>
+                @endif
+                @if($company && $company->email)
+                    <div>Email: {{ $company->email }}</div>
+                @endif
+                @if($company && $company->website)
+                    <div>Website: {{ $company->website }}</div>
+                @endif
+                @if($company && $company->gstin)
+                    <div>GSTIN: {{ $company->gstin }}</div>
+                @endif
+            </div>
         </div>
         
         <div class="invoice-title">

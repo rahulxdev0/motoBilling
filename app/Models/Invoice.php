@@ -72,4 +72,12 @@ class Invoice extends Model
             $this->invoice_date === $this->due_date &&
             $this->payment_terms === 'Cash Payment';
     }
+
+    /**
+     * Get the active company for this invoice
+     */
+    public function getCompany()
+    {
+        return Company::getActive();
+    }
 }
