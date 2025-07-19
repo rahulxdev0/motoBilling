@@ -95,14 +95,17 @@ class Settings extends Component
     {
         $this->validate();
 
+        // Initialize logo path with current logo
         $logoPath = $this->currentLogo;
 
+        // Handle new logo upload
         if ($this->logo) {
             // Delete old logo if exists
-            if ($this->currentLogo) {
+            if ($this->currentLogo && \Storage::disk('public')->exists($this->currentLogo)) {
                 \Storage::disk('public')->delete($this->currentLogo);
             }
             
+            // Store new logo
             $logoPath = $this->logo->store('company-logos', 'public');
         }
 
@@ -139,13 +142,14 @@ class Settings extends Component
             session()->flash('success', 'Company details created successfully!');
         }
 
+        // Update current logo and reset logo upload field
         $this->currentLogo = $logoPath;
         $this->logo = null;
     }
 
     public function removeLogo()
     {
-        if ($this->currentLogo) {
+        if ($this->currentLogo && \Storage::disk('public')->exists($this->currentLogo)) {
             \Storage::disk('public')->delete($this->currentLogo);
             
             if ($this->companyId) {

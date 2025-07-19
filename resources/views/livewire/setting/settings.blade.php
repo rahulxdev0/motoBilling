@@ -1,7 +1,7 @@
 <div class="p-6">
     <!-- Header -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Company Settings</h1>
+        <h1 class="text-3xl font-semibold text-gray-700">Company Settings</h1>
         <p class="text-gray-600 mt-2">Manage your company details and preferences that will appear on invoices and documents.</p>
     </div>
 
@@ -31,7 +31,7 @@
                     @if($currentLogo)
                         <div class="relative">
                             <img src="{{ asset('storage/' . $currentLogo) }}" alt="Company Logo" class="w-24 h-24 object-contain border border-gray-200 rounded-lg bg-gray-50">
-                            <button type="button" wire:click="removeLogo" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors">
+                            <button type="button" wire:click="removeLogo" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors" wire:loading.attr="disabled">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>
@@ -49,15 +49,65 @@
                 <!-- Logo Upload -->
                 <div class="flex-1">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Upload Logo</label>
-                    <input type="file" wire:model="logo" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 transition-colors">
-                    @error('logo')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                    <p class="mt-1 text-xs text-gray-500">PNG, JPG up to 2MB. Recommended size: 200x200px</p>
                     
+                    <!-- File Input (Hidden) -->
+                    <input type="file" wire:model.live="logo" accept="image/*" id="logo-upload" class="hidden">
+                    
+                    <!-- Upload Button -->
+                    <div class="flex items-center space-x-3">
+                        <button type="button" onclick="document.getElementById('logo-upload').click()" 
+                                class="inline-flex items-center px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 transition-colors duration-200"
+                                wire:loading.attr="disabled" wire:target="logo">
+                            <svg wire:loading.remove wire:target="logo" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            
+                            <!-- Loading Spinner -->
+                            <svg wire:loading wire:target="logo" class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            
+                            <span wire:loading.remove wire:target="logo">Choose Logo</span>
+                            <span wire:loading wire:target="logo">Uploading...</span>
+                        </button>
+                        
+                        @if($logo)
+                            <span class="text-sm text-green-600 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                File selected
+                            </span>
+                        @endif
+                    </div>
+                    
+                    @error('logo')
+                        <p class="mt-2 text-sm text-red-600 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                            </svg>
+                            {{ $message }}
+                        </p>
+                    @enderror
+                    
+                    <p class="mt-2 text-xs text-gray-500">PNG, JPG up to 2MB. Recommended size: 200x200px</p>
+                    
+                    <!-- Preview of uploaded image -->
                     @if($logo)
-                        <div class="mt-3">
-                            <img src="{{ $logo->temporaryUrl() }}" alt="Preview" class="w-16 h-16 object-contain border border-gray-200 rounded">
+                        <div class="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <div class="flex items-center space-x-3">
+                                <img src="{{ $logo->temporaryUrl() }}" alt="Preview" class="w-16 h-16 object-contain border border-gray-200 rounded bg-white">
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-900">{{ $logo->getClientOriginalName() }}</p>
+                                    <p class="text-xs text-gray-500">{{ number_format($logo->getSize() / 1024, 1) }} KB</p>
+                                </div>
+                                <button type="button" wire:click="$set('logo', null)" class="text-red-600 hover:text-red-800">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     @endif
                 </div>
@@ -77,7 +127,7 @@
                 <!-- Company Name -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Company Name *</label>
-                    <input type="text" wire:model="name" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Enter company name">
+                    <input type="text" wire:model="name" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors" placeholder="Enter company name">
                     @error('name')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -86,7 +136,7 @@
                 <!-- Phone -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                    <input type="tel" wire:model="phone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Enter phone number">
+                    <input type="tel" wire:model="phone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors" placeholder="Enter phone number">
                     @error('phone')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -95,7 +145,7 @@
                 <!-- Email -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input type="email" wire:model="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Enter email address">
+                    <input type="email" wire:model="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors" placeholder="Enter email address">
                     @error('email')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -104,7 +154,7 @@
                 <!-- Website -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Website</label>
-                    <input type="url" wire:model="website" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="https://example.com">
+                    <input type="url" wire:model="website" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors" placeholder="https://example.com">
                     @error('website')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -126,7 +176,7 @@
                 <!-- Address -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
-                    <textarea wire:model="address" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Enter complete address"></textarea>
+                    <textarea wire:model="address" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors" placeholder="Enter complete address"></textarea>
                     @error('address')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -136,7 +186,7 @@
                     <!-- City -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">City</label>
-                        <input type="text" wire:model="city" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Enter city">
+                        <input type="text" wire:model="city" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors" placeholder="Enter city">
                         @error('city')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -145,7 +195,7 @@
                     <!-- State -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">State</label>
-                        <input type="text" wire:model="state" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Enter state">
+                        <input type="text" wire:model="state" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors" placeholder="Enter state">
                         @error('state')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -154,7 +204,7 @@
                     <!-- Pincode -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Pincode</label>
-                        <input type="text" wire:model="pincode" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Enter pincode">
+                        <input type="text" wire:model="pincode" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors" placeholder="Enter pincode">
                         @error('pincode')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -164,7 +214,7 @@
                 <!-- Country -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
-                    <input type="text" wire:model="country" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Enter country">
+                    <input type="text" wire:model="country" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors" placeholder="Enter country">
                     @error('country')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -185,7 +235,7 @@
                 <!-- GSTIN -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">GSTIN</label>
-                    <input type="text" wire:model="gstin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Enter GSTIN">
+                    <input type="text" wire:model="gstin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors" placeholder="Enter GSTIN">
                     @error('gstin')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -194,7 +244,7 @@
                 <!-- PAN -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">PAN</label>
-                    <input type="text" wire:model="pan" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Enter PAN">
+                    <input type="text" wire:model="pan" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors" placeholder="Enter PAN">
                     @error('pan')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -203,7 +253,7 @@
                 <!-- Tax Percentage -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Default Tax Percentage (%)</label>
-                    <input type="number" step="0.01" min="0" max="100" wire:model="tax_percentage" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="18.00">
+                    <input type="number" step="0.01" min="0" max="100" wire:model="tax_percentage" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors" placeholder="18.00">
                     @error('tax_percentage')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -224,7 +274,7 @@
                 <!-- Currency -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Currency Code</label>
-                    <select wire:model="currency" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                    <select wire:model="currency" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors">
                         <option value="INR">INR - Indian Rupee</option>
                         <option value="USD">USD - US Dollar</option>
                         <option value="EUR">EUR - Euro</option>
@@ -238,7 +288,7 @@
                 <!-- Currency Symbol -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Currency Symbol</label>
-                    <input type="text" wire:model="currency_symbol" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Rs.">
+                    <input type="text" wire:model="currency_symbol" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors" placeholder="Rs.">
                     @error('currency_symbol')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -257,7 +307,7 @@
             
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Default Terms & Conditions</label>
-                <textarea wire:model="terms_conditions" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Enter default terms and conditions for invoices"></textarea>
+                <textarea wire:model="terms_conditions" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors" placeholder="Enter default terms and conditions for invoices"></textarea>
                 @error('terms_conditions')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
@@ -266,7 +316,7 @@
 
         <!-- Save Button -->
         <div class="flex justify-end space-x-4">
-            <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-medium py-3 px-8 rounded-lg transition-colors duration-200 flex items-center">
+            <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-medium py-3 px-8 rounded-lg transition-colors duration-200 flex items-center" wire:loading.attr="disabled">
                 <svg wire:loading wire:target="save" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
