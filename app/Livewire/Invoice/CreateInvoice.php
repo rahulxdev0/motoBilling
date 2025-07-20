@@ -62,6 +62,9 @@ class CreateInvoice extends Component
         'bank_transfer' => 'Bank Transfer'
     ];
 
+    // Add isFullyPaid property
+    public $isFullyPaid = false;
+
     public function mount()
     {
         $this->parties = Partie::active()->get();
@@ -89,6 +92,9 @@ class CreateInvoice extends Component
         // Set default dates
         $this->invoice_date = now()->format('Y-m-d');
         $this->due_date = now()->addDays(30)->format('Y-m-d');
+
+        // Set default payment method to cash
+        $this->payment_method = 'cash';
 
         // Add initial empty row
         $this->addInvoiceItem();
@@ -191,7 +197,7 @@ class CreateInvoice extends Component
     }
 
     // Update paid amount with delayed calculation
-    
+
     public function updatedPaidAmount()
     {
         if ($this->paid_amount !== '') {
@@ -201,7 +207,7 @@ class CreateInvoice extends Component
                 $this->paid_amount = $this->total;
             }
         }
-        
+
         // Use dispatch to delay calculation
         $this->dispatch('delay-calculate-due');
     }
@@ -211,7 +217,7 @@ class CreateInvoice extends Component
     {
         $paidAmount = is_numeric($this->paid_amount) ? (float) $this->paid_amount : 0;
         $this->due_amount = max(0, (float) $this->total - $paidAmount);
-        
+
         // Calculate change if overpaid (for cash sales)
         if ($this->isCashSale() && $paidAmount > $this->total) {
             $this->change_amount = $paidAmount - $this->total;
@@ -273,7 +279,7 @@ class CreateInvoice extends Component
             if ($product) {
                 $this->invoice_items[$index]['unit_price'] = (float) $product->selling_price;
                 // Calculate total immediately when product is selected
-                $this->invoice_items[$index]['total'] = 
+                $this->invoice_items[$index]['total'] =
                     (float) $this->invoice_items[$index]['quantity'] * (float) $product->selling_price;
             }
         }
@@ -294,7 +300,7 @@ class CreateInvoice extends Component
     {
         // Store the value but don't calculate immediately
         $this->discount_percentage = $value;
-        
+
         // Use dispatch to delay calculation
         $this->dispatch('delay-calculate-discount-from-percentage');
     }
@@ -304,7 +310,7 @@ class CreateInvoice extends Component
     {
         // Store the value but don't calculate immediately
         $this->discount_amount = $value;
-        
+
         // Use dispatch to delay calculation
         $this->dispatch('delay-calculate-discount-from-amount');
     }
@@ -355,7 +361,7 @@ class CreateInvoice extends Component
         $this->calculateTotals();
     }
 
-    // Modified calculation method with parameter to control what gets recalculated
+    // Updated total calculation function to handle the fully paid checkbox
     private function calculateTotals($recalculateDiscountAmount = true)
     {
         // Calculate subtotal - ensure we're working with numbers
@@ -409,12 +415,26 @@ class CreateInvoice extends Component
         $this->round_off = round((float) $this->round_off, 2);
         $this->total = round((float) $this->total, 2);
 
+        // Update isFullyPaid state when total changes
+        if ($this->isFullyPaid) {
+            $this->paid_amount = $this->total;
+        }
+
         // Calculate due amount after total is calculated
         $this->calculateDueAmount();
 
-        // For cash sales, auto-set paid amount to total only if paid amount is empty
-        if ($this->isCashSale() && $this->paid_amount === '' && $this->total > 0) {
+        // For cash sales, auto-set paid amount to total only if paid amount is empty or fully paid is checked
+        if ($this->isCashSale() && ($this->paid_amount === '' || $this->isFullyPaid) && $this->total > 0) {
             $this->paid_amount = $this->total;
+            $this->calculateDueAmount();
+        }
+    }
+
+    // Update to ensure paid_amount stays in sync with isFullyPaid state
+    public function updatedTotal($value)
+    {
+        if ($this->isFullyPaid && $value > 0) {
+            $this->paid_amount = $value;
             $this->calculateDueAmount();
         }
     }
@@ -438,10 +458,10 @@ class CreateInvoice extends Component
     public function save($action = 'draft')
     {
         $paidAmount = is_numeric($this->paid_amount) ? (float) $this->paid_amount : 0;
-        
+
         // Determine maximum allowed payment based on sale type
         $maxPayment = $this->isCashSale() ? ($this->total + 1000) : $this->total; // Allow up to ₹1000 overpayment for cash sales
-        
+
         $this->validate([
             'partie_id' => 'required|exists:parties,id',
             'invoice_date' => 'required|date',
@@ -569,6 +589,19 @@ class CreateInvoice extends Component
         } while ($exists);
 
         return $invoiceNumber;
+    }
+
+    // Handle fully paid checkbox changes
+    public function updatedIsFullyPaid($value)
+    {
+        if ($value) {
+            // If checked, set paid amount to total
+            $this->paid_amount = $this->total;
+            if (!$this->payment_method) {
+                $this->payment_method = 'cash';
+            }
+        }
+        $this->calculateDueAmount();
     }
 
     public function render()

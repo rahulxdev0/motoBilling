@@ -66,6 +66,9 @@ class EditInvoice extends Component
         'bank_transfer' => 'Bank Transfer'
     ];
 
+    // Add isFullyPaid property
+    public $isFullyPaid = false;
+
     public function mount(Invoice $invoice)
     {
         $this->invoice = $invoice;
@@ -89,6 +92,14 @@ class EditInvoice extends Component
         $this->tax_amount = $this->invoice->tax_amount;
         $this->round_off = $this->invoice->round_off;
         $this->total = $this->invoice->total;
+
+        // Set isFullyPaid based on current payment status
+        $this->isFullyPaid = ($this->invoice->payment_status === 'paid');
+        
+        // If payment_method is not set, default to cash
+        if (empty($this->payment_method)) {
+            $this->payment_method = 'cash';
+        }
 
         // Load invoice items
         $this->invoice_items = $this->invoice->items->map(function ($item) {
@@ -387,12 +398,30 @@ class EditInvoice extends Component
         $this->round_off = round((float) $this->round_off, 2);
         $this->total = round((float) $this->total, 2);
 
+        // Update isFullyPaid state when total changes
+        if ($this->isFullyPaid) {
+            $this->paid_amount = $this->total;
+        }
+
         $this->calculateDueAmount();
 
-        if ($this->isCashSale() && $this->paid_amount === '' && $this->total > 0) {
+        if ($this->isCashSale() && ($this->paid_amount === '' || $this->isFullyPaid) && $this->total > 0) {
             $this->paid_amount = $this->total;
             $this->calculateDueAmount();
         }
+    }
+
+    // Handle fully paid checkbox changes
+    public function updatedIsFullyPaid($value)
+    {
+        if ($value) {
+            // If checked, set paid amount to total
+            $this->paid_amount = $this->total;
+            if (!$this->payment_method) {
+                $this->payment_method = 'cash';
+            }
+        }
+        $this->calculateDueAmount();
     }
 
     public function searchProducts()

@@ -474,6 +474,25 @@
                             <div class="space-y-4">
                                 <h3 class="text-sm font-medium text-gray-900">Payment Details</h3>
                                 
+                                <!-- Fully Paid Checkbox -->
+                                <div class="bg-green-50 px-4 py-3 rounded-lg border border-green-200">
+                                    <label class="flex items-center justify-between cursor-pointer">
+                                        <span class="text-sm font-medium text-green-800">Mark as Fully Paid</span>
+                                        <div class="relative inline-block w-10 mr-2 align-middle select-none">
+                                            <input type="checkbox" 
+                                                wire:model.live="isFullyPaid" 
+                                                id="fully-paid-toggle" 
+                                                class="sr-only peer"
+                                            />
+                                            <div class="block w-10 h-6 bg-gray-200 rounded-full peer-checked:bg-green-500"></div>
+                                            <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4"></div>
+                                        </div>
+                                    </label>
+                                    <p class="text-xs text-green-600 mt-1">
+                                        Automatically sets payment to full invoice amount
+                                    </p>
+                                </div>
+                                
                                 <!-- Payment Method -->
                                 <div class="space-y-2">
                                     <label class="block text-sm text-gray-600">Payment Method</label>
@@ -496,9 +515,10 @@
                                     <div class="relative">
                                         <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
                                         <input type="number" wire:model.live.debounce.300ms="paid_amount"
-                                            min="0" max="{{ $total }}" step="0.01"
+                                            min="0" max="{{ $total * 2 }}" step="0.01"
                                             placeholder="0.00"
-                                            class="w-full pl-8 pr-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                                            class="w-full pl-8 pr-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500
+                                            {{ $isFullyPaid ? 'bg-green-50' : '' }}">
                                     </div>
                                     @error('paid_amount')
                                         <span class="text-red-500 text-xs">{{ $message }}</span>
