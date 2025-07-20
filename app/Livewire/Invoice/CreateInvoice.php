@@ -191,6 +191,7 @@ class CreateInvoice extends Component
     }
 
     // Update paid amount with delayed calculation
+    
     public function updatedPaidAmount()
     {
         if ($this->paid_amount !== '') {

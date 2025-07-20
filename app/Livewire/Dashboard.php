@@ -3,9 +3,10 @@
 namespace App\Livewire;
 
 use App\Models\Invoice;
+use App\Models\InvoiceItem;
 use App\Models\Partie;
 use App\Models\Product;
-use App\Models\StockMovement;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -22,77 +23,117 @@ class Dashboard extends Component
     public $recentInvoices;
     public $topProducts;
     public $revenueGrowth;
-    public $stockItems = [];
 
     public function mount()
     {
         $this->loadDashboardData();
     }
 
-    public function loadDashboardData()
-    {
-        $this->totalRevenue = Invoice::sum('total');
-        $this->monthlyRevenue = Invoice::whereYear('invoice_date', now()->year)
-            ->whereMonth('invoice_date', now()->month)
-            ->sum('total');
-        $this->totalInvoices = Invoice::count();
-        $this->pendingInvoices = Invoice::whereIn('payment_status', ['unpaid', 'partial'])->count();
-        $this->totalCustomers = Partie::count();
-
-        // Revenue Growth calculation
-        $currentMonthRevenue = $this->monthlyRevenue;
-        $lastMonthRevenue = Invoice::whereYear('invoice_date', now()->subMonth()->year)
-            ->whereMonth('invoice_date', now()->subMonth()->month)
-            ->sum('total');
-
-        $this->revenueGrowth = $lastMonthRevenue > 0 ?
-            round(($currentMonthRevenue - $lastMonthRevenue) / $lastMonthRevenue * 100, 2) :
-            100;
-
-        // Mock low stock items
-        $this->lowStockItems = Product::whereColumn('stock_quantity', '<', 'reorder_level')
-            ->select('name', 'stock_quantity', 'reorder_level', 'unit')
-            ->orderBy('stock_quantity', 'asc')
-            ->limit(4)
-            ->get()
-            ->toArray();
-
-        // Mock recent invoices
-        $this->recentInvoices = Invoice::with('partie')
-            ->orderBy('invoice_date', 'desc')
-            ->take(5)
-            ->get()
-            ->map(function ($invoice) {
-                return [
-                    'id' => $invoice->invoice_number,
-                    'customer' => $invoice->partie->name,
-                    'amount' => $invoice->total,
-                    'status' => $invoice->payment_status,
-                ];
-            })
-            ->toArray();
-
-        $this->topProducts = StockMovement::where('movement_type', 'invoice')
-            ->select('product_id', DB::raw('SUM(quantity) as total_sold'))
-            ->with('product')
-            ->groupBy('product_id')
-            ->orderByDesc('total_sold')
-            ->take(4)
-            ->get()
-            ->map(function ($movement) {
-                return [
-                    'name' => $movement->product->name,
-                    'quantity' => $movement->total_sold,
-                    'revenue' => $movement->total_sold * $movement->product->price,
-                ];
-            })
-            ->toArray();
-    }
-
     public function refreshData()
     {
         $this->loadDashboardData();
-        $this->dispatch('data-refreshed');
+        session()->flash('message', 'Dashboard data refreshed successfully!');
+    }
+
+    protected function loadDashboardData()
+    {
+        // Calculate total revenue from sales invoices
+        $this->totalRevenue = Invoice::where('invoice_category', 'sales')
+            ->where('status', '!=', 'cancelled')
+            ->sum('total');
+            
+        // Calculate monthly revenue (current month)
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
+        
+        $this->monthlyRevenue = Invoice::where('invoice_category', 'sales')
+            ->where('status', '!=', 'cancelled')
+            ->whereBetween('invoice_date', [$startOfMonth, $endOfMonth])
+            ->sum('total');
+            
+        // Calculate previous month's revenue for growth percentage
+        $startOfLastMonth = Carbon::now()->subMonth()->startOfMonth();
+        $endOfLastMonth = Carbon::now()->subMonth()->endOfMonth();
+        
+        $lastMonthRevenue = Invoice::where('invoice_category', 'sales')
+            ->where('status', '!=', 'cancelled')
+            ->whereBetween('invoice_date', [$startOfLastMonth, $endOfLastMonth])
+            ->sum('total');
+            
+        // Calculate revenue growth
+        $this->revenueGrowth = $lastMonthRevenue > 0 
+            ? round((($this->monthlyRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100, 1)
+            : ($this->monthlyRevenue > 0 ? 100 : 0);
+
+        // Count total invoices
+        $this->totalInvoices = Invoice::where('invoice_category', 'sales')
+            ->where('status', '!=', 'cancelled')
+            ->count();
+            
+        // Count pending invoices
+        $this->pendingInvoices = Invoice::where('invoice_category', 'sales')
+            ->where('status', '!=', 'cancelled')
+            ->whereIn('payment_status', ['unpaid', 'partial', 'overdue'])
+            ->count();
+            
+        // Count total customers (excluding cash sale customer)
+        $this->totalCustomers = Partie::where('is_active', true)
+            ->where('name', '!=', 'Cash Sale Customer')
+            ->count();
+            
+        // Get low stock items
+        $this->lowStockItems = Product::where('status', 'active')
+            ->where('type', 'product')
+            ->whereColumn('stock_quantity', '<=', 'reorder_level')
+            ->orderBy('stock_quantity', 'asc')
+            ->limit(5)
+            ->get()
+            ->map(function($product) {
+                return [
+                    'name' => $product->name,
+                    'stock_quantity' => $product->stock_quantity,
+                    'reorder_level' => $product->reorder_level,
+                    'unit' => $product->unit
+                ];
+            })
+            ->toArray();
+            
+        // Get recent invoices
+        $recentInvoices = Invoice::with('partie')
+            ->where('invoice_category', 'sales')
+            ->orderBy('invoice_date', 'desc')
+            ->limit(5)
+            ->get();
+            
+        $this->recentInvoices = $recentInvoices->map(function($invoice) {
+            return [
+                'id' => $invoice->invoice_number,
+                'customer' => $invoice->partie->name,
+                'amount' => $invoice->total,
+                'status' => $invoice->payment_status
+            ];
+        })->toArray();
+        
+        // Get top selling products
+        $topProducts = InvoiceItem::select('product_id', DB::raw('SUM(quantity) as total_quantity'), DB::raw('SUM(total) as total_revenue'))
+            ->with('product')
+            ->whereHas('invoice', function($query) {
+                $query->where('invoice_category', 'sales')
+                      ->where('status', '!=', 'cancelled')
+                      ->whereBetween('invoice_date', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()]);
+            })
+            ->groupBy('product_id')
+            ->orderBy('total_quantity', 'desc')
+            ->limit(5)
+            ->get();
+            
+        $this->topProducts = $topProducts->map(function($item) {
+            return [
+                'name' => $item->product->name ?? 'Unknown Product',
+                'quantity' => $item->total_quantity,
+                'revenue' => $item->total_revenue
+            ];
+        })->toArray();
     }
 
     public function render()
