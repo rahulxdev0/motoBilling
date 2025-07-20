@@ -16,6 +16,8 @@ class ManageInvoice extends Component
     public $sortBy = 'created_at';
     public $sortDirection = 'desc';
     public $perPage = 10;
+    public $dateRange = [];
+    public $quickDate = '';
 
     protected $paginationTheme = 'tailwind';
 
@@ -34,6 +36,23 @@ class ManageInvoice extends Component
         $this->resetPage();
     }
 
+    public function updatingDateRange()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingQuickDate()
+    {
+        $this->resetPage();
+    }
+
+    public function setQuickDate($range)
+    {
+        $this->quickDate = $range;
+        $this->dateRange = [];
+        $this->resetPage();
+    }
+
     public function sortBy($field)
     {
         if ($this->sortBy === $field) {
@@ -49,6 +68,8 @@ class ManageInvoice extends Component
         $this->search = '';
         $this->statusFilter = '';
         $this->paymentStatusFilter = '';
+        $this->dateRange = [];
+        $this->quickDate = '';
         $this->resetPage();
     }
 
@@ -106,6 +127,52 @@ class ManageInvoice extends Component
             })
             ->when($this->paymentStatusFilter, function ($query) {
                 $query->where('payment_status', $this->paymentStatusFilter);
+            })
+            // Date range filter
+            ->when($this->dateRange && count($this->dateRange) === 2, function ($query) {
+                $from = $this->dateRange[0];
+                $to = $this->dateRange[1];
+                $query->whereDate('invoice_date', '>=', $from)
+                      ->whereDate('invoice_date', '<=', $to);
+            })
+            // Quick date filter
+            ->when($this->quickDate, function ($query) {
+                $today = now()->toDateString();
+                $yesterday = now()->subDay()->toDateString();
+                $startOfWeek = now()->startOfWeek()->toDateString();
+                $endOfWeek = now()->endOfWeek()->toDateString();
+                $startOfLastWeek = now()->subWeek()->startOfWeek()->toDateString();
+                $endOfLastWeek = now()->subWeek()->endOfWeek()->toDateString();
+                $startOfMonth = now()->startOfMonth()->toDateString();
+                $endOfMonth = now()->endOfMonth()->toDateString();
+                $startOfLastMonth = now()->subMonth()->startOfMonth()->toDateString();
+                $endOfLastMonth = now()->subMonth()->endOfMonth()->toDateString();
+                $startOfYear = now()->startOfYear()->toDateString();
+                $endOfYear = now()->endOfYear()->toDateString();
+
+                switch ($this->quickDate) {
+                    case 'today':
+                        $query->whereDate('invoice_date', $today);
+                        break;
+                    case 'yesterday':
+                        $query->whereDate('invoice_date', $yesterday);
+                        break;
+                    case 'this_week':
+                        $query->whereBetween('invoice_date', [$startOfWeek, $endOfWeek]);
+                        break;
+                    case 'last_week':
+                        $query->whereBetween('invoice_date', [$startOfLastWeek, $endOfLastWeek]);
+                        break;
+                    case 'this_month':
+                        $query->whereBetween('invoice_date', [$startOfMonth, $endOfMonth]);
+                        break;
+                    case 'last_month':
+                        $query->whereBetween('invoice_date', [$startOfLastMonth, $endOfLastMonth]);
+                        break;
+                    case 'this_year':
+                        $query->whereBetween('invoice_date', [$startOfYear, $endOfYear]);
+                        break;
+                }
             })
             ->orderBy($this->sortBy, $this->sortDirection)
             ->paginate($this->perPage);
