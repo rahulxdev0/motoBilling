@@ -8,6 +8,9 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Category;
 use App\Models\Product;
+use Rap2hpoutre\FastExcel\FastExcel;
+use App\Exports\ProductsExport;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 #[Layout('components.layouts.app')]
 class ManageItems extends Component
@@ -60,13 +63,11 @@ class ManageItems extends Component
 
     public function handleCreateItem()
     {
-        // Dispatch event to open the create product modal
         $this->dispatch('open-product-modal');
     }
 
     public function handleEditItem($itemId)
     {
-        // Redirect to the edit page for the item
         return redirect()->route('items.edit', ['item' => $itemId]);
     }
 
@@ -75,9 +76,34 @@ class ManageItems extends Component
         $this->dispatch('confirm-delete', itemId: $itemId);
     }
 
+    public function exportExcel()
+    {
+        try {
+            $export = new ProductsExport($this->getProductsQuery());
+            $filename = 'products_export_' . now()->format('Ymd_His') . '.xlsx';
+            return (new FastExcel($export->collection()))->download($filename);
+        } catch (\Exception $e) {
+            session()->flash('error', 'Failed to export Excel: ' . $e->getMessage());
+            return redirect()->back();
+        }
+    }
+
     public function exportPdf()
     {
-        $this->dispatch('export-pdf');
+        try {
+            $products = $this->getProductsQuery()->get();
+            $pdf = Pdf::loadView('exports.products-pdf', [
+                'products' => $products,
+                'productStats' => $this->productStats,
+            ]);
+            $filename = 'products_export_' . now()->format('Ymd_His') . '.pdf';
+            return response()->streamDownload(function () use ($pdf) {
+                echo $pdf->output();
+            }, $filename);
+        } catch (\Exception $e) {
+            session()->flash('error', 'Failed to export PDF: ' . $e->getMessage());
+            return redirect()->back();
+        }
     }
 
     public function openAddCategoryModal()
@@ -88,26 +114,16 @@ class ManageItems extends Component
     #[On('category-added')]
     public function handleCategoryAdded($categoryData)
     {
-        // Refresh the categories list
-        $this->render();
-        
-        // Show success message
         session()->flash('success', 'Category "' . $categoryData['name'] . '" created successfully!');
     }
 
     #[On('product-created')]
     public function handleProductCreated()
     {
-        // Refresh the product list when a new product is created
         $this->resetPage();
-        
-        // Show success message
         session()->flash('success', 'Product created successfully!');
     }
 
-    /**
-     * Get categories from database
-     */
     public function getCategoriesProperty()
     {
         return Category::orderBy('name')->get();
@@ -115,9 +131,13 @@ class ManageItems extends Component
 
     public function getProductsProperty()
     {
+        return $this->getProductsQuery()->paginate($this->perPage);
+    }
+
+    protected function getProductsQuery()
+    {
         $query = Product::with(['category', 'partie']);
 
-        // Apply search filter
         if ($this->search) {
             $query->where(function ($q) {
                 $q->where('name', 'like', '%' . $this->search . '%')
@@ -127,23 +147,19 @@ class ManageItems extends Component
             });
         }
 
-        // Apply category filter
         if ($this->selectedCategory) {
             $query->whereHas('category', function ($q) {
                 $q->where('name', $this->selectedCategory);
             });
         }
 
-        // Apply status filter
         if ($this->statusFilter) {
             $query->where('status', $this->statusFilter);
         }
 
-        // Apply sorting
         $query->orderBy($this->sortBy, $this->sortDirection);
 
-        // Get paginated results
-        return $query->paginate($this->perPage);
+        return $query;
     }
 
     public function getProductStatsProperty()
@@ -162,10 +178,8 @@ class ManageItems extends Component
 
     public function render()
     {
-        $products = $this->products;
-        
         return view('livewire.items.manage-items', [
-            'products' => $products,
+            'products' => $this->products,
             'categories' => $this->categories,
             'productStats' => $this->productStats
         ]);
