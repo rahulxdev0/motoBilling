@@ -143,7 +143,8 @@ class ManageItems extends Component
                 $q->where('name', 'like', '%' . $this->search . '%')
                   ->orWhere('item_code', 'like', '%' . $this->search . '%')
                   ->orWhere('sku', 'like', '%' . $this->search . '%')
-                  ->orWhere('brand', 'like', '%' . $this->search . '%');
+                  ->orWhere('brand', 'like', '%' . $this->search . '%')
+                  ->orWhere('barcode', 'like', '%' . $this->search . '%');
             });
         }
 
