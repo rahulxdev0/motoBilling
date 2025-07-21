@@ -39,6 +39,9 @@ class EditProduct extends Component
         // ...add more as needed
     ];
 
+    public $barcodeLabel;
+    public $barcodePrintQty = 1;
+
     public function mount(Product $item)
     {
         $this->item = $item;
@@ -102,6 +105,60 @@ class EditProduct extends Component
 
         session()->flash('success', 'Product updated successfully!');
         return redirect()->route('items.manage');
+    }
+
+    public function generateBarcode()
+    {
+        // Generate EAN-13 barcode
+        $this->barcode = $this->generateEAN13Barcode();
+        session()->flash('message', 'Barcode generated successfully!');
+    }
+
+    private function generateEAN13Barcode()
+    {
+        // Generate 12 random digits
+        $barcode = '';
+        for ($i = 0; $i < 12; $i++) {
+            $barcode .= rand(0, 9);
+        }
+
+        // Calculate check digit
+        $checkDigit = $this->calculateEAN13CheckDigit($barcode);
+
+        return $barcode . $checkDigit;
+    }
+
+    private function calculateEAN13CheckDigit($barcode)
+    {
+        $sum = 0;
+        for ($i = 0; $i < 12; $i++) {
+            $digit = intval($barcode[$i]);
+            $sum += ($i % 2 === 0) ? $digit : $digit * 3;
+        }
+
+        $checkDigit = (10 - ($sum % 10)) % 10;
+        return $checkDigit;
+    }
+
+    public function generateBarcodeLabel()
+    {
+        if (empty($this->barcode) || empty($this->name)) {
+            session()->flash('error', 'Barcode and product name are required to generate a label.');
+            return;
+        }
+
+        try {
+            $this->barcodeLabel = $this->createBarcodeHTML($this->barcode);
+            session()->flash('message', 'Barcode label generated successfully!');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error generating barcode label: ' . $e->getMessage());
+        }
+    }
+
+    private function createBarcodeHTML($barcode)
+    {
+        $url = 'https://barcodeapi.org/api/128/' . urlencode($barcode);
+        return '<img src="' . $url . '" alt="Barcode" style="max-width:100%; height: 70px;" onerror="this.style.display=\'none\'">';
     }
 
     public function render()

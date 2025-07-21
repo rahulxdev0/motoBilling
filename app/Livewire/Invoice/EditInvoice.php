@@ -576,6 +576,39 @@ class EditInvoice extends Component
         }
     }
 
+    public function generateBarcode()
+    {
+        // Generate EAN-13 barcode
+        $this->barcodeInput = $this->generateEAN13Barcode();
+        session()->flash('message', 'Barcode generated successfully!');
+    }
+
+    private function generateEAN13Barcode()
+    {
+        // Generate 12 random digits
+        $barcode = '';
+        for ($i = 0; $i < 12; $i++) {
+            $barcode .= rand(0, 9);
+        }
+
+        // Calculate check digit
+        $checkDigit = $this->calculateEAN13CheckDigit($barcode);
+
+        return $barcode . $checkDigit;
+    }
+
+    private function calculateEAN13CheckDigit($barcode)
+    {
+        $sum = 0;
+        for ($i = 0; $i < 12; $i++) {
+            $digit = intval($barcode[$i]);
+            $sum += ($i % 2 === 0) ? $digit : $digit * 3;
+        }
+
+        $checkDigit = (10 - ($sum % 10)) % 10;
+        return $checkDigit;
+    }
+
     public function render()
     {
         return view('livewire.invoice.edit-invoice');

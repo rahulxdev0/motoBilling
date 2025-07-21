@@ -285,7 +285,7 @@
                                     @if(isset($barcodeLabel))
                                         <div class="border border-gray-200 rounded-lg p-4 bg-gray-50" id="barcodeLabelPreview">
                                             @for($i = 0; $i < ($barcodePrintQty ?? 1); $i++)
-                                                <div class="flex flex-col items-center mb-3 p-2 bg-white rounded border">
+                                                <div class="flex flex-col w-full items-center mb-3 p-2 bg-white rounded border">
                                                     {!! $barcodeLabel !!}
                                                     <div class="text-center mt-2">
                                                         <p class="font-semibold text-sm">{{ $name }}</p>
@@ -369,5 +369,43 @@
                 </div>
             </div>
         </form>
+    </div>
+
+    <!-- Modal: Barcode Label Preview & Print -->
+    <div
+        x-data="{ open: false }"
+        x-show="open"
+        @barcode-generated.window="open = true"
+        @keydown.escape.window="open = false"
+        x-cloak
+        class="fixed inset-0 flex items-center justify-center z-50 bg-black/50"
+    >
+        <div class="bg-white rounded-lg print:p-0 p-6 max-w-md w-full print:shadow-none shadow-lg" @click.away="open = false">
+            <h2 class="text-lg font-bold text-gray-800 mb-4 print:hidden">Barcode Label Preview</h2>
+
+            @if(isset($barcodeLabel))
+                <div class="overflow-y-auto max-h-80 w-full print:overflow-visible print:max-h-full" id="printable">
+                    @for($i = 0; $i < ($barcodePrintQty ?? 1); $i++)
+                        <div class="flex flex-col items-center mb-3 p-2 bg-white rounded border">
+                            {!! $barcodeLabel !!}
+                            <div class="text-center mt-1">
+                                <p class="font-normal text-xs">{{ $name }}</p>
+                            </div>
+                        </div>
+                    @endfor
+                </div>
+            @else
+                <p class="text-sm text-gray-500 print:hidden">No barcode generated yet.</p>
+            @endif
+
+            <div class="mt-6 flex justify-end space-x-2 print:hidden">
+                <button @click="window.print()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                    Print
+                </button>
+                <button @click="open = false" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">
+                    Close
+                </button>
+            </div>
+        </div>
     </div>
 </div>

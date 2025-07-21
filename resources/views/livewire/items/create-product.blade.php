@@ -308,9 +308,8 @@
                                             @for($i = 0; $i < ($barcodePrintQty ?? 1); $i++)
                                                 <div class="flex flex-col items-center mb-3 p-2 bg-white rounded border">
                                                     {!! $barcodeLabel !!}
-                                                    <div class="text-center mt-2">
-                                                        <p class="font-semibold text-sm">{{ $name }}</p>
-                                                        <p class="text-xs text-gray-500">{{ $barcode }}</p>
+                                                    <div class="text-center mt-1">
+                                                        <p class="font-normal text-xs">{{ $name }}</p>
                                                     </div>
                                                 </div>
                                             @endfor
@@ -413,12 +412,12 @@
         <h2 class="text-lg font-bold text-gray-800 mb-4 print:hidden">Barcode Label Preview</h2>
 
         @if(isset($barcodeLabel))
-<div class="overflow-y-auto max-h-80 w-full print:overflow-visible print:max-h-full" id="printable">
+            <div class="overflow-y-auto max-h-80 w-full print:overflow-visible print:max-h-full" id="printable">
                 @for($i = 0; $i < ($barcodePrintQty ?? 1); $i++)
                     <div class="flex flex-col items-center mb-3 p-2 bg-white rounded border">
                         {!! $barcodeLabel !!}
                         <div class="text-center mt-1">
-                            <p class="font-semibold text-sm">{{ $name }}</p>
+                            <p class="font-normal text-xs">{{ $name }}</p>
                         </div>
                     </div>
                 @endfor
