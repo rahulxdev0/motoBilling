@@ -384,12 +384,36 @@
             <h2 class="text-lg font-bold text-gray-800 mb-4 print:hidden">Barcode Label Preview</h2>
 
             @if(isset($barcodeLabel))
-                <div class="overflow-y-auto max-h-80 w-full print:overflow-visible print:max-h-full" id="printable">
+                <div class="overflow-y-auto max-h-80 w-full print:overflow-visible" id="printable">
+                    <style type="text/css" media="print">
+                        @page {
+                            size: auto;
+                            margin: 10mm;
+                        }
+                        body {
+                            margin: 0;
+                            padding: 0;
+                        }
+                        #printable {
+                            width: 48mm; /* Standard thermal printer width */
+                            margin: 0 auto;
+                            text-align: center;
+                        }
+                        #printable img {
+                            width: 200px; /* Adjust barcode width for printing */
+                            height: auto;
+                        }
+                        #printable p {
+                            font-size: 10px; /* Smaller font size for product name */
+                            margin: 0;
+                            padding: 0;
+                        }
+                    </style>
                     @for($i = 0; $i < ($barcodePrintQty ?? 1); $i++)
                         <div class="flex flex-col items-center mb-3 p-2 bg-white rounded border">
                             {!! $barcodeLabel !!}
-                            <div class="text-center mt-1">
-                                <p class="font-normal text-xs">{{ $name }}</p>
+                            <div class="text-center mt-0 w-full">
+                                <p class="font-normal print:text-xs text-xs">{{ $name }}</p>
                             </div>
                         </div>
                     @endfor
@@ -408,4 +432,16 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('livewire:load', () => {
+            Livewire.on('barcode-generated', () => {
+                const barcodeImages = document.querySelectorAll('#printable img');
+                barcodeImages.forEach(img => {
+                    img.style.width = '300px'; // Increase barcode width
+                    img.style.height = 'auto'; // Maintain aspect ratio
+                });
+            });
+        });
+    </script>
 </div>
