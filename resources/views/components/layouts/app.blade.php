@@ -76,6 +76,23 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
+
+        html, body {
+            height: 100%;
+        }
+        body {
+            min-height: 100vh;
+        }
+        .main-content-responsive {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        @media (max-width: 768px) {
+            .main-content-responsive {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 
@@ -83,10 +100,10 @@
     <!-- Page Navigation Loader Component -->
     <livewire:components.loader-component />
 
-    <div class="md:p-2 md:bg-gray-200 h-screen">
+    <div class="main-content-responsive md:p-2 md:bg-gray-200 h-screen">
         <div class="bg-gray-100 md:bg-gray-200 h-screen md:h-[98vh] flex gap-3">
-            <livewire:components.sidebar />
-            <div class="bg-white h-full md:rounded-lg md:shadow-lg overflow-y-auto flex-1">
+            <livewire:components.sidebar :isMobileOpen="false" />
+            <div class="bg-white h-full md:rounded-lg md:shadow-lg overflow-y-auto flex-1 flex flex-col">
                 {{ $slot }}
             </div>
         </div>

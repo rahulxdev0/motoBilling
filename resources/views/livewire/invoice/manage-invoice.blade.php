@@ -3,9 +3,9 @@
     <div class="bg-white shadow border-b border-gray-50">
         <div class="px-4 sm:px-6 lg:px-8">
             <div class="py-4">
-                <div class="md:flex md:items-center md:justify-between">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div class="flex-1 min-w-0">
-                        <h1 class="text-md font-semibold text-gray-700 sm:text-2xl sm:truncate">
+                        <h1 class="text-lg sm:text-2xl font-semibold text-gray-700 sm:truncate">
                             Sales Invoices
                         </h1>
                         <p class="mt-1 text-sm text-gray-600">
