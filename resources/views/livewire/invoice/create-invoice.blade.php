@@ -253,57 +253,57 @@
                                             <tr>
                                                 <td class="px-2 py-4 invoice-table-cell">
                                                     <div class="product-search-container">
-                                                        <input 
-                                                            type="text" 
-                                                            id="product-search-{{ $index }}"
-                                                            placeholder="Search or select product..."
-                                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                            autocomplete="off"
-                                                            onkeyup="filterProducts({{ $index }}, this.value)"
-                                                            onkeydown="handleKeyDown({{ $index }}, event)"
-                                                            onfocus="showDropdown({{ $index }})"
-                                                            onblur="handleBlur({{ $index }})"
-                                                        >
-                                                        
-                                                        <!-- Dropdown -->
-                                                        <div 
-                                                            id="product-dropdown-{{ $index }}"
-                                                            class="product-search-dropdown w-full mt-1 bg-white border border-gray-300 rounded-md max-h-60 overflow-auto hidden"
-                                                            style="position: absolute; top: 100%; left: 0; z-index: 9999; min-width: 300px;"
-                                                            onmousedown="event.preventDefault()"
-                                                        >
-                                                            
-                                                            <!-- Search results will be populated by JavaScript -->
-                                                            <div id="product-list-{{ $index }}">
-                                                                @foreach ($products as $product)
-                                                                    <div 
-                                                                        class="product-item px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
-                                                                        onmousedown="selectProduct({{ $index }}, {{ $product->id }}, '{{ addslashes($product->name) }}')"
-                                                                        data-name="{{ strtolower($product->name) }}"
-                                                                        data-code="{{ strtolower($product->item_code) }}"
-                                                                    >
-                                                                        <div class="flex justify-between items-center">
-                                                                            <div>
-                                                                                <div class="font-medium text-gray-900">{{ $product->name }}</div>
-                                                                                <div class="text-sm text-gray-500">
-                                                                                    Code: {{ $product->item_code }} | 
-                                                                                    Stock: {{ $product->stock_quantity }} | 
-                                                                                    Price: ₹{{ number_format($product->selling_price, 2) }}
+                                                        @if(!empty($item['product_name']))
+                                                            <div class="font-medium text-gray-900">{{ $item['product_name'] }}</div>
+                                                        @else
+                                                            <input 
+                                                                type="text" 
+                                                                id="product-search-{{ $index }}"
+                                                                placeholder="Search or select product..."
+                                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                                autocomplete="off"
+                                                                onkeyup="filterProducts({{ $index }}, this.value)"
+                                                                onkeydown="handleKeyDown({{ $index }}, event)"
+                                                                onfocus="showDropdown({{ $index }})"
+                                                                onblur="handleBlur({{ $index }})"
+                                                            >
+                                                            <!-- Dropdown -->
+                                                            <div 
+                                                                id="product-dropdown-{{ $index }}"
+                                                                class="product-search-dropdown w-full mt-1 bg-white border border-gray-300 rounded-md max-h-60 overflow-auto hidden"
+                                                                style="position: absolute; top: 100%; left: 0; z-index: 9999; min-width: 300px;"
+                                                                onmousedown="event.preventDefault()"
+                                                            >
+                                                                <!-- Search results will be populated by JavaScript -->
+                                                                <div id="product-list-{{ $index }}">
+                                                                    @foreach ($products as $product)
+                                                                        <div 
+                                                                            class="product-item px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
+                                                                            onmousedown="selectProduct({{ $index }}, {{ $product->id }}, '{{ addslashes($product->name) }}')"
+                                                                            data-name="{{ strtolower($product->name) }}"
+                                                                            data-code="{{ strtolower($product->item_code) }}"
+                                                                        >
+                                                                            <div class="flex justify-between items-center">
+                                                                                <div>
+                                                                                    <div class="font-medium text-gray-900">{{ $product->name }}</div>
+                                                                                    <div class="text-sm text-gray-500">
+                                                                                        Code: {{ $product->item_code }} | 
+                                                                                        Stock: {{ $product->stock_quantity }} | 
+                                                                                        Price: ₹{{ number_format($product->selling_price, 2) }}
+                                                                                    </div>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
-                                                                    </div>
-                                                                @endforeach
+                                                                    @endforeach
+                                                                </div>
+                                                                <!-- No results message -->
+                                                                <div id="no-results-{{ $index }}" class="px-4 py-2 text-gray-500 text-center hidden">
+                                                                    No products found
+                                                                </div>
                                                             </div>
-                                                            
-                                                            <!-- No results message -->
-                                                            <div id="no-results-{{ $index }}" class="px-4 py-2 text-gray-500 text-center hidden">
-                                                                No products found
-                                                            </div>
-                                                        </div>
-                                                        
-                                                        <!-- Hidden input for actual value -->
-                                                        <input type="hidden" wire:model.live="invoice_items.{{ $index }}.product_id" id="product-id-{{ $index }}">
+                                                            <!-- Hidden input for actual value -->
+                                                            <input type="hidden" wire:model.live="invoice_items.{{ $index }}.product_id" id="product-id-{{ $index }}">
+                                                        @endif
                                                     </div>
                                                     @error('invoice_items.' . $index . '.product_id')
                                                         <span class="text-red-500 text-xs mt-1">{{ $message }}</span>

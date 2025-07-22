@@ -146,10 +146,13 @@ class CreateInvoice extends Component
             $this->invoice_items[$existingIndex]['total'] =
                 $this->invoice_items[$existingIndex]['quantity'] *
                 $this->invoice_items[$existingIndex]['unit_price'];
+            // Ensure product_name is set
+            $this->invoice_items[$existingIndex]['product_name'] = $product->name;
         } else {
             // Add new item
             $this->invoice_items[] = [
                 'product_id' => $product->id,
+                'product_name' => $product->name, // Set product name here
                 'quantity' => 1,
                 'unit_price' => $product->selling_price,
                 'total' => $product->selling_price,
@@ -278,6 +281,7 @@ class CreateInvoice extends Component
             $product = Product::find($value);
             if ($product) {
                 $this->invoice_items[$index]['unit_price'] = (float) $product->selling_price;
+                $this->invoice_items[$index]['product_name'] = $product->name; // Ensure product name is set on manual select
                 // Calculate total immediately when product is selected
                 $this->invoice_items[$index]['total'] =
                     (float) $this->invoice_items[$index]['quantity'] * (float) $product->selling_price;
