@@ -140,10 +140,13 @@
 
                             <!-- GST Rate -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">GST Rate (%)</label>
-                                <input wire:model="gst_rate" type="number" step="0.01" min="0" max="100"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="Enter GST rate">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">GST Rate</label>
+                                <select wire:model="gst_rate"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    @foreach ($this->gstRates as $value => $label)
+                                        <option value="{{ $value }}">{{ $label }}</option>
+                                    @endforeach
+                                </select>
                                 @error('gst_rate')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
