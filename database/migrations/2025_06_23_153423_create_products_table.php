@@ -21,9 +21,11 @@ return new class extends Migration {
             $table->foreignId('category_id')->constrained();
             $table->string('brand')->nullable();
             $table->string('model_compatibility')->nullable();
-            $table->decimal('purchase_price', 10, 2); // Cost price
+            $table->decimal('purchase_price', 10, 2); 
             $table->decimal('selling_price', 10, 2);
             $table->decimal('mrp', 10, 2)->nullable();
+            $table->string('hsn_code')->nullable();
+            $table->decimal('gst_rate', 5, 2)->nullable(); 
             $table->integer('reorder_level')->default(10);
             $table->integer('stock_quantity')->default(0);
             $table->string('unit')->default('pcs');

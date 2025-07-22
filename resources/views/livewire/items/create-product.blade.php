@@ -127,6 +127,28 @@
                                 @enderror
                             </div>
 
+                            <!-- HSN Code -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">HSN Code</label>
+                                <input wire:model="hsn_code" type="text"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="Enter HSN code">
+                                @error('hsn_code')
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- GST Rate -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">GST Rate (%)</label>
+                                <input wire:model="gst_rate" type="number" step="0.01" min="0" max="100"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="Enter GST rate">
+                                @error('gst_rate')
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
                             <!-- Description -->
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>

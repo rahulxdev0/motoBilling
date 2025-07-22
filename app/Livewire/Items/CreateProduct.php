@@ -23,6 +23,8 @@ class CreateProduct extends Component
     public $purchase_price = '';
     public $selling_price = '';
     public $mrp = '';
+    public $hsn_code = '';
+    public $gst_rate = '';
     public $stock_quantity = 0;
     public $reorder_level = 10;
     public $unit = 'pcs';
@@ -49,6 +51,8 @@ class CreateProduct extends Component
             'purchase_price' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
             'mrp' => 'nullable|numeric|min:0|gte:selling_price',
+            'hsn_code' => 'nullable|string|max:20',
+            'gst_rate' => 'nullable|numeric|min:0|max:100',
             'stock_quantity' => 'required|integer|min:0',
             'reorder_level' => 'required|integer|min:0|max:1000',
             'unit' => 'required|string|max:20',
@@ -87,6 +91,8 @@ class CreateProduct extends Component
                 'purchase_price' => $this->purchase_price,
                 'selling_price' => $this->selling_price,
                 'mrp' => $this->mrp,
+                'hsn_code' => $this->hsn_code,
+                'gst_rate' => $this->gst_rate,
                 'stock_quantity' => $this->stock_quantity,
                 'reorder_level' => $this->reorder_level,
                 'unit' => $this->unit,

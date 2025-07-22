@@ -19,6 +19,8 @@ class Product extends Model
         'model_compatibility',
         'purchase_price',
         'selling_price',
+        'hsn_code',
+        'gst_rate',
         'reorder_level',
         'stock_quantity',
         'unit',
