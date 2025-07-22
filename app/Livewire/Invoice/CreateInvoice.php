@@ -131,10 +131,19 @@ class CreateInvoice extends Component
 
     protected function addProductToInvoice(Product $product)
     {
+        // Try to find an empty row (no product_id)
+        $emptyIndex = null;
+        foreach ($this->invoice_items as $index => $item) {
+            if (empty($item['product_id'])) {
+                $emptyIndex = $index;
+                break;
+            }
+        }
+
         // Check if product already exists in invoice items
         $existingIndex = null;
         foreach ($this->invoice_items as $index => $item) {
-            if ($item['product_id'] == $product->id) {
+            if (!empty($item['product_id']) && $item['product_id'] == $product->id) {
                 $existingIndex = $index;
                 break;
             }
@@ -148,11 +157,20 @@ class CreateInvoice extends Component
                 $this->invoice_items[$existingIndex]['unit_price'];
             // Ensure product_name is set
             $this->invoice_items[$existingIndex]['product_name'] = $product->name;
+        } elseif ($emptyIndex !== null) {
+            // Fill the empty row with the scanned product
+            $this->invoice_items[$emptyIndex] = [
+                'product_id' => $product->id,
+                'product_name' => $product->name,
+                'quantity' => 1,
+                'unit_price' => $product->selling_price,
+                'total' => $product->selling_price,
+            ];
         } else {
             // Add new item
             $this->invoice_items[] = [
                 'product_id' => $product->id,
-                'product_name' => $product->name, // Set product name here
+                'product_name' => $product->name,
                 'quantity' => 1,
                 'unit_price' => $product->selling_price,
                 'total' => $product->selling_price,
@@ -264,11 +282,10 @@ class CreateInvoice extends Component
 
     public function removeInvoiceItem($index)
     {
-        if (count($this->invoice_items) > 1) {
-            unset($this->invoice_items[$index]);
-            $this->invoice_items = array_values($this->invoice_items);
-            $this->calculateTotals();
-        }
+        // Allow deleting even if only one row remains
+        unset($this->invoice_items[$index]);
+        $this->invoice_items = array_values($this->invoice_items);
+        $this->calculateTotals();
     }
 
     public function updatedInvoiceItems($value, $key)
@@ -613,3 +630,4 @@ class CreateInvoice extends Component
         return view('livewire.invoice.create-invoice');
     }
 }
+
