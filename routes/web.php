@@ -40,6 +40,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/invoice/{id}/download', [App\Http\Controllers\InvoicePdfController::class, 'download'])->name('invoice.pdf.download');
     Route::get('/invoice/{id}/show', [App\Http\Controllers\InvoicePdfController::class, 'show'])->name('invoice.pdf.show');
 
+    // Purchase Invoice PDF routes
+    Route::get('/purchase/{id}/pdf', [App\Http\Controllers\PurchaseInvoicePdfController::class, 'view'])->name('purchase.pdf.view');
+    Route::get('/purchase/{id}/download', [App\Http\Controllers\PurchaseInvoicePdfController::class, 'download'])->name('purchase.pdf.download');
+    Route::get('/purchase/{id}/show', [App\Http\Controllers\PurchaseInvoicePdfController::class, 'show'])->name('purchase.pdf.show');
+
     // Add this route for viewing invoice details
     Route::get('/invoice/{invoice}/view', ViewInvoice::class)->name('invoice.view');
 
