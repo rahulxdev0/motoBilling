@@ -361,7 +361,7 @@
                                 </div>
 
                                 <!-- Discount -->
-                                <div class="space-y-2">
+                                <!-- <div class="space-y-2">
                                     <div class="flex items-center space-x-2">
                                         <input type="number" wire:model.live.debounce.500ms="discount_percentage"
                                             class="w-16 px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -375,7 +375,7 @@
                                         <span class="text-sm text-gray-600">Discount</span>
                                         <span class="text-sm text-red-600">-₹{{ number_format($discount_amount ?: 0, 2) }}</span>
                                     </div>
-                                </div>
+                                </div> -->
 
                                 <!-- Tax -->
                                 <div class="space-y-2">
@@ -413,7 +413,7 @@
                                     <div>
                                         <label class="block text-xs font-medium text-gray-700 mb-1">Payment Method</label>
                                         <select wire:model.live="payment_method"
-                                            class="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                            class="w-full px-2 py-2 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
                                             <option value="">Select Method</option>
                                             @foreach($paymentMethods as $key => $method)
                                                 <option value="{{ $key }}">{{ $method }}</option>
@@ -428,7 +428,7 @@
                                     <div>
                                         <label class="block text-xs font-medium text-gray-700 mb-1">Paid Amount</label>
                                         <input type="number" wire:model.live.debounce.300ms="paid_amount"
-                                            class="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            class="w-full px-2 py-2 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                                             placeholder="0.00" min="0" step="0.01">
                                     </div>
 
