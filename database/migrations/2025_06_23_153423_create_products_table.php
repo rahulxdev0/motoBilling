@@ -25,7 +25,7 @@ return new class extends Migration {
             $table->decimal('selling_price', 10, 2);
             $table->decimal('mrp', 10, 2)->nullable();
             $table->string('hsn_code')->nullable();
-            $table->decimal('gst_rate', 5, 2)->nullable(); 
+            $table->string('gst_rate', 50)->nullable(); 
             $table->integer('reorder_level')->default(10);
             $table->integer('stock_quantity')->default(0);
             $table->string('unit')->default('pcs');
