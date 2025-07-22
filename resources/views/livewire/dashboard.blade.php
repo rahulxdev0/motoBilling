@@ -1,7 +1,7 @@
-<div class="flex-1 p-6 bg-gray-50 overflow-y-auto md:rounded-md">
+<div class="flex-1 p-6 bg-gray-50 overflow-y-auto md:rounded-md w-full max-w-full">
     <!-- Header with welcome message and refresh button -->
     <div class="mb-8">
-        <div class="flex justify-between items-center">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <div class="flex items-center">
                 <button class="sm:hidden p-2 rounded-md text-gray-500 hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500"
                     wire:click="$dispatch('toggle-mobile-sidebar')">
@@ -10,8 +10,8 @@
                     </svg>
                 </button>
                 <div>
-                    <h1 class="text-3xl font-semibold text-gray-900">Business Dashboard</h1>
-                    <p class="text-gray-600 mt-1">{{ now()->format('l, F j, Y') }} • Overview of your business performance</p>
+                    <h1 class="text-2xl sm:text-3xl font-semibold text-gray-900">Business Dashboard</h1>
+                    <p class="text-gray-600 mt-1 text-sm">{{ now()->format('l, F j, Y') }} • Overview of your business performance</p>
                 </div>
             </div>
             <button wire:click="refreshData"
