@@ -11,7 +11,7 @@
                 </button>
                 <div>
                     <h1 class="text-2xl sm:text-3xl font-semibold text-gray-900">Business Dashboard</h1>
-                    <p class="text-gray-600 mt-1 text-sm">{{ now()->format('l, F j, Y') }} • Overview of your business performance</p>
+                    <p class="text-gray-600 mt-1 text-sm">{{ now()->format('l, F j, Y') }} </p>
                 </div>
             </div>
             <button wire:click="refreshData"
