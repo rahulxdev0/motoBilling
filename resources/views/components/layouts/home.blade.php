@@ -12,13 +12,8 @@
 <body>
     <!-- Page Navigation Loader Component -->
     <livewire:components.loader-component />
-    <div class="main-content-responsive bg-gray-200 min-h-screen flex flex-col md:flex-row">
-        <livewire:components.sidebar :isMobileOpen="false" />
-        <div class="flex-1 min-w-0">
             {{ $slot }}
-        </div>
-    </div>
-</body>
+   </body>
 
 <script>
 document.addEventListener('livewire:init', () => {
