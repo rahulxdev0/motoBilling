@@ -235,10 +235,19 @@
                                                 Product
                                             </th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                HSN Code
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Qty
                                             </th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Unit Price
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                GST Rate
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                GST Amount
                                             </th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Total
@@ -253,61 +262,63 @@
                                             <tr>
                                                 <td class="px-2 py-4 invoice-table-cell">
                                                     <div class="product-search-container">
-                                                        @if(!empty($item['product_name']))
-                                                            <div class="font-medium text-gray-900">{{ $item['product_name'] }}</div>
-                                                        @else
-                                                            <input 
-                                                                type="text" 
-                                                                id="product-search-{{ $index }}"
-                                                                placeholder="Search or select product..."
-                                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                                autocomplete="off"
-                                                                onkeyup="filterProducts({{ $index }}, this.value)"
-                                                                onkeydown="handleKeyDown({{ $index }}, event)"
-                                                                onfocus="showDropdown({{ $index }})"
-                                                                onblur="handleBlur({{ $index }})"
-                                                            >
-                                                            <!-- Dropdown -->
-                                                            <div 
-                                                                id="product-dropdown-{{ $index }}"
-                                                                class="product-search-dropdown w-full mt-1 bg-white border border-gray-300 rounded-md max-h-60 overflow-auto hidden"
-                                                                style="position: absolute; top: 100%; left: 0; z-index: 9999; min-width: 300px;"
-                                                                onmousedown="event.preventDefault()"
-                                                            >
-                                                                <!-- Search results will be populated by JavaScript -->
-                                                                <div id="product-list-{{ $index }}">
-                                                                    @foreach ($products as $product)
-                                                                        <div 
-                                                                            class="product-item px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
-                                                                            onmousedown="selectProduct({{ $index }}, {{ $product->id }}, '{{ addslashes($product->name) }}')"
-                                                                            data-name="{{ strtolower($product->name) }}"
-                                                                            data-code="{{ strtolower($product->item_code) }}"
-                                                                        >
-                                                                            <div class="flex justify-between items-center">
-                                                                                <div>
-                                                                                    <div class="font-medium text-gray-900">{{ $product->name }}</div>
-                                                                                    <div class="text-sm text-gray-500">
-                                                                                        Code: {{ $product->item_code }} | 
-                                                                                        Stock: {{ $product->stock_quantity }} | 
-                                                                                        Price: ₹{{ number_format($product->selling_price, 2) }}
-                                                                                    </div>
+                                                        <input 
+                                                            type="text" 
+                                                            id="product-search-{{ $index }}"
+                                                            value="{{ $item['product_name'] ?? '' }}"
+                                                            placeholder="Search or select product..."
+                                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                            autocomplete="off"
+                                                            onkeyup="filterProducts({{ $index }}, this.value)"
+                                                            onkeydown="handleKeyDown({{ $index }}, event)"
+                                                            onfocus="showDropdown({{ $index }})"
+                                                            onblur="handleBlur({{ $index }})"
+                                                        >
+                                                        <!-- Dropdown -->
+                                                        <div 
+                                                            id="product-dropdown-{{ $index }}"
+                                                            class="product-search-dropdown w-full mt-1 bg-white border border-gray-300 rounded-md max-h-60 overflow-auto hidden"
+                                                            style="position: absolute; top: 100%; left: 0; z-index: 9999; min-width: 300px;"
+                                                            onmousedown="event.preventDefault()"
+                                                        >
+                                                            <!-- Search results will be populated by JavaScript -->
+                                                            <div id="product-list-{{ $index }}">
+                                                                @foreach ($products as $product)
+                                                                    <div 
+                                                                        class="product-item px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0 {{ $item['product_id'] == $product->id ? 'selected' : '' }}"
+                                                                        onclick="selectProduct({{ $index }}, {{ $product->id }}, '{{ addslashes($product->name) }}')"
+                                                                        data-name="{{ strtolower($product->name) }}"
+                                                                        data-code="{{ strtolower($product->item_code) }}"
+                                                                    >
+                                                                        <div class="flex justify-between items-center">
+                                                                            <div>
+                                                                                <div class="font-medium text-gray-900">{{ $product->name }}</div>
+                                                                                <div class="text-sm text-gray-500">
+                                                                                    Code: {{ $product->item_code }} | 
+                                                                                    HSN: {{ $product->hsn_code }} |
+                                                                                    Stock: {{ $product->stock_quantity }} | 
+                                                                                    Price: ₹{{ number_format($product->selling_price, 2) }} |
+                                                                                    GST: {{ $product->gst_rate }}%
                                                                                 </div>
                                                                             </div>
                                                                         </div>
-                                                                    @endforeach
-                                                                </div>
-                                                                <!-- No results message -->
-                                                                <div id="no-results-{{ $index }}" class="px-4 py-2 text-gray-500 text-center hidden">
-                                                                    No products found
-                                                                </div>
+                                                                    </div>
+                                                                @endforeach
                                                             </div>
-                                                            <!-- Hidden input for actual value -->
-                                                            <input type="hidden" wire:model.live="invoice_items.{{ $index }}.product_id" id="product-id-{{ $index }}">
-                                                        @endif
+                                                            <!-- No results message -->
+                                                            <div id="no-results-{{ $index }}" class="px-4 py-2 text-gray-500 text-center hidden">
+                                                                No products found
+                                                            </div>
+                                                        </div>
+                                                        <!-- Hidden input for actual value -->
+                                                        <input type="hidden" wire:model.live="invoice_items.{{ $index }}.product_id" id="product-id-{{ $index }}">
                                                     </div>
                                                     @error('invoice_items.' . $index . '.product_id')
                                                         <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                                                     @enderror
+                                                </td>
+                                                <td class="px-6 py-4 text-sm text-gray-900">
+                                                    {{ $item['hsn_code'] ?? '-' }}
                                                 </td>
                                                 <td class="px-6 py-4">
                                                     <input type="number"
@@ -327,8 +338,14 @@
                                                         <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                                                     @enderror
                                                 </td>
+                                                <td class="px-6 py-4 text-sm text-gray-900">
+                                                    {{ $item['gst_rate'] ?? 0 }}%
+                                                </td>
                                                 <td class="px-6 py-4 text-sm text-gray-900 font-medium">
-                                                    ₹{{ number_format($item['total'], 2) }}
+                                                    ₹{{ number_format($item['tax_amount'] ?? 0, 2) }}
+                                                </td>
+                                                <td class="px-6 py-4 text-sm text-gray-900 font-medium">
+                                                    ₹{{ number_format($item['total'] ?? 0, 2) }}
                                                 </td>
                                                 <td class="px-6 py-4">
                                                     <button type="button"
@@ -422,26 +439,43 @@
                                     <div>
                                         <input type="number" wire:model.live.debounce.300ms="discount_amount" min="0"
                                             step="0.01" placeholder="Amount"
-                                            class="w-full  px-4 py-2 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                            class="w-full px-4 py-2 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                                             title="Discount Amount">
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Tax -->
+                            <!-- GST Summary -->
                             <div class="space-y-2">
                                 <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600">Tax
-                                        ({{ number_format((float)($tax_percentage ?: 0), 2) }}%)</span>
-                                    <span class="text-sm font-medium text-gray-900">₹{{ number_format((float)($tax_amount ?: 0), 2) }}</span>
+                                    <span class="text-sm text-gray-600">GST Summary</span>
                                 </div>
-                                <div>
-                                    <input type="number" wire:model.live.debounce.300ms="tax_percentage" min="0"
-                                        max="100" step="0.01"
-                                        placeholder="Tax %"
-                                        class="w-full  px-4 py-2 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                                        title="Tax Percentage">
-                                </div>
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">HSN Code</th>
+                                            <th class="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Taxable Amount</th>
+                                            <th class="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">GST Rate</th>
+                                            <th class="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">GST Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        @foreach ($gst_summary as $hsn => $summary)
+                                            <tr>
+                                                <td class="px-2 py-1 text-sm text-gray-900">{{ $hsn }}</td>
+                                                <td class="px-2 py-1 text-sm text-gray-900">₹{{ number_format($summary['taxable_amount'], 2) }}</td>
+                                                <td class="px-2 py-1 text-sm text-gray-900">{{ $summary['gst_rate'] }}%</td>
+                                                <td class="px-2 py-1 text-sm text-gray-900">₹{{ number_format($summary['tax_amount'], 2) }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Total Tax -->
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Total GST</span>
+                                <span class="text-sm font-medium text-gray-900">₹{{ number_format((float)($tax_amount ?: 0), 2) }}</span>
                             </div>
 
                             <!-- Round Off -->
@@ -601,7 +635,7 @@
                                             </p>
                                             <p class="text-xs text-{{ $this->isCashSale() ? 'green' : 'teal' }}-600">
                                                 {{ $this->isCashSale() ? 'Payment received immediately' : 'Amount payable by customer' }}
-                            </p>
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -613,29 +647,21 @@
         </form>
     </div>
 
-    <!-- JavaScript for delayed calculations and product search -->
+    <!-- JavaScript for product search and selection -->
     <script>
-        // Product search functions
         function showDropdown(index) {
-            // Close all other dropdowns first
             closeAllDropdowns();
-            
             const dropdown = document.getElementById(`product-dropdown-${index}`);
             if (dropdown) {
                 dropdown.classList.remove('hidden');
-                
-                // Adjust position if dropdown would go off screen
                 const rect = dropdown.getBoundingClientRect();
                 const windowHeight = window.innerHeight;
-                
                 if (rect.bottom > windowHeight) {
-                    // Position dropdown above the input if there's not enough space below
                     dropdown.style.top = 'auto';
                     dropdown.style.bottom = '100%';
                     dropdown.style.marginBottom = '4px';
                     dropdown.style.marginTop = '0';
                 } else {
-                    // Default position below the input
                     dropdown.style.top = '100%';
                     dropdown.style.bottom = 'auto';
                     dropdown.style.marginTop = '4px';
@@ -643,73 +669,60 @@
                 }
             }
         }
-        
+
         function hideDropdown(index) {
             const dropdown = document.getElementById(`product-dropdown-${index}`);
             if (dropdown) {
                 dropdown.classList.add('hidden');
             }
         }
-        
+
         function closeAllDropdowns() {
             const dropdowns = document.querySelectorAll('[id^="product-dropdown-"]');
             dropdowns.forEach(dropdown => {
                 dropdown.classList.add('hidden');
             });
         }
-        
+
         function handleBlur(index) {
-            // Store the timeout so it can be cleared if needed
             window.blurTimeout = setTimeout(() => {
                 const dropdown = document.getElementById(`product-dropdown-${index}`);
                 const activeElement = document.activeElement;
-                
-                // Don't hide if focus is still within the dropdown or container
                 if (dropdown && !dropdown.contains(activeElement)) {
                     hideDropdown(index);
                 }
-            }, 300);
+            }, 200);
         }
-        
+
         function handleKeyDown(index, event) {
             const dropdown = document.getElementById(`product-dropdown-${index}`);
             if (!dropdown || dropdown.classList.contains('hidden')) return;
-            
+
             const visibleItems = dropdown.querySelectorAll('.product-item:not([style*="display: none"])');
-            
             if (event.key === 'Escape') {
                 hideDropdown(index);
                 event.preventDefault();
-            } else if (event.key === 'ArrowDown') {
-                // Navigate down
-                event.preventDefault();
-                // You can add arrow key navigation here if needed
-            } else if (event.key === 'ArrowUp') {
-                // Navigate up
-                event.preventDefault();
-                // You can add arrow key navigation here if needed
             } else if (event.key === 'Enter' && visibleItems.length > 0) {
-                // Select first visible item
                 event.preventDefault();
                 visibleItems[0].click();
             }
         }
-        
+
         function filterProducts(index, searchTerm) {
             const dropdown = document.getElementById(`product-dropdown-${index}`);
             const productList = document.getElementById(`product-list-${index}`);
             const noResults = document.getElementById(`no-results-${index}`);
-            
+
             if (!dropdown || !productList) return;
-            
+
             const items = productList.querySelectorAll('.product-item');
             let visibleCount = 0;
-            
+
             items.forEach(item => {
                 const name = item.getAttribute('data-name');
                 const code = item.getAttribute('data-code');
                 const searchLower = searchTerm.toLowerCase();
-                
+
                 if (searchTerm === '' || name.includes(searchLower) || code.includes(searchLower)) {
                     item.style.display = 'block';
                     visibleCount++;
@@ -717,62 +730,53 @@
                     item.style.display = 'none';
                 }
             });
-            
-            // Show/hide no results message
+
             if (noResults) {
-                if (visibleCount === 0 && searchTerm !== '') {
-                    noResults.classList.remove('hidden');
-                } else {
-                    noResults.classList.add('hidden');
-                }
+                noResults.classList.toggle('hidden', visibleCount > 0 || searchTerm === '');
             }
-            
-            // Show dropdown if not already visible
+
             dropdown.classList.remove('hidden');
         }
-        
+
         function selectProduct(index, productId, productName) {
-            // Set the hidden input value
+            console.log(`Selecting product: index=${index}, productId=${productId}, productName=${productName}`);
             const hiddenInput = document.getElementById(`product-id-${index}`);
             const searchInput = document.getElementById(`product-search-${index}`);
-            
+
             if (hiddenInput) {
                 hiddenInput.value = productId;
-                // Trigger Livewire change event
-                hiddenInput.dispatchEvent(new Event('input'));
-                // Also trigger change event for Livewire to detect
+                const inputEvent = new Event('input', { bubbles: true });
+                hiddenInput.dispatchEvent(inputEvent);
                 const changeEvent = new Event('change', { bubbles: true });
                 hiddenInput.dispatchEvent(changeEvent);
+            } else {
+                console.error(`Hidden input for index ${index} not found`);
             }
-            
+
             if (searchInput) {
                 searchInput.value = productName;
+            } else {
+                console.error(`Search input for index ${index} not found`);
             }
-            
-            // Hide dropdown immediately
+
             hideDropdown(index);
-            
-            // Prevent the blur event from interfering
             clearTimeout(window.blurTimeout);
         }
-        
-        // Initialize search inputs when new rows are added
+
         function initializeProductSearch() {
-            // This function can be called when new rows are added
+            console.log('Initializing product search');
             const searchInputs = document.querySelectorAll('[id^="product-search-"]');
             searchInputs.forEach(input => {
                 const index = input.id.split('-').pop();
                 const hiddenInput = document.getElementById(`product-id-${index}`);
-                
-                // If there's already a selected product, show its name
                 if (hiddenInput && hiddenInput.value) {
-                    // Find the product name from the dropdown items
                     const dropdown = document.getElementById(`product-dropdown-${index}`);
                     if (dropdown) {
                         const selectedItem = dropdown.querySelector(`[onclick*="${hiddenInput.value}"]`);
                         if (selectedItem) {
                             const productName = selectedItem.querySelector('.font-medium').textContent;
                             input.value = productName;
+                            console.log(`Set product name for index ${index}: ${productName}`);
                         }
                     }
                 }
@@ -780,6 +784,7 @@
         }
 
         document.addEventListener('livewire:initialized', () => {
+            console.log('Livewire initialized');
             let discountPercentageTimeout;
             let discountAmountTimeout;
             let dueAmountTimeout;
@@ -813,36 +818,28 @@
                     }
                 }, 100);
             });
-            
-            // Initialize product search after Livewire loads
+
             setTimeout(initializeProductSearch, 100);
-            
-            // Add event listeners for closing dropdowns
-            let isScrollingInDropdown = false;
-            
-            // Modified scroll event listener to not close when scrolling inside dropdown
+
             document.addEventListener('scroll', function(e) {
-                // Check if scrolling is happening inside a dropdown
                 const target = e.target;
                 if (target && target.closest && target.closest('[id^="product-dropdown-"]')) {
-                    return; // Don't close if scrolling inside dropdown
+                    return;
                 }
                 closeAllDropdowns();
             }, true);
-            
+
             document.addEventListener('click', function(e) {
-                // Close dropdowns if clicking outside of product search containers
                 if (!e.target.closest('.product-search-container')) {
                     closeAllDropdowns();
                 }
             });
-            
-            // Close dropdowns on window resize
+
             window.addEventListener('resize', closeAllDropdowns);
         });
-        
-        // Re-initialize when Livewire updates the component
+
         document.addEventListener('livewire:updated', () => {
+            console.log('Livewire updated');
             setTimeout(initializeProductSearch, 100);
         });
     </script>

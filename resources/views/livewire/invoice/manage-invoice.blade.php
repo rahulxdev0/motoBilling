@@ -322,7 +322,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex space-x-2 justify-end">
                                         <!-- View Invoice Button -->
-                                        <a href="{{ route('invoice.view', $invoice->id) }}"
+                                        <a href="{{ route('invoice.edit', $invoice->id) }}"
                                            class="text-indigo-600 hover:text-indigo-900 flex items-center" title="View Invoice">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
