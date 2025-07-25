@@ -73,7 +73,15 @@ class ManageItems extends Component
 
     public function handleDeleteItem($itemId)
     {
-        $this->dispatch('confirm-delete', itemId: $itemId);
+        $product = Product::find($itemId);
+
+        if (!$product) {
+            return redirect()->back()->with('error', 'Product not found');
+        }
+
+        $product->delete();
+
+        return redirect()->back()->with('success', 'Product deleted successfully');
     }
 
     public function exportExcel()
@@ -141,10 +149,10 @@ class ManageItems extends Component
         if ($this->search) {
             $query->where(function ($q) {
                 $q->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhere('item_code', 'like', '%' . $this->search . '%')
-                  ->orWhere('sku', 'like', '%' . $this->search . '%')
-                  ->orWhere('brand', 'like', '%' . $this->search . '%')
-                  ->orWhere('barcode', 'like', '%' . $this->search . '%');
+                    ->orWhere('item_code', 'like', '%' . $this->search . '%')
+                    ->orWhere('sku', 'like', '%' . $this->search . '%')
+                    ->orWhere('brand', 'like', '%' . $this->search . '%')
+                    ->orWhere('barcode', 'like', '%' . $this->search . '%');
             });
         }
 
@@ -166,7 +174,7 @@ class ManageItems extends Component
     public function getProductStatsProperty()
     {
         $allProducts = Product::with('category')->get();
-        
+
         return [
             'total_items' => $allProducts->count(),
             'total_stock_value' => $allProducts->sum(function ($product) {
