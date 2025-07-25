@@ -36,6 +36,7 @@ class CreatePurchaseInvoice extends Component
     public $tax_amount = 0;
     public $round_off = 0;
     public $total = 0;
+    public $gst_summary = []; // Add GST summary property
 
     // Invoice items
     public $invoice_items = [];
@@ -73,10 +74,10 @@ class CreatePurchaseInvoice extends Component
         $this->cash_sale_supplier = Partie::firstOrCreate(
             ['name' => 'Cash Purchase Supplier'],
             [
-                'name' => 'Cash Purchase Supplier',
-                'email' => 'cash@purchase.local',
                 'phone' => '0000000000',
+                'email' => 'cash@purchase.com',
                 'address' => 'N/A',
+                'gst_number' => 'N/A',
                 'status' => 'active'
             ]
         );
@@ -145,33 +146,97 @@ class CreatePurchaseInvoice extends Component
         }
 
         if ($existingIndex !== null) {
-            // Increment quantity of existing item
+            // Update existing item
             $this->invoice_items[$existingIndex]['quantity']++;
-            $this->invoice_items[$existingIndex]['total'] = 
-                $this->invoice_items[$existingIndex]['quantity'] * $this->invoice_items[$existingIndex]['unit_price'];
-            // Ensure product_name is set
+            $this->updateItemCalculations($existingIndex);
             $this->invoice_items[$existingIndex]['product_name'] = $product->name;
         } elseif ($emptyIndex !== null) {
-            // Fill the empty row with the scanned product
+            // Fill empty row
             $this->invoice_items[$emptyIndex] = [
                 'product_id' => $product->id,
                 'product_name' => $product->name,
+                'hsn_code' => $product->hsn_code ?? '',
+                'gst_rate' => (float) $product->gst_rate,
                 'quantity' => 1,
-                'unit_price' => $product->purchase_price,
-                'total' => $product->purchase_price,
+                'unit_price' => (float) $product->purchase_price,
+                'subtotal' => (float) $product->purchase_price,
+                'tax_amount' => (float) $product->purchase_price * ($product->gst_rate / 100),
+                'total' => (float) $product->purchase_price * (1 + $product->gst_rate / 100),
             ];
         } else {
-            // Add new item
+            // Add new row
             $this->invoice_items[] = [
                 'product_id' => $product->id,
                 'product_name' => $product->name,
+                'hsn_code' => $product->hsn_code ?? '',
+                'gst_rate' => (float) $product->gst_rate,
                 'quantity' => 1,
-                'unit_price' => $product->purchase_price,
-                'total' => $product->purchase_price,
+                'unit_price' => (float) $product->purchase_price,
+                'subtotal' => (float) $product->purchase_price,
+                'tax_amount' => (float) $product->purchase_price * ($product->gst_rate / 100),
+                'total' => (float) $product->purchase_price * (1 + $product->gst_rate / 100),
             ];
         }
 
         $this->calculateTotals();
+    }
+
+    public function addInvoiceItem()
+    {
+        $this->invoice_items[] = [
+            'product_id' => '',
+            'product_name' => '',
+            'hsn_code' => '',
+            'gst_rate' => 0,
+            'quantity' => 1,
+            'unit_price' => 0,
+            'subtotal' => 0,
+            'tax_amount' => 0,
+            'total' => 0,
+        ];
+    }
+
+    public function removeInvoiceItem($index)
+    {
+        // Allow deleting even if only one row remains
+        unset($this->invoice_items[$index]);
+        $this->invoice_items = array_values($this->invoice_items);
+        $this->calculateTotals();
+    }
+
+    public function updatedInvoiceItems($value, $key)
+    {
+        $parts = explode('.', $key);
+        $index = $parts[0];
+        $field = $parts[1];
+
+        if ($field === 'product_id' && !empty($value)) {
+            $product = Product::find($value);
+            if ($product) {
+                $this->invoice_items[$index]['product_name'] = $product->name;
+                $this->invoice_items[$index]['hsn_code'] = $product->hsn_code ?? '';
+                $this->invoice_items[$index]['gst_rate'] = (float) $product->gst_rate;
+                $this->invoice_items[$index]['unit_price'] = (float) $product->purchase_price;
+                $this->updateItemCalculations($index);
+            }
+        }
+
+        if (in_array($field, ['quantity', 'unit_price'])) {
+            $this->updateItemCalculations($index);
+        }
+
+        $this->calculateTotals();
+    }
+
+    protected function updateItemCalculations($index)
+    {
+        $quantity = (float) ($this->invoice_items[$index]['quantity'] ?? 1);
+        $unitPrice = (float) ($this->invoice_items[$index]['unit_price'] ?? 0);
+        $gstRate = (float) ($this->invoice_items[$index]['gst_rate'] ?? 0);
+
+        $this->invoice_items[$index]['subtotal'] = $quantity * $unitPrice;
+        $this->invoice_items[$index]['tax_amount'] = $this->invoice_items[$index]['subtotal'] * ($gstRate / 100);
+        $this->invoice_items[$index]['total'] = $this->invoice_items[$index]['subtotal'] + $this->invoice_items[$index]['tax_amount'];
     }
 
     // Method to check if current selection is cash purchase
@@ -265,51 +330,6 @@ class CreatePurchaseInvoice extends Component
         return 'PUR-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
     }
 
-    public function addInvoiceItem()
-    {
-        $this->invoice_items[] = [
-            'product_id' => '',
-            'quantity' => 1,
-            'unit_price' => 0,
-            'total' => 0,
-        ];
-    }
-
-    public function removeInvoiceItem($index)
-    {
-        // Allow deleting even if only one row remains
-        unset($this->invoice_items[$index]);
-        $this->invoice_items = array_values($this->invoice_items);
-        $this->calculateTotals();
-    }
-
-    public function updatedInvoiceItems($value, $key)
-    {
-        $parts = explode('.', $key);
-        $index = $parts[0];
-        $field = $parts[1];
-
-        if ($field === 'product_id') {
-            $product = Product::find($value);
-            if ($product) {
-                $this->invoice_items[$index]['product_name'] = $product->name;
-                $this->invoice_items[$index]['unit_price'] = (float) $product->purchase_price;
-                $this->invoice_items[$index]['total'] = 
-                    (float) $this->invoice_items[$index]['quantity'] * (float) $product->purchase_price;
-            }
-        }
-
-        if (in_array($field, ['quantity', 'unit_price'])) {
-            // Cast to float to ensure numeric calculation
-            $quantity = (float) $this->invoice_items[$index]['quantity'];
-            $unitPrice = (float) $this->invoice_items[$index]['unit_price'];
-
-            $this->invoice_items[$index]['total'] = $quantity * $unitPrice;
-        }
-
-        $this->calculateTotals();
-    }
-
     // Live update for discount percentage with delayed calculation
     public function updatedDiscountPercentage($value)
     {
@@ -379,20 +399,41 @@ class CreatePurchaseInvoice extends Component
     // Updated total calculation function to handle the fully paid checkbox
     private function calculateTotals($recalculateDiscountAmount = true)
     {
-        // Calculate subtotal - ensure we're working with numbers
+        // Calculate subtotal from item subtotals (excluding tax)
         $this->subtotal = collect($this->invoice_items)->sum(function ($item) {
-            return (float) ($item['total'] ?? 0);
+            return (float) ($item['subtotal'] ?? 0);
         });
+
+        // Build GST summary
+        $this->gst_summary = [];
+        foreach ($this->invoice_items as $item) {
+            if (!empty($item['product_id']) && !empty($item['hsn_code'])) {
+                $hsn = $item['hsn_code'];
+                $taxable_amount = (float) ($item['subtotal'] ?? 0);
+                $gst_rate = (float) ($item['gst_rate'] ?? 0);
+                $tax_amount = (float) ($item['tax_amount'] ?? 0);
+
+                if (!isset($this->gst_summary[$hsn])) {
+                    $this->gst_summary[$hsn] = [
+                        'taxable_amount' => 0,
+                        'gst_rate' => $gst_rate,
+                        'tax_amount' => 0,
+                    ];
+                }
+
+                $this->gst_summary[$hsn]['taxable_amount'] += $taxable_amount;
+                $this->gst_summary[$hsn]['tax_amount'] += $tax_amount;
+            }
+        }
 
         // Handle discount calculations only if values are not empty
         $discountPercentage = is_numeric($this->discount_percentage) ? max(0, (float) $this->discount_percentage) : 0;
         $discountAmount = is_numeric($this->discount_amount) ? max(0, (float) $this->discount_amount) : 0;
-        $this->tax_percentage = max(0, (float) $this->tax_percentage);
 
         // Calculate discount amount if percentage is set and subtotal > 0
-        // Only recalculate if flag is set (to avoid circular updates)
         if ($recalculateDiscountAmount && $discountPercentage > 0 && $this->subtotal > 0) {
             $discountAmount = ((float) $this->subtotal * $discountPercentage) / 100;
+            $this->discount_amount = $discountAmount;
         }
 
         // Ensure discount amount doesn't exceed subtotal
@@ -402,11 +443,13 @@ class CreatePurchaseInvoice extends Component
             $this->discount_percentage = 100;
         }
 
-        // Calculate tax amount - ensure we preserve tax percentage precision during calculation
-        $taxable_amount = (float) $this->subtotal - $discountAmount;
-        $this->tax_amount = ($taxable_amount * (float) $this->tax_percentage) / 100;
+        // Calculate tax amount from individual items
+        $this->tax_amount = collect($this->invoice_items)->sum(function ($item) {
+            return (float) ($item['tax_amount'] ?? 0);
+        });
 
         // Calculate total before round off
+        $taxable_amount = (float) $this->subtotal - $discountAmount;
         $calculated_total = $taxable_amount + (float) $this->tax_amount;
 
         // Calculate round off
@@ -415,7 +458,7 @@ class CreatePurchaseInvoice extends Component
         // Final total
         $this->total = round($calculated_total);
 
-        // Format values for display - preserve values as they are for empty strings
+        // Format values for display
         $this->subtotal = round((float) $this->subtotal, 2);
         if (is_numeric($this->discount_amount)) {
             $this->discount_amount = round((float) $this->discount_amount, 2);
@@ -438,6 +481,7 @@ class CreatePurchaseInvoice extends Component
         // For cash purchases, auto-set paid amount to total only if paid amount is empty or fully paid is checked
         if ($this->isCashPurchase() && ($this->paid_amount === '' || $this->isFullyPaid) && $this->total > 0) {
             $this->paid_amount = $this->total;
+            $this->calculateDueAmount();
         }
     }
 

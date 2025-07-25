@@ -354,112 +354,112 @@
                                 <h2 class="text-lg font-medium text-gray-900">Purchase Summary</h2>
                             </div>
                             <div class="p-6 space-y-4">
+                                <!-- GST Summary (if items have GST) -->
+                                @if(!empty($gst_summary))
+                                    <div class="border-t pt-4">
+                                        <h3 class="text-sm font-medium text-gray-900 mb-2">GST Summary</h3>
+                                        <div class="bg-gray-50 rounded p-3">
+                                            <table class="w-full text-xs">
+                                                <thead>
+                                                    <tr class="text-gray-600 border-b border-gray-200">
+                                                        <th class="text-left py-1">HSN</th>
+                                                        <th class="text-right py-1">Taxable</th>
+                                                        <th class="text-right py-1">Rate</th>
+                                                        <th class="text-right py-1">GST</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach ($gst_summary as $hsn => $summary)
+                                                        <tr>
+                                                            <td class="py-1 text-gray-900">{{ $hsn ?: 'N/A' }}</td>
+                                                            <td class="text-right py-1 text-gray-900">₹{{ number_format($summary['taxable_amount'], 2) }}</td>
+                                                            <td class="text-right py-1 text-gray-900">{{ $summary['gst_rate'] }}%</td>
+                                                            <td class="text-right py-1 text-gray-900">₹{{ number_format($summary['tax_amount'], 2) }}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <!-- Total GST -->
+                                        <div class="flex justify-between items-center mt-2">
+                                            <span class="text-sm text-gray-600">Total GST</span>
+                                            <span class="text-sm font-medium text-gray-900">₹{{ number_format((float)($tax_amount ?: 0), 2) }}</span>
+                                        </div>
+                                    </div>
+                                @endif
+
                                 <!-- Subtotal -->
-                                <div class="flex justify-between items-center">
+                                <div class="flex justify-between items-center border-t pt-4">
                                     <span class="text-sm text-gray-600">Subtotal</span>
-                                    <span class="text-sm font-medium text-gray-900">₹{{ number_format($subtotal, 2) }}</span>
+                                    <span class="text-sm text-gray-900">₹{{ number_format((float)($subtotal ?: 0), 2) }}</span>
                                 </div>
 
-                                <!-- Discount -->
-                                <!-- <div class="space-y-2">
-                                    <div class="flex items-center space-x-2">
-                                        <input type="number" wire:model.live.debounce.500ms="discount_percentage"
-                                            class="w-16 px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            placeholder="%" min="0" max="100" step="0.01">
-                                        <span class="text-xs text-gray-500">% or</span>
-                                        <input type="number" wire:model.live.debounce.500ms="discount_amount"
-                                            class="w-20 px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            placeholder="Amount" min="0" step="0.01">
-                                    </div>
+                                <!-- Discount Display -->
+                                @if($discount_amount > 0)
                                     <div class="flex justify-between items-center">
                                         <span class="text-sm text-gray-600">Discount</span>
-                                        <span class="text-sm text-red-600">-₹{{ number_format($discount_amount ?: 0, 2) }}</span>
+                                        <span class="text-sm text-red-600">-₹{{ number_format((float)$discount_amount, 2) }}</span>
                                     </div>
-                                </div> -->
-
-                                <!-- Tax -->
-                                <div class="space-y-2">
-                                    <div class="flex items-center space-x-2">
-                                        <label class="text-xs text-gray-500">Tax %:</label>
-                                        <input type="number" wire:model.live.debounce.300ms="tax_percentage"
-                                            class="w-16 px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            min="0" max="100" step="0.01">
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-gray-600">Tax</span>
-                                        <span class="text-sm text-gray-900">₹{{ number_format($tax_amount, 2) }}</span>
-                                    </div>
-                                </div>
+                                @endif
 
                                 <!-- Round Off -->
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600">Round Off</span>
-                                    <span class="text-sm font-medium text-gray-900">₹{{ number_format($round_off, 2) }}</span>
-                                </div>
+                                @if($round_off != 0)
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600">Round Off</span>
+                                        <span class="text-sm text-gray-900">₹{{ number_format((float)$round_off, 2) }}</span>
+                                    </div>
+                                @endif
 
                                 <!-- Total -->
-                                <div class="border-t pt-4">
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-lg font-medium text-gray-900">Total</span>
-                                        <span class="text-lg font-bold text-gray-900">₹{{ number_format($total, 2) }}</span>
-                                    </div>
+                                <div class="flex justify-between items-center border-t pt-4 border-gray-300">
+                                    <span class="text-lg font-semibold text-gray-900">Total</span>
+                                    <span class="text-lg font-bold text-gray-900">₹{{ number_format((float)($total ?: 0), 2) }}</span>
                                 </div>
 
-                                <!-- Payment Details -->
+                                <!-- Payment Section -->
                                 <div class="border-t pt-4 space-y-4">
                                     <h3 class="text-sm font-medium text-gray-900">Payment Details</h3>
                                     
                                     <!-- Payment Method -->
                                     <div>
-                                        <label class="block text-xs font-medium text-gray-700 mb-1">Payment Method</label>
-                                        <select wire:model.live="payment_method"
-                                            class="w-full px-2 py-2 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                        <label class="block text-xs text-gray-500 mb-1">Payment Method</label>
+                                        <select wire:model.live="payment_method" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                                             <option value="">Select Method</option>
                                             @foreach($paymentMethods as $key => $method)
                                                 <option value="{{ $key }}">{{ $method }}</option>
                                             @endforeach
                                         </select>
-                                        @error('payment_method')
-                                            <span class="text-red-500 text-xs">{{ $message }}</span>
-                                        @enderror
                                     </div>
 
                                     <!-- Paid Amount -->
                                     <div>
-                                        <label class="block text-xs font-medium text-gray-700 mb-1">Paid Amount</label>
+                                        <label class="block text-xs text-gray-500 mb-1">Paid Amount</label>
                                         <input type="number" wire:model.live.debounce.300ms="paid_amount"
-                                            class="w-full px-2 py-2 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            placeholder="0.00" min="0" step="0.01">
+                                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="0.00" step="0.01" min="0">
+                                    </div>
+
+                                    <!-- Fully Paid Checkbox -->
+                                    <div class="flex items-center">
+                                        <input type="checkbox" wire:model.live="isFullyPaid" id="fully_paid" 
+                                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                        <label for="fully_paid" class="ml-2 text-sm text-gray-600">Mark as fully paid</label>
                                     </div>
 
                                     <!-- Due Amount -->
-                                    <div class="flex justify-between items-center text-xs">
-                                        <span class="text-gray-600">Due Amount</span>
-                                        <span class="font-medium {{ $due_amount > 0 ? 'text-red-600' : 'text-green-600' }}">
-                                            ₹{{ number_format($due_amount, 2) }}
-                                        </span>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600">Due Amount</span>
+                                        <span class="text-sm font-medium text-gray-900">₹{{ number_format((float)($due_amount ?: 0), 2) }}</span>
                                     </div>
-                                </div>
 
-                                <!-- Purchase Total Info -->
-                                <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                                    <div class="flex items-start">
-                                        <div class="flex-shrink-0">
-                                            <svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
-                                            </svg>
+                                    <!-- Change Amount (for cash purchases) -->
+                                    @if($this->isCashPurchase() && $change_amount > 0)
+                                        <div class="flex justify-between items-center bg-green-50 px-3 py-2 rounded">
+                                            <span class="text-sm text-green-600">Change to Return</span>
+                                            <span class="text-sm font-medium text-green-600">₹{{ number_format((float)$change_amount, 2) }}</span>
                                         </div>
-                                        <div class="ml-3">
-                                            <div class="flex items-center">
-                                                <p class="text-sm font-medium text-blue-800">
-                                                    Purchase Total
-                                                </p>
-                                            </div>
-                                            <p class="text-xs text-blue-600 mt-1">
-                                                Amount payable to supplier
-                                            </p>
-                                        </div>
-                                    </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
