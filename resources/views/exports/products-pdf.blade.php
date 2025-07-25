@@ -73,18 +73,19 @@
             font-size: 7pt;
             color: #6B7280;
         }
-        /* Column widths to prevent overflow */
-        col.name { width: 20%; }
-        col.item-code { width: 10%; }
-        col.sku { width: 10%; }
-        col.brand { width: 10%; }
-        col.category { width: 10%; }
-        col.stock { width: 8%; }
-        col.unit { width: 8%; }
-        col.selling-price { width: 8%; }
-        col.purchase-price { width: 8%; }
-        col.mrp { width: 8%; }
-        col.status { width: 8%; }
+        /* Column widths to prevent overflow - Adjusted for new columns */
+        col.name { width: 26%; }
+        col.item-code { width: 8%; }
+        col.sku { width: 8%; }
+        col.brand { width: 8%; }
+        col.category { width: 8%; }
+        col.stock { width: 4%; }
+        col.unit { width: 6%; }
+        col.selling-price { width: 7%; }
+        col.purchase-price { width: 7%; }
+        col.mrp { width: 7%; }
+        col.hsn-code { width: 8%; }
+        col.gst-rate { width: 6%; }
         /* Page break handling */
         tr { page-break-inside: avoid; }
     </style>
@@ -123,6 +124,8 @@
             <col class="selling-price">
             <col class="purchase-price">
             <col class="mrp">
+            <col class="hsn-code">
+            <col class="gst-rate">
             <col class="status">
         </colgroup>
         <thead>
@@ -137,7 +140,8 @@
                 <th>Selling Price</th>
                 <th>Purchase Price</th>
                 <th>MRP</th>
-                <th>Status</th>
+                <th>HSN Code</th>
+                <th>GST Rate</th>
             </tr>
         </thead>
         <tbody>
@@ -158,7 +162,8 @@
                     <td>₹{{ number_format($product->selling_price, 2) }}</td>
                     <td>₹{{ number_format($product->purchase_price, 2) }}</td>
                     <td>{{ $product->mrp ? '₹' . number_format($product->mrp, 2) : 'N/A' }}</td>
-                    <td class="status-{{ $product->status }}">{{ ucfirst($product->status) }}</td>
+                    <td>{{ $product->hsn_code ?? 'N/A' }}</td>
+                    <td>{{ $product->gst_rate ?? 'N/A' }}</td>
                 </tr>
             @endforeach
         </tbody>
