@@ -16,10 +16,10 @@ class CreatePatie extends Component
     #[Validate('nullable|email|unique:parties,email')]
     public string $email = '';
 
-    #[Validate('required|string|max:20')]
+    #[Validate('nullable|string|max:20')]
     public string $phone = '';
 
-    #[Validate('string')]
+    #[Validate('nullable|string')]
     public string $address = '';
 
     #[Validate('nullable|string|max:255')]
