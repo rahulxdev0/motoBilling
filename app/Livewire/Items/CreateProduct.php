@@ -77,6 +77,7 @@ class CreateProduct extends Component
     public function save()
     {
         $this->validate();
+        // dd($this->validate());
 
         try {
             Product::create([
@@ -190,17 +191,17 @@ class CreateProduct extends Component
     {
         return [
             '' => 'Select GST Rate',
-            '0.1' => '0.1% (0.05% CGST + 0.05% SGST | 0.1% IGST)',
-            '0.25' => '0.25% (0.125% CGST + 0.125% SGST | 0.25% IGST)',
-            '0.5' => '0.5% (0.25% CGST + 0.25% SGST | 0.5% IGST)',
-            '1' => '1% (0.5% CGST + 0.5% SGST | 1% IGST)',
-            '1.5' => '1.5% (0.75% CGST + 0.75% SGST | 1.5% IGST)',
-            '3' => '3% (1.5% CGST + 1.5% SGST | 3% IGST)',
-            '5' => '5% (2.5% CGST + 2.5% SGST | 5% IGST)',
-            '6' => '6% (3% CGST + 3% SGST | 6% IGST)',
-            '12' => '12% (6% CGST + 6% SGST | 12% IGST)',
-            '18' => '18% (9% CGST + 9% SGST | 18% IGST)',
-            '28' => '28% (14% CGST + 14% SGST | 28% IGST)',
+            '0.1%' => '0.1% (0.05% CGST + 0.05% SGST | 0.1% IGST)',
+            '0.25%' => '0.25% (0.125% CGST + 0.125% SGST | 0.25% IGST)',
+            '0.5%' => '0.5% (0.25% CGST + 0.25% SGST | 0.5% IGST)',
+            '1%' => '1% (0.5% CGST + 0.5% SGST | 1% IGST)',
+            '1.5%' => '1.5% (0.75% CGST + 0.75% SGST | 1.5% IGST)',
+            '3%' => '3% (1.5% CGST + 1.5% SGST | 3% IGST)',
+            '5%' => '5% (2.5% CGST + 2.5% SGST | 5% IGST)',
+            '6%' => '6% (3% CGST + 3% SGST | 6% IGST)',
+            '12%' => '12% (6% CGST + 6% SGST | 12% IGST)',
+            '18%' => '18% (9% CGST + 9% SGST | 18% IGST)',
+            '28%' => '28% (14% CGST + 14% SGST | 28% IGST)',
         ];
     }
 
