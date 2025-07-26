@@ -235,19 +235,10 @@
                                                 Product
                                             </th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                HSN Code
-                                            </th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Qty
                                             </th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Unit Price
-                                            </th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                GST Rate
-                                            </th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                GST Amount
                                             </th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Total
@@ -317,9 +308,7 @@
                                                         <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                                                     @enderror
                                                 </td>
-                                                <td class="px-6 py-4 text-sm text-gray-900">
-                                                    {{ $item['hsn_code'] ?? '-' }}
-                                                </td>
+                                                
                                                 <td class="px-6 py-4">
                                                     <input type="number"
                                                         wire:model.live.debounce.300ms="invoice_items.{{ $index }}.quantity"
@@ -337,12 +326,6 @@
                                                     @error('invoice_items.' . $index . '.unit_price')
                                                         <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                                                     @enderror
-                                                </td>
-                                                <td class="px-6 py-4 text-sm text-gray-900">
-                                                    {{ $item['gst_rate'] ?? 0 }}%
-                                                </td>
-                                                <td class="px-6 py-4 text-sm text-gray-900 font-medium">
-                                                    ₹{{ number_format($item['tax_amount'] ?? 0, 2) }}
                                                 </td>
                                                 <td class="px-6 py-4 text-sm text-gray-900 font-medium">
                                                     ₹{{ number_format($item['total'] ?? 0, 2) }}
@@ -836,6 +819,17 @@
             });
 
             window.addEventListener('resize', closeAllDropdowns);
+
+            // Add this new event listener for opening PDF and resetting form
+            Livewire.on('open-pdf-and-reset', (event) => {
+                // Open PDF in new tab
+                window.open(event.url, '_blank');
+                
+                // Reset the form after a short delay
+                setTimeout(() => {
+                    @this.resetForm();
+                }, 1000);
+            });
         });
 
         document.addEventListener('livewire:updated', () => {

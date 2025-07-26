@@ -215,9 +215,9 @@
             ? public_path('storage/' . $company->logo)
             : null;
         $gstSummary = $invoice->items->groupBy('product.hsn_code')->map(function ($items, $hsn) use ($invoice) {
-            $taxableValue = $items->sum(fn($item) => $item->quantity * $item->unit_price);
-            $gstRate = $items->first()->product->gst_rate ?? ($invoice->tax_percentage ?? 0);
-            $gstAmount = $items->sum(fn($item) => ($item->quantity * $item->unit_price) * ($gstRate / 100));
+            $taxableValue = $items->sum(fn($item) => (float)$item->quantity * (float)$item->unit_price);
+            $gstRate = (float)($items->first()->product->gst_rate ?? 0);
+            $gstAmount = $items->sum(fn($item) => ((float)$item->quantity * (float)$item->unit_price) * ($gstRate / 100));
             return [
                 'taxable_value' => $taxableValue,
                 'cgst_rate' => $gstRate / 2,
@@ -309,16 +309,16 @@
                         <td>{{ $i++ }}</td>
                         <td>{{ $item->product->name }}</td>
                         <td>{{ $item->product->hsn_code ?? 'N/A' }}</td>
-                        <td>{{ number_format($item->quantity, 0) }}</td>
-                        <td>₹{{ number_format($item->unit_price, 2) }}</td>
-                        <td>₹{{ number_format($item->total, 2) }}</td>
+                        <td>{{ number_format((float)$item->quantity, 0) }}</td>
+                        <td>₹{{ number_format((float)$item->unit_price, 2) }}</td>
+                        <td>₹{{ number_format((float)$item->total, 2) }}</td>
                     </tr>
                 @endforeach
                 <tr class="subtotal">
                     <td colspan="3">Subtotal</td>
-                    <td>{{ number_format($invoice->items->sum('quantity'), 0) }}</td>
+                    <td>{{ number_format($invoice->items->sum(function($item) { return (float)$item->quantity; }), 0) }}</td>
                     <td>-</td>
-                    <td>₹{{ number_format($invoice->items->sum('total'), 2) }}</td>
+                    <td>₹{{ number_format($invoice->items->sum(function($item) { return (float)$item->total; }), 2) }}</td>
                 </tr>
             </tbody>
         </table>
@@ -350,22 +350,22 @@
                     @foreach($gstSummary as $hsn => $summary)
                         <tr>
                             <td>{{ $hsn ?? 'N/A' }}</td>
-                            <td>₹{{ number_format($summary['taxable_value'], 2) }}</td>
-                            <td>{{ number_format($summary['cgst_rate'], 2) }}%</td>
-                            <td>₹{{ number_format($summary['cgst_amount'], 2) }}</td>
-                            <td>{{ number_format($summary['sgst_rate'], 2) }}%</td>
-                            <td>₹{{ number_format($summary['sgst_amount'], 2) }}</td>
-                            <td>₹{{ number_format($summary['total_tax'], 2) }}</td>
+                            <td>₹{{ number_format((float)$summary['taxable_value'], 2) }}</td>
+                            <td>{{ number_format((float)$summary['cgst_rate'], 2) }}%</td>
+                            <td>₹{{ number_format((float)$summary['cgst_amount'], 2) }}</td>
+                            <td>{{ number_format((float)$summary['sgst_rate'], 2) }}%</td>
+                            <td>₹{{ number_format((float)$summary['sgst_amount'], 2) }}</td>
+                            <td>₹{{ number_format((float)$summary['total_tax'], 2) }}</td>
                         </tr>
                     @endforeach
                     <tr class="total">
                         <td>Total</td>
-                        <td>₹{{ number_format(array_sum(array_column($gstSummary, 'taxable_value')), 2) }}</td>
+                        <td>₹{{ number_format(array_sum(array_map(function($s) { return (float)$s['taxable_value']; }, $gstSummary)), 2) }}</td>
                         <td>-</td>
-                        <td>₹{{ number_format(array_sum(array_column($gstSummary, 'cgst_amount')), 2) }}</td>
+                        <td>₹{{ number_format(array_sum(array_map(function($s) { return (float)$s['cgst_amount']; }, $gstSummary)), 2) }}</td>
                         <td>-</td>
-                        <td>₹{{ number_format(array_sum(array_column($gstSummary, 'sgst_amount')), 2) }}</td>
-                        <td>₹{{ number_format(array_sum(array_column($gstSummary, 'total_tax')), 2) }}</td>
+                        <td>₹{{ number_format(array_sum(array_map(function($s) { return (float)$s['sgst_amount']; }, $gstSummary)), 2) }}</td>
+                        <td>₹{{ number_format(array_sum(array_map(function($s) { return (float)$s['total_tax']; }, $gstSummary)), 2) }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -381,36 +381,43 @@
         <table class="totals">
             <tr>
                 <th>Subtotal:</th>
-                <td align="right">₹{{ number_format($invoice->subtotal, 2) }}</td>
+                <td align="right">₹{{ number_format((float)$invoice->subtotal, 2) }}</td>
             </tr>
-            @if($invoice->discount_amount > 0)
+            @if((float)$invoice->discount_amount > 0)
                 <tr>
-                    <th>Discount ({{ number_format($invoice->discount_percentage, 2) }}%):</th>
-                    <td align="right">₹{{ number_format($invoice->discount_amount, 2) }}</td>
+                    <th>Discount ({{ number_format((float)$invoice->discount_percentage, 2) }}%):</th>
+                    <td align="right">₹{{ number_format((float)$invoice->discount_amount, 2) }}</td>
                 </tr>
             @endif
+            @php
+                // Calculate total effective GST rate from GST summary
+                $totalTaxableValue = array_sum(array_map(function($s) { return (float)$s['taxable_value']; }, $gstSummary));
+                $totalTaxAmount = array_sum(array_map(function($s) { return (float)$s['total_tax']; }, $gstSummary));
+                $effectiveGstRate = $totalTaxableValue > 0 ? ($totalTaxAmount / $totalTaxableValue) * 100 : 0;
+            @endphp
             <tr>
-                <th>Tax ({{ number_format($invoice->tax_percentage, 2) }}%):</th>
-                <td align="right">₹{{ number_format($invoice->tax_amount, 2) }}</td>
+                <!-- <th>Tax ({{ number_format($effectiveGstRate, 2) }}%):</th> -->
+                <th>Tax :</th>
+                <td align="right">₹{{ number_format((float)$invoice->tax_amount, 2) }}</td>
             </tr>
-            @if($invoice->round_off != 0)
+            @if((float)$invoice->round_off != 0)
                 <tr>
                     <th>Round Off:</th>
-                    <td align="right">₹{{ number_format($invoice->round_off, 2) }}</td>
+                    <td align="right">₹{{ number_format((float)$invoice->round_off, 2) }}</td>
                 </tr>
             @endif
             <tr class="total">
                 <th>Total Amount:</th>
-                <td align="right">₹{{ number_format($invoice->total, 2) }}</td>
+                <td align="right">₹{{ number_format((float)$invoice->total, 2) }}</td>
             </tr>
             @if($invoice->payment_status === 'paid')
                 <tr>
                     <th>Paid Amount:</th>
-                    <td align="right">₹{{ number_format($invoice->paid_amount, 2) }}</td>
+                    <td align="right">₹{{ number_format((float)$invoice->paid_amount, 2) }}</td>
                 </tr>
                 <tr>
                     <th>Balance Due:</th>
-                    <td align="right">₹{{ number_format($invoice->balance_amount, 2) }}</td>
+                    <td align="right">₹{{ number_format((float)$invoice->balance_amount, 2) }}</td>
                 </tr>
             @endif
         </table>

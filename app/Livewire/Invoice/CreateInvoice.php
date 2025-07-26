@@ -50,6 +50,11 @@ class CreateInvoice extends Component
 
     public function mount()
     {
+        $this->initializeForm();
+    }
+
+    private function initializeForm()
+    {
         $this->parties = Partie::active()->get();
         $this->products = Product::where('status', 'active')->get();
         $this->filtered_products = $this->products->toArray();
@@ -474,14 +479,14 @@ class CreateInvoice extends Component
                 'partie_id' => $this->partie_id,
                 'invoice_date' => $this->invoice_date,
                 'due_date' => $isCashSale ? $this->invoice_date : $this->due_date,
-                'subtotal' => $this->subtotal,
-                'discount_percentage' => is_numeric($this->discount_percentage) ? $this->discount_percentage : 0,
-                'discount_amount' => is_numeric($this->discount_amount) ? $this->discount_amount : 0,
-                'tax_amount' => $this->tax_amount,
-                'round_off' => $this->round_off,
-                'total' => $this->total,
+                'subtotal' => (float) $this->subtotal,
+                'discount_percentage' => is_numeric($this->discount_percentage) ? (float) $this->discount_percentage : 0,
+                'discount_amount' => is_numeric($this->discount_amount) ? (float) $this->discount_amount : 0,
+                'tax_amount' => (float) $this->tax_amount,
+                'round_off' => (float) $this->round_off,
+                'total' => (float) $this->total,
                 'paid_amount' => $paidAmount,
-                'balance_amount' => $this->due_amount,
+                'balance_amount' => (float) $this->due_amount,
                 'payment_status' => $paymentStatus,
                 'payment_terms' => $isCashSale ? 'Cash Payment' : $this->payment_terms,
                 'payment_method' => $this->payment_method,
@@ -497,12 +502,12 @@ class CreateInvoice extends Component
                         'invoice_id' => $invoice->id,
                         'product_id' => $item['product_id'],
                         'hsn_code' => $item['hsn_code'],
-                        'gst_rate' => $item['gst_rate'],
-                        'quantity' => $item['quantity'],
-                        'unit_price' => $item['unit_price'],
-                        'subtotal' => $item['subtotal'],
-                        'tax_amount' => $item['tax_amount'],
-                        'total' => $item['total'],
+                        'gst_rate' => (float) $item['gst_rate'],
+                        'quantity' => (float) $item['quantity'],
+                        'unit_price' => (float) $item['unit_price'],
+                        'subtotal' => (float) $item['subtotal'],
+                        'tax_amount' => (float) $item['tax_amount'],
+                        'total' => (float) $item['total'],
                     ]);
 
                     $product = Product::find($item['product_id']);
@@ -512,10 +517,10 @@ class CreateInvoice extends Component
                             'product_id' => $item['product_id'],
                             'invoice_id' => $invoice->id,
                             'movement_type' => 'out',
-                            'quantity' => $item['quantity'],
+                            'quantity' => (float) $item['quantity'],
                             'reference_type' => 'sales_invoice',
                             'reference_id' => $invoice->id,
-                            'notes' => 'Stock reduced for sales invoice ' . $invoice->invoice_number,
+                            'notes' => 'Stock sold via invoice #' . $invoice->invoice_number,
                         ]);
                     }
                 }
@@ -525,7 +530,10 @@ class CreateInvoice extends Component
             session()->flash('message', $message);
 
             if ($action === 'save_and_send') {
-                return redirect()->route('invoice.pdf.view', ['id' => $invoice->id]);
+                // Open PDF in new tab and reset form
+                $pdfUrl = route('invoice.pdf.view', ['id' => $invoice->id]);
+                $this->dispatch('open-pdf-and-reset', url: $pdfUrl);
+                return;
             }
 
             return redirect()->route('invoice.manage');
@@ -560,6 +568,44 @@ class CreateInvoice extends Component
             }
         }
         $this->calculateDueAmount();
+    }
+
+    public function resetForm()
+    {
+        // Reset all form properties
+        $this->reset([
+            'search_product',
+            'invoice_number',
+            'partie_id',
+            'invoice_date',
+            'due_date',
+            'payment_terms',
+            'terms_conditions',
+            'notes',
+            'barcodeInput',
+            'paid_amount',
+            'payment_method',
+            'due_amount',
+            'change_amount',
+            'subtotal',
+            'discount_percentage',
+            'discount_amount',
+            'tax_amount',
+            'round_off',
+            'total',
+            'gst_summary',
+            'invoice_items',
+            'search_product',
+            'isFullyPaid'
+        ]);
+
+        $this->status = 'draft';
+        $this->showBarcodeScanner = false;
+
+        // Reinitialize form
+        $this->initializeForm();
+        
+        session()->flash('message', 'Form reset for new invoice');
     }
 
     public function render()
