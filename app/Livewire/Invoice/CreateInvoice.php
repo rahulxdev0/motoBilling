@@ -129,6 +129,9 @@ class CreateInvoice extends Component
             }
         }
 
+        // Helper function to extract numeric GST rate
+        $gstRate = $this->extractNumericGstRate($product->gst_rate);
+
         if ($existingIndex !== null) {
             $this->invoice_items[$existingIndex]['quantity']++;
             $this->updateItemCalculations($existingIndex);
@@ -138,12 +141,12 @@ class CreateInvoice extends Component
                 'product_id' => $product->id,
                 'product_name' => $product->name,
                 'hsn_code' => $product->hsn_code,
-                'gst_rate' => (float) $product->gst_rate,
+                'gst_rate' => $gstRate,
                 'quantity' => 1,
                 'unit_price' => (float) $product->selling_price,
                 'subtotal' => (float) $product->selling_price,
-                'tax_amount' => (float) $product->selling_price * ($product->gst_rate / 100),
-                'total' => (float) $product->selling_price * (1 + $product->gst_rate / 100),
+                'tax_amount' => (float) $product->selling_price * ($gstRate / 100),
+                'total' => (float) $product->selling_price * (1 + $gstRate / 100),
             ];
             \Log::info('Filled empty row', ['index' => $emptyIndex, 'item' => $this->invoice_items[$emptyIndex]]);
         } else {
@@ -151,12 +154,12 @@ class CreateInvoice extends Component
                 'product_id' => $product->id,
                 'product_name' => $product->name,
                 'hsn_code' => $product->hsn_code,
-                'gst_rate' => (float) $product->gst_rate,
+                'gst_rate' => $gstRate,
                 'quantity' => 1,
                 'unit_price' => (float) $product->selling_price,
                 'subtotal' => (float) $product->selling_price,
-                'tax_amount' => (float) $product->selling_price * ($product->gst_rate / 100),
-                'total' => (float) $product->selling_price * (1 + $product->gst_rate / 100),
+                'tax_amount' => (float) $product->selling_price * ($gstRate / 100),
+                'total' => (float) $product->selling_price * (1 + $gstRate / 100),
             ];
             \Log::info('Added new item', ['item' => end($this->invoice_items)]);
         }
@@ -266,10 +269,12 @@ class CreateInvoice extends Component
             $product = Product::find($value);
             if ($product) {
                 \Log::info('Product selected', ['product_id' => $value, 'name' => $product->name]);
+                $gstRate = $this->extractNumericGstRate($product->gst_rate);
+                
                 $this->invoice_items[$index]['product_id'] = $product->id;
                 $this->invoice_items[$index]['product_name'] = $product->name;
                 $this->invoice_items[$index]['hsn_code'] = $product->hsn_code;
-                $this->invoice_items[$index]['gst_rate'] = (float) $product->gst_rate;
+                $this->invoice_items[$index]['gst_rate'] = $gstRate;
                 $this->invoice_items[$index]['unit_price'] = (float) $product->selling_price;
                 $this->updateItemCalculations($index);
             } else {
@@ -293,6 +298,22 @@ class CreateInvoice extends Component
         $this->invoice_items[$index]['total'] = $this->invoice_items[$index]['subtotal'] + $this->invoice_items[$index]['tax_amount'];
 
         \Log::info('Updated item calculations', ['index' => $index, 'item' => $this->invoice_items[$index]]);
+    }
+
+    /**
+     * Extract numeric GST rate from string format
+     * e.g., '18%' -> 18, '28%' -> 28, '18' -> 18
+     */
+    private function extractNumericGstRate($gstRate)
+    {
+        if (is_numeric($gstRate)) {
+            return (float) $gstRate;
+        }
+        
+        // Remove percentage symbol and any non-numeric characters except decimal point
+        $numericRate = preg_replace('/[^0-9.]/', '', $gstRate);
+        
+        return is_numeric($numericRate) ? (float) $numericRate : 0;
     }
 
     public function updatedDiscountPercentage($value)
