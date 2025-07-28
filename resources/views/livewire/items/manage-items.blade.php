@@ -416,8 +416,9 @@
                             </td>
                         </tr>
                     @empty
-                        <tr>
-                            <td colspan="7" class="px-6 py-12 text-center">
+                        <div>
+                            <tr >
+                            <td colspan="10" class="px-6 py-12 text-center">
                                 <div class="flex flex-col items-center justify-center">
                                     <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -428,7 +429,7 @@
                                     <h3 class="text-lg font-medium text-gray-900 mb-1">No items found</h3>
                                     <p class="text-gray-500 mb-4">Get started by creating your first item.</p>
                                     <button wire:click="handleCreateItem"
-                                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -438,6 +439,7 @@
                                 </div>
                             </td>
                         </tr>
+                        </div>
                     @endforelse
                 </tbody>
             </table>

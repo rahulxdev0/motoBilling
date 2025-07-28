@@ -15,8 +15,8 @@ class CategorySeeder extends Seeder
     {
         $categories = [
             [
-                'name' => 'Engine Parts',
-                'description' => 'Engine components and spare parts for motorcycles'
+                'name' => 'Electronics',
+                'description' => 'Electronic components and accessories for motorcycles'
             ],
             [
                 'name' => 'Body Parts',
