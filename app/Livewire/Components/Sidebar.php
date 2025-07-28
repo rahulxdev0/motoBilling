@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Components;
 
+use App\Models\Company;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -13,6 +14,8 @@ class Sidebar extends Component
     public $isSalesOpen = false;
     public $isPurchaseOpen = false;
     public $isMobileOpen = false;
+
+    public $company;
     
     public function toggleItems()
     {
@@ -89,8 +92,9 @@ class Sidebar extends Component
 
     public function mount()
     {
-        // Load the authenticated user data when the component is initialized
         $this->user = Auth::user();
+        $this->company = Company::getActive();
+
         
         // Auto-open expandable menus if any of their sub-routes are active
         if ($this->isActiveAny(['items.manage', 'items.create', 'items.edit'])) {

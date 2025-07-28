@@ -21,7 +21,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold text-gray-800">MotoBilling</h1>
+                    <h1 class="text-xl font-semibold text-gray-800">{{ $company ? $company->name : 'MotoBilling' }}</h1>
                     <p class="text-sm text-gray-500">Billing System</p>
                 </div>
             </div>
