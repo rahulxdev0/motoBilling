@@ -556,9 +556,10 @@ class CreateInvoice extends Component
                 $pdfUrl = route('invoice.pdf.view', ['id' => $invoice->id]);
                 $this->dispatch('open-pdf-and-reset', url: $pdfUrl);
                 return;
+                // return redirect()->route('invoice.pdf.view', ['id' => $invoice->id]);
             }
 
-            return redirect()->route('invoice.manage');
+            return redirect()->route('invoice.pdf.view', ['id' => $invoice->id]);
         } catch (\Exception $e) {
             if (str_contains($e->getMessage(), 'Duplicate entry') && str_contains($e->getMessage(), 'invoice_number')) {
                 $this->invoice_number = $this->generateUniqueInvoiceNumber();
