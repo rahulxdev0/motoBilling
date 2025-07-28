@@ -531,6 +531,7 @@ class CreateInvoice extends Component
 
             if ($action === 'save_and_send') {
                 // Open PDF in new tab and reset form
+                // dd('Invoice saved and sent successfully!');
                 $pdfUrl = route('invoice.pdf.view', ['id' => $invoice->id]);
                 $this->dispatch('open-pdf-and-reset', url: $pdfUrl);
                 return;

@@ -67,15 +67,24 @@
                             placeholder="Search products, item codes, SKU...">
                     </div>
                 </div>
-                <!-- Category Filter -->
+                <!-- Category Filter with Add Button -->
                 <div>
-                    <select wire:model.live="selectedCategory"
-                        class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">All Categories</option>
-                        @foreach($categories as $category)
-                            <option value="{{ $category->name }}">{{ $category->name }}</option>
-                        @endforeach
-                    </select>
+                    <div class="flex gap-2">
+                        <select wire:model.live="selectedCategory"
+                            class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 ">
+                            <option value="">All Categories</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->name }}">{{ $category->name }}</option>
+                            @endforeach
+                        </select>
+                        <button wire:click="openAddCategoryModal"
+                            class="flex-shrink-0 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                            title="Add New Category">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
                 <!-- Status Filter -->
                 <div>
@@ -94,7 +103,7 @@
                             <span>Active filters:</span>
                             @if($search)
                                 <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
-                                    Search: "{{ $search }}"
+                                    Search: {{ $search }}
                                 </span>
                             @endif
                             @if($selectedCategory)
@@ -156,12 +165,10 @@
                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                             <path
                                                 d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                                        </svg>
                                     @else
                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                             <path
                                                 d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" />
-                                        </svg>
                                     @endif
                                 @endif
                             </div>
@@ -175,12 +182,10 @@
                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                             <path
                                                 d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                                        </svg>
                                     @else
                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                             <path
                                                 d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" />
-                                        </svg>
                                     @endif
                                 @endif
                             </div>
@@ -194,12 +199,10 @@
                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                             <path
                                                 d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                                        </svg>
                                     @else
                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                             <path
                                                 d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" />
-                                        </svg>
                                     @endif
                                 @endif
                             </div>
@@ -213,12 +216,10 @@
                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                             <path
                                                 d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                                        </svg>
                                     @else
                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                             <path
                                                 d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" />
-                                        </svg>
                                     @endif
                                 @endif
                             </div>
@@ -232,12 +233,10 @@
                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                             <path
                                                 d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                                        </svg>
                                     @else
                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                             <path
                                                 d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" />
-                                        </svg>
                                     @endif
                                 @endif
                             </div>
@@ -256,7 +255,6 @@
                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                             <path
                                                 d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" />
-                                        </svg>
                                     @endif
                                 @endif
                             </div>
@@ -270,12 +268,10 @@
                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                             <path
                                                 d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                                        </svg>
                                     @else
                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                             <path
                                                 d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" />
-                                        </svg>
                                     @endif
                                 @endif
                             </div>
@@ -289,7 +285,6 @@
                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                             <path
                                                 d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                                        </svg>
                                     @else
                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                             <path
@@ -308,12 +303,10 @@
                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                             <path
                                                 d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                                        </svg>
                                     @else
                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                             <path
                                                 d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" />
-                                        </svg>
                                     @endif
                                 @endif
                             </div>
